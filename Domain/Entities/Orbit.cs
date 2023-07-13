@@ -7,16 +7,14 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("LAUNCH_SERVICE_PROVIDER")]
-    public class LaunchServiceProvider : BaseEntity
+    [Table("ORBIT")]
+    public class Orbit : BaseEntity
     {
         [Column("ID")]
         public int Id { get; set; }
-        [Column("URL")]
-        public string Url { get; set; }
         [Column("NAME")]
         public string Name { get; set; }
-        [Column("TYPE")]
-        public string Type { get; set; }
+        [Column("ABBREV")]
+        public string Abbrev { get; set; }
     }
 }

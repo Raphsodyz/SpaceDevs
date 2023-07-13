@@ -7,12 +7,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("STATUS")]
-    public class Status : BaseEntity
+    [Table("LAUNCH_DESIGNATOR")]
+    public class LaunchDesignator : BaseEntity
     {
         [Column("ID")]
         public int Id { get; set; }
-        [Column("NAME")]
-        public string Name { get; set; }
     }
 }

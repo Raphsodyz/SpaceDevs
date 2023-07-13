@@ -1,29 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Rocket
+    [Table("ROCKET")]
+    public class Rocket : BaseEntity
     {
+        [Column("ID")]
         public int Id { get; set; }
+        [Column("ID_CONFIGURATION")]
+        public int IdConfiguration { get; set; }
+        [JsonIgnore]
+        [ForeignKey(nameof(IdConfiguration))]
         public Configuration Configuration { get; set; }
         public Rocket() 
         {
             Configuration = new Configuration();
         }
-    }
-
-    public class Configuration
-    {
-        public int Id { get; set; }
-        public int LaunchLibraryId { get; set; }
-        public string Url { get; set; }
-        public string Name { get; set; }
-        public string Family { get; set; }
-        public string FullName { get; set; }
-        public string Variant { get; set; }
     }
 }

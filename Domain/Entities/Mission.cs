@@ -1,19 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Mission
+    [Table("MISSION")]
+    public class Mission : BaseEntity
     {
+        [Column("ID")]
         public int Id { get; set; }
+        [Column("LAUNCH_LIBRARY_ID")]
         public int LaunchLibraryId { get; set; }
+        [Column("NAME")]
         public string Name { get; set; }
+        [Column("DESCRIPTION")]
         public string Description { get; set; }
+        [Column("ID_LAUNCH_DESIGNATOR")]
+        public int IdLaunchDesignator { get; set; }
+        [JsonIgnore]
+        [ForeignKey(nameof(IdLaunchDesignator))]
         public LaunchDesignator LaunchDesignator { get; set; }
+        [Column("TYPE")]
         public string Type { get; set; }
+        [Column("ID_ORBIT")]
+        public int IdOrbit { get; set; }
+        [JsonIgnore]
+        [ForeignKey(nameof(IdOrbit))]
         public Orbit Orbit { get; set; }
 
         public Mission()
@@ -21,17 +37,5 @@ namespace Domain.Entities
             Orbit = new Orbit();
             LaunchDesignator = new LaunchDesignator();
         }
-    }
-
-    public class LaunchDesignator
-    {
-
-    }
-
-    public class Orbit
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Abbrev { get; set; }
     }
 }

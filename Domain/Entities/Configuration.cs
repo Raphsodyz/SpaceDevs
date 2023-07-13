@@ -7,16 +7,22 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("LAUNCH_SERVICE_PROVIDER")]
-    public class LaunchServiceProvider : BaseEntity
+    [Table("CONFIGURATION")]
+    public class Configuration : BaseEntity
     {
         [Column("ID")]
         public int Id { get; set; }
+        [Column("LAUNCH_LIBRARY_ID")]
+        public int LaunchLibraryId { get; set; }
         [Column("URL")]
         public string Url { get; set; }
         [Column("NAME")]
         public string Name { get; set; }
-        [Column("TYPE")]
-        public string Type { get; set; }
+        [Column("FAMILY")]
+        public string Family { get; set; }
+        [Column("FULL_NAME")]
+        public string FullName { get; set; }
+        [Column("VARIANT")]
+        public string Variant { get; set; }
     }
 }
