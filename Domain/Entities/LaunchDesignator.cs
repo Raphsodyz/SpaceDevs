@@ -10,7 +10,5 @@ namespace Domain.Entities
     [Table("LAUNCH_DESIGNATOR")]
     public class LaunchDesignator : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
     }
 }

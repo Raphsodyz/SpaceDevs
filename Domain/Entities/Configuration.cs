@@ -10,8 +10,6 @@ namespace Domain.Entities
     [Table("CONFIGURATION")]
     public class Configuration : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("LAUNCH_LIBRARY_ID")]
         public int LaunchLibraryId { get; set; }
         [Column("URL")]

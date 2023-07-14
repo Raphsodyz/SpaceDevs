@@ -11,8 +11,8 @@ namespace Domain.Entities
     [Table("LAUNCH")]
     public class Launch : BaseEntity
     {
-        [Column("ID")]
-        public Guid Id { get; set; }
+        [Column("API_GUID")]
+        public Guid ApiGuId { get; set; }
         [Column("URL")]
         public string Url { get; set; }
         [Column("LAUNCH_LIBRARY_ID")]

@@ -10,8 +10,6 @@ namespace Domain.Entities
     [Table("LOCATION")]
     public class Location : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("URL")]
         public string Url { get; set; }
         [Column("NAME")]

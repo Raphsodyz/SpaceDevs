@@ -11,8 +11,6 @@ namespace Domain.Entities
     [Table("PAD")]
     public class Pad : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("URL")]
         public string Url { get; set; }
         [Column("AGENCY_ID")]

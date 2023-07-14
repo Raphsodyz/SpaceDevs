@@ -10,8 +10,6 @@ namespace Domain.Entities
     [Table("STATUS")]
     public class Status : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("NAME")]
         public string Name { get; set; }
     }

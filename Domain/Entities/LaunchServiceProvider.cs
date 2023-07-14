@@ -10,8 +10,6 @@ namespace Domain.Entities
     [Table("LAUNCH_SERVICE_PROVIDER")]
     public class LaunchServiceProvider : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("URL")]
         public string Url { get; set; }
         [Column("NAME")]

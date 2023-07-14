@@ -11,8 +11,6 @@ namespace Domain.Entities
     [Table("ROCKET")]
     public class Rocket : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("ID_CONFIGURATION")]
         public int IdConfiguration { get; set; }
         [JsonIgnore]

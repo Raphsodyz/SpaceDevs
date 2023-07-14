@@ -11,8 +11,6 @@ namespace Domain.Entities
     [Table("MISSION")]
     public class Mission : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("LAUNCH_LIBRARY_ID")]
         public int LaunchLibraryId { get; set; }
         [Column("NAME")]

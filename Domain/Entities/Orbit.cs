@@ -10,8 +10,6 @@ namespace Domain.Entities
     [Table("ORBIT")]
     public class Orbit : BaseEntity
     {
-        [Column("ID")]
-        public int Id { get; set; }
         [Column("NAME")]
         public string Name { get; set; }
         [Column("ABBREV")]
