@@ -11,7 +11,7 @@ namespace Domain.Entities
     public class Configuration : BaseEntity
     {
         [Column("LAUNCH_LIBRARY_ID")]
-        public int LaunchLibraryId { get; set; }
+        public int? LaunchLibraryId { get; set; }
         [Column("URL")]
         public string Url { get; set; }
         [Column("NAME")]

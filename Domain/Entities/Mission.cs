@@ -12,7 +12,7 @@ namespace Domain.Entities
     public class Mission : BaseEntity
     {
         [Column("LAUNCH_LIBRARY_ID")]
-        public int LaunchLibraryId { get; set; }
+        public int? LaunchLibraryId { get; set; }
         [Column("NAME")]
         public string Name { get; set; }
         [Column("DESCRIPTION")]

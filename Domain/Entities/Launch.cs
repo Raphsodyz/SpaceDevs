@@ -16,7 +16,7 @@ namespace Domain.Entities
         [Column("URL")]
         public string Url { get; set; }
         [Column("LAUNCH_LIBRARY_ID")]
-        public int LaunchLibraryId { get; set; }
+        public int? LaunchLibraryId { get; set; }
         [Column("SLUG")]
         public string Slug { get; set; }
         [Column("NAME")]
@@ -39,7 +39,7 @@ namespace Domain.Entities
         [Column("TBD_DATE")]
         public bool TbdDate { get; set; }
         [Column("PROBABILITY")]
-        public int Probability { get; set; }
+        public int? Probability { get; set; }
         [Column("HOLD_REASON")]
         public string HoldReason { get; set; }
         [Column("FAIL_REASON")]
