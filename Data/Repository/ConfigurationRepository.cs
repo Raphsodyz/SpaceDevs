@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Data.Repository
 {
-    public class ConfigurationRepository : GenericRepository<Configuration>, IGenericRepository<Configuration>
+    public class ConfigurationRepository : GenericRepository<Configuration>, IConfigurationRepository
     {
         public ConfigurationRepository(FutureSpaceContext context):base(context)
         {

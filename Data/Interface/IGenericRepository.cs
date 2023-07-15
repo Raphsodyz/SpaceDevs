@@ -1,4 +1,5 @@
 ﻿using Domain.Helper;
+using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,8 @@ namespace Data.Interface
             string includedProperties = "");
 
         int EntityCount(Expression<Func<T, bool>> filter = null);
+
+        IDbContextTransaction GetTransaction();
 
         T Get(Expression<Func<T, bool>> filter, string includedProperties = "");
 

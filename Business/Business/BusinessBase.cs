@@ -12,7 +12,7 @@ namespace Business.Business
         where TRepository : IGenericRepository<T>
     {
         private readonly IUnitOfWork _uow;
-        private readonly TRepository _repository;
+        protected readonly TRepository _repository;
         public BusinessBase(IUnitOfWork uow)
         {
             _uow = uow;

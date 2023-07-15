@@ -16,12 +16,19 @@ namespace Data.Repository
 {
     public abstract class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
-        private readonly FutureSpaceContext _context;
-        private readonly DbSet<T> _dbSet;
+        protected DbContext _context;
+        protected DbSet<T> _dbSet;
         private readonly IMapper _mapper;
 
-        public GenericRepository(FutureSpaceContext context)
+        public IDbContextTransaction GetTransaction()
         {
+            return _context.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+        }
+
+        public GenericRepository(DbContext context)
+        {
+            if (_context == null)
+                return;
             _context = context;
             _dbSet = _context.Set<T>();
         }

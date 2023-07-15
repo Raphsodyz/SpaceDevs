@@ -38,7 +38,7 @@ namespace Domain.Entities
         private DateTime? _importedT;
 
         [Column("IMPORTED_T")]
-        public virtual DateTime ImportedT { 
+        public virtual DateTime importedT { 
             get 
             {
                 if (!_importedT.HasValue)
@@ -59,7 +59,7 @@ namespace Domain.Entities
         private EStatus? _statusEnum { get; set; }
 
         [Column("STATUS")]
-        public string Status { 
+        public string status { 
             get 
             { 
                 return _statusEnum.GetDisplayName(); 
