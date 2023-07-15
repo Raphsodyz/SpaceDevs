@@ -14,13 +14,13 @@ using System.Threading.Tasks;
 
 namespace Data.Repository
 {
-    public abstract class Repository<T> : IRepository<T> where T : BaseEntity
+    public abstract class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         private readonly FutureSpaceContext _context;
         private readonly DbSet<T> _dbSet;
         private readonly IMapper _mapper;
 
-        public Repository(FutureSpaceContext context)
+        public GenericRepository(FutureSpaceContext context)
         {
             _context = context;
             _dbSet = _context.Set<T>();

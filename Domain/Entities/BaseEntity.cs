@@ -1,15 +1,8 @@
 ﻿using Domain.Enum;
 using Domain.Helper;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using System.Xml.Serialization;
 
 namespace Domain.Entities
 {
@@ -18,6 +11,10 @@ namespace Domain.Entities
         [Key]
         [Column("ID")]
         public virtual int Id { get; set; }
+
+        [Column("ID_FROM_API")]
+        [JsonIgnore]
+        public int? IdFromApi { get; set; }
 
         private DateTime? _atualizationDate;
         

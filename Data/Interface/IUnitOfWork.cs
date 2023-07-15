@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Data.Interface
 {
-    public interface IRepository
+    public interface IUnitOfWork
     {
-    }
-
-    public interface IBusiness
-    {
+        IRepository Repository(Type type);
+        void Save();
+        void Dispose();
     }
 }
