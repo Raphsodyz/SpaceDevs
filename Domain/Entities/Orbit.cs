@@ -11,8 +11,8 @@ namespace Domain.Entities
     public class Orbit : BaseEntity
     {
         [Column("NAME")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Column("ABBREV")]
-        public string Abbrev { get; set; }
+        public string? Abbrev { get; set; }
     }
 }

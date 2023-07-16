@@ -56,6 +56,9 @@ namespace Data.Context
                     case "IStatusRepository":
                         repository = new StatusRepository(_context);
                         break;
+                    case "IUpdateLogRepository":
+                        repository = new UpdateLogRepository(_context);
+                        break;
                     default:
                         return null;
                 }

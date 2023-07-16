@@ -27,20 +27,20 @@ namespace Application.DTO
 
         [Display(Name = "Country Code")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Country Code.", MinimumLength = 2)]
-        public string CountryCode { get; set; }
+        public string Country_Code { get; set; }
 
         [Display(Name = "Map Image")]
         [StringLength(500, ErrorMessage = "Atention! Write a valid Map Image link.", MinimumLength = 2)]
         [DataType(DataType.ImageUrl)]
-        public string MapImage { get; set; }
+        public string Map_Image { get; set; }
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Total Launch Count")]
-        public int TotalLaunchCount { get; set; }
+        public int Total_Launch_Count { get; set; }
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Total Landing Count")]
-        public int TotalLandingCount { get; set; }
+        public int Total_Landing_Count { get; set; }
 
     }
 }

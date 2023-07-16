@@ -25,21 +25,21 @@ namespace Application.DTO
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Agency")]
-        public int? AgencyId { get; set; }
+        public int? Agency_Id { get; set; }
 
         [Display(Name = "Name")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Name.", MinimumLength = 2)]
         public string Name { get; set; }
 
         [Display(Name = "Info URL")]
-        public string InfoUrl { get; set; }
+        public string Info_Url { get; set; }
 
         [Display(Name = "Wiki URL")]
-        public string WikiUrl { get; set; }
+        public string Wiki_Url { get; set; }
 
         [Display(Name = "Map URL")]
         [StringLength(500, ErrorMessage = "Atention! Write a valid Map URL.", MinimumLength = 2)]
-        public string MapUrl { get; set; }
+        public string Map_Url { get; set; }
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Latitude")]
@@ -54,11 +54,11 @@ namespace Application.DTO
         [Display(Name = "Map Image")]
         [StringLength(500, ErrorMessage = "Atention! Write a valid Map Image link.", MinimumLength = 2)]
         [DataType(DataType.ImageUrl)]
-        public string MapImage { get; set; }
+        public string Map_Image { get; set; }
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Total Launch Count")]
-        public int TotalLaunchCount { get; set; }
+        public int Total_Launch_Count { get; set; }
 
     }
 }

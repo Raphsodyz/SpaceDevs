@@ -12,13 +12,9 @@ namespace Domain.Entities
     public class Rocket : BaseEntity
     {
         [Column("ID_CONFIGURATION")]
-        public int IdConfiguration { get; set; }
+        public int? IdConfiguration { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdConfiguration))]
         public Configuration Configuration { get; set; }
-        public Rocket() 
-        {
-            Configuration = new Configuration();
-        }
     }
 }

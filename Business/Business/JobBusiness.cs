@@ -53,7 +53,7 @@ namespace Business.Business
                     foreach (var data in dataList)
                     {
                         var launch = _mapper.Map<Launch>(data);
-                        launch.status = EStatus.DRAFT.GetDisplayName();
+                        launch.EntityStatus = EStatus.DRAFT.GetDisplayName();
                         _launchBusiness.SaveTransaction(launch);
                     }
 

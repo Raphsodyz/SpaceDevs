@@ -22,7 +22,7 @@ namespace Application.DTO
 
         [Range(0, int.MaxValue)]
         [Display(Name = "LaunchLibrary")]
-        public int? LaunchLibraryId { get; set; }
+        public int? Launch_Library_Id { get; set; }
 
         [Display(Name = "Slug")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Slug.", MinimumLength = 2)]
@@ -45,20 +45,20 @@ namespace Application.DTO
 
         [DataType(DataType.DateTime)]
         [Display(Name = "Window End")]
-        public DateTime WindowEnd { get; set; }
+        public DateTime Window_End { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Name = "Window Start")]
-        public DateTime WindowStart { get; set; }
+        public DateTime Window_Start { get; set; }
 
         [Display(Name = "In Hold")]
-        public bool Inhold { get; set; }
+        public bool? Inhold { get; set; }
 
         [Display(Name = "TBD Time")]
-        public bool TbdTime { get; set; }
+        public bool? TbdTime { get; set; }
 
         [Display(Name = "TBD Date")]
-        public bool TbdDate { get; set; }
+        public bool? TbdDate { get; set; }
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Probability")]
@@ -76,7 +76,7 @@ namespace Application.DTO
         [StringLength(200, ErrorMessage = "Atention! Write a valid HashTag.", MinimumLength = 2)]
         public string Hashtag { get; set; }
 
-        public LaunchServiceProvider LaunchServiceProvider { get; set; }
+        public LaunchServiceProvider Launch_Service_Provider { get; set; }
 
         public RocketDTO Rocket { get; set; }
 
@@ -85,7 +85,7 @@ namespace Application.DTO
         public PadDTO Pad { get; set; }
 
         [Display(Name = "Webcast Live")]
-        public bool WebcastLive { get; set; }
+        public bool Webcast_Live { get; set; }
 
         [Display(Name = "Image")]
         [StringLength(500, ErrorMessage = "Atention! Write a valid Image link.", MinimumLength = 2)]
@@ -96,7 +96,7 @@ namespace Application.DTO
         [StringLength(200, ErrorMessage = "Atention! Write a valid Infographic.", MinimumLength = 2)]
         public string Infographic { get; set; }
 
-        public string[]? Programs { get; set; }
+        public string? Programs { get; set; }
 
     }
 }

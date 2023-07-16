@@ -59,7 +59,7 @@ namespace Domain.Entities
         private EStatus? _statusEnum { get; set; }
 
         [Column("STATUS")]
-        public string status { 
+        public string EntityStatus { 
             get 
             { 
                 return _statusEnum.GetDisplayName(); 

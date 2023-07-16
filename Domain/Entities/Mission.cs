@@ -14,26 +14,20 @@ namespace Domain.Entities
         [Column("LAUNCH_LIBRARY_ID")]
         public int? LaunchLibraryId { get; set; }
         [Column("NAME")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Column("DESCRIPTION")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         [Column("ID_LAUNCH_DESIGNATOR")]
-        public int IdLaunchDesignator { get; set; }
+        public int? IdLaunchDesignator { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdLaunchDesignator))]
-        public LaunchDesignator LaunchDesignator { get; set; }
+        public LaunchDesignator? LaunchDesignator { get; set; }
         [Column("TYPE")]
-        public string Type { get; set; }
+        public string? Type { get; set; }
         [Column("ID_ORBIT")]
-        public int IdOrbit { get; set; }
+        public int? IdOrbit { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdOrbit))]
         public Orbit Orbit { get; set; }
-
-        public Mission()
-        {
-            Orbit = new Orbit();
-            LaunchDesignator = new LaunchDesignator();
-        }
     }
 }

@@ -11,6 +11,6 @@ namespace Domain.Entities
     public class Status : BaseEntity
     {
         [Column("NAME")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
     }
 }

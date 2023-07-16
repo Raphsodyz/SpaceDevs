@@ -26,6 +26,8 @@ namespace Domain.Helper
     public static class SuccessMessages
     {
         public static readonly string DeletedEntity = "The selected entity has deleted with success.";
+        public static readonly string PartialImportSuccess = "The Data offset has loaded with success.";
+        public static readonly string ImportedDataSuccess = "The Data loading from Space Devs Api was successful.";
     }
 
     public static class EndPoints

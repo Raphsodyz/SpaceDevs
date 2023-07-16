@@ -14,7 +14,7 @@ namespace Domain.Helper
         {
             try
             {
-                DisplayAttribute display = enumValue.GetType().GetField(enumValue.ToString()).GetCustomAttribute<DisplayAttribute>(inherit: false);
+                DisplayAttribute display = enumValue?.GetType().GetField(enumValue.ToString()).GetCustomAttribute<DisplayAttribute>(inherit: false);
                 if (display != null)
                 {
                     string name = display.GetName();
@@ -24,7 +24,7 @@ namespace Domain.Helper
                     }
                 }
 
-                return enumValue.ToString();
+                return enumValue?.ToString();
             }
             catch
             {

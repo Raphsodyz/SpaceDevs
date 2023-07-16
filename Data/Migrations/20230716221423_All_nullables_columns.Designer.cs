@@ -3,6 +3,7 @@ using System;
 using Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(FutureSpaceContext))]
-    partial class FutureSpaceContextModelSnapshot : ModelSnapshot
+    [Migration("20230716221423_All_nullables_columns")]
+    partial class All_nullables_columns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -580,34 +583,29 @@ namespace Data.Migrations
                         .HasColumnName("ATUALIZATION_DATE");
 
                     b.Property<int>("EntityCount")
-                        .HasColumnType("int")
-                        .HasColumnName("ENTITY_COUNT");
+                        .HasColumnType("int");
 
                     b.Property<string>("EntityStatus")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("STATUS");
 
+                    b.Property<string>("Error")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int?>("IdFromApi")
                         .HasColumnType("int")
                         .HasColumnName("ID_FROM_API");
 
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("MESSAGE");
-
                     b.Property<int>("OffSet")
-                        .HasColumnType("int")
-                        .HasColumnName("OFFSET");
+                        .HasColumnType("int");
 
                     b.Property<bool>("Success")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("SUCCESS");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("TRANSACTION_DATE");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("importedT")
                         .HasColumnType("datetime(6)")
@@ -615,7 +613,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UPDATE_LOG");
+                    b.ToTable("UpdateLog");
                 });
 
             modelBuilder.Entity("Domain.Entities.Launch", b =>

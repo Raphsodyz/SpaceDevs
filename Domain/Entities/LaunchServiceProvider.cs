@@ -11,10 +11,10 @@ namespace Domain.Entities
     public class LaunchServiceProvider : BaseEntity
     {
         [Column("URL")]
-        public string Url { get; set; }
+        public string? Url { get; set; }
         [Column("NAME")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Column("TYPE")]
-        public string Type { get; set; }
+        public string? Type { get; set; }
     }
 }

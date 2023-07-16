@@ -22,6 +22,7 @@ namespace Data.Context
         public DbSet<Pad> Pad { get; set; }
         public DbSet<Rocket> Rocket { get; set; }
         public DbSet<Status> Status { get; set; }
+        public DbSet<UpdateLog> UpdateLog { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

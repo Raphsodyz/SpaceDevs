@@ -13,14 +13,14 @@ namespace Domain.Entities
         [Column("LAUNCH_LIBRARY_ID")]
         public int? LaunchLibraryId { get; set; }
         [Column("URL")]
-        public string Url { get; set; }
+        public string? Url { get; set; }
         [Column("NAME")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Column("FAMILY")]
-        public string Family { get; set; }
+        public string? Family { get; set; }
         [Column("FULL_NAME")]
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
         [Column("VARIANT")]
-        public string Variant { get; set; }
+        public string? Variant { get; set; }
     }
 }

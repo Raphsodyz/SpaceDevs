@@ -21,7 +21,7 @@ namespace Application.DTO
 
         [Range(0, int.MaxValue)]
         [Display(Name = "LaunchLibrary")]
-        public int? LaunchLibraryId { get; set; }
+        public int? Launch_Library_Id { get; set; }
 
         [Display(Name = "Name")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Name.", MinimumLength = 2)]
@@ -31,7 +31,7 @@ namespace Application.DTO
         [StringLength(500, ErrorMessage = "Atention! Write a valid Description.", MinimumLength = 2)]
         public string Description { get; set; }
 
-        public LaunchDesignatorDTO? LaunchDesignator { get; set; }
+        public LaunchDesignatorDTO? Launch_Designator { get; set; }
 
         [Display(Name = "Type")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Type.", MinimumLength = 2)]

@@ -11,16 +11,16 @@ namespace Domain.Entities
     public class Location : BaseEntity
     {
         [Column("URL")]
-        public string Url { get; set; }
+        public string? Url { get; set; }
         [Column("NAME")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Column("COUNTRY_CODE")]
-        public string CountryCode { get; set; }
+        public string? CountryCode { get; set; }
         [Column("MAP_IMAGE")]
-        public string MapImage { get; set; }
+        public string? MapImage { get; set; }
         [Column("TOTAL_LAUNCH_COUNT")]
-        public int TotalLaunchCount { get; set; }
+        public int? TotalLaunchCount { get; set; }
         [Column("TOTAL_LANDING_COUNT")]
-        public int TotalLandingCount { get; set; }
+        public int? TotalLandingCount { get; set; }
     }
 }

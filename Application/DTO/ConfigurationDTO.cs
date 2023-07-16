@@ -19,7 +19,7 @@ namespace Application.DTO
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Launch Library")]
-        public int? LaunchLibraryId { get; set; }
+        public int? Launch_Library_Id { get; set; }
 
         [Display(Name = "Link")]
         [StringLength(500, ErrorMessage = "Atention! Write a valid link.", MinimumLength = 2)]
@@ -35,7 +35,7 @@ namespace Application.DTO
 
         [Display(Name = "Full Name")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Full Name.", MinimumLength = 2)]
-        public string FullName { get; set; }
+        public string full_name { get; set; }
 
         [Display(Name = "Variant")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Variant.", MinimumLength = 2)]

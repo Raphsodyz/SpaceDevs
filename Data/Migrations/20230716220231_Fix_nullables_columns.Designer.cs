@@ -3,6 +3,7 @@ using System;
 using Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(FutureSpaceContext))]
-    partial class FutureSpaceContextModelSnapshot : ModelSnapshot
+    [Migration("20230716220231_Fix_nullables_columns")]
+    partial class Fix_nullables_columns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,10 +39,12 @@ namespace Data.Migrations
                         .HasColumnName("STATUS");
 
                     b.Property<string>("Family")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("FAMILY");
 
                     b.Property<string>("FullName")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("FULL_NAME");
 
@@ -52,14 +57,17 @@ namespace Data.Migrations
                         .HasColumnName("LAUNCH_LIBRARY_ID");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("URL");
 
                     b.Property<string>("Variant")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("VARIANT");
 
@@ -93,14 +101,17 @@ namespace Data.Migrations
                         .HasColumnName("STATUS");
 
                     b.Property<string>("FailReason")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("FAIL_REASON");
 
                     b.Property<string>("Hashtag")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("HASHTAG");
 
                     b.Property<string>("HoldReason")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("HOLD_REASON");
 
@@ -129,6 +140,7 @@ namespace Data.Migrations
                         .HasColumnName("ID_STATUS");
 
                     b.Property<string>("Image")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("IMAGE");
 
@@ -149,7 +161,7 @@ namespace Data.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
-                    b.Property<DateTime?>("Net")
+                    b.Property<DateTime>("Net")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("NET");
 
@@ -158,10 +170,12 @@ namespace Data.Migrations
                         .HasColumnName("PROBABILITY");
 
                     b.Property<string>("Programs")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("PROGRAMS");
 
                     b.Property<string>("Slug")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("SLUG");
 
@@ -174,18 +188,19 @@ namespace Data.Migrations
                         .HasColumnName("TBD_TIME");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("URL");
 
-                    b.Property<bool?>("WebcastLive")
+                    b.Property<bool>("WebcastLive")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("WEB_CAST_LIVE");
 
-                    b.Property<DateTime?>("WindowEnd")
+                    b.Property<DateTime>("WindowEnd")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("WINDOW_END");
 
-                    b.Property<DateTime?>("WindowStart")
+                    b.Property<DateTime>("WindowStart")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("WINDOW_START");
 
@@ -258,14 +273,17 @@ namespace Data.Migrations
                         .HasColumnName("ID_FROM_API");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("TYPE");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("URL");
 
@@ -290,6 +308,7 @@ namespace Data.Migrations
                         .HasColumnName("ATUALIZATION_DATE");
 
                     b.Property<string>("CountryCode")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("COUNTRY_CODE");
 
@@ -303,22 +322,25 @@ namespace Data.Migrations
                         .HasColumnName("ID_FROM_API");
 
                     b.Property<string>("MapImage")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("MAP_IMAGE");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
-                    b.Property<int?>("TotalLandingCount")
+                    b.Property<int>("TotalLandingCount")
                         .HasColumnType("int")
                         .HasColumnName("TOTAL_LANDING_COUNT");
 
-                    b.Property<int?>("TotalLaunchCount")
+                    b.Property<int>("TotalLaunchCount")
                         .HasColumnType("int")
                         .HasColumnName("TOTAL_LAUNCH_COUNT");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("URL");
 
@@ -343,6 +365,7 @@ namespace Data.Migrations
                         .HasColumnName("ATUALIZATION_DATE");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("DESCRIPTION");
 
@@ -368,10 +391,12 @@ namespace Data.Migrations
                         .HasColumnName("LAUNCH_LIBRARY_ID");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("TYPE");
 
@@ -396,6 +421,7 @@ namespace Data.Migrations
                         .HasColumnName("ID");
 
                     b.Property<string>("Abbrev")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("ABBREV");
 
@@ -413,6 +439,7 @@ namespace Data.Migrations
                         .HasColumnName("ID_FROM_API");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
@@ -457,35 +484,40 @@ namespace Data.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("INFO_URL");
 
-                    b.Property<double?>("Latitude")
+                    b.Property<double>("Latitude")
                         .HasColumnType("double")
                         .HasColumnName("LATITUDE");
 
-                    b.Property<double?>("Longitude")
+                    b.Property<double>("Longitude")
                         .HasColumnType("double")
                         .HasColumnName("LONGITUDE");
 
                     b.Property<string>("MapImage")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("MAP_IMAGE");
 
                     b.Property<string>("MapUrl")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("MAP_URL");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
-                    b.Property<int?>("TotalLaunchCount")
+                    b.Property<int>("TotalLaunchCount")
                         .HasColumnType("int")
                         .HasColumnName("TOTAL_LAUNCH_COUNT");
 
                     b.Property<string>("Url")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("URL");
 
                     b.Property<string>("WikiUrl")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("WIKI_URL");
 
@@ -556,6 +588,7 @@ namespace Data.Migrations
                         .HasColumnName("ID_FROM_API");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("NAME");
 
@@ -580,34 +613,29 @@ namespace Data.Migrations
                         .HasColumnName("ATUALIZATION_DATE");
 
                     b.Property<int>("EntityCount")
-                        .HasColumnType("int")
-                        .HasColumnName("ENTITY_COUNT");
+                        .HasColumnType("int");
 
                     b.Property<string>("EntityStatus")
                         .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("STATUS");
 
+                    b.Property<string>("Error")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int?>("IdFromApi")
                         .HasColumnType("int")
                         .HasColumnName("ID_FROM_API");
 
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("MESSAGE");
-
                     b.Property<int>("OffSet")
-                        .HasColumnType("int")
-                        .HasColumnName("OFFSET");
+                        .HasColumnType("int");
 
                     b.Property<bool>("Success")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("SUCCESS");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("TRANSACTION_DATE");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("importedT")
                         .HasColumnType("datetime(6)")
@@ -615,7 +643,7 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UPDATE_LOG");
+                    b.ToTable("UpdateLog");
                 });
 
             modelBuilder.Entity("Domain.Entities.Launch", b =>
