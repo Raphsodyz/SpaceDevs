@@ -16,9 +16,8 @@ namespace Data.Repository
 {
     public abstract class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
-        protected DbContext _context;
-        protected DbSet<T> _dbSet;
-        private readonly IMapper _mapper;
+        public DbContext _context;
+        public DbSet<T> _dbSet;
 
         public IDbContextTransaction GetTransaction()
         {
@@ -27,8 +26,6 @@ namespace Data.Repository
 
         public GenericRepository(DbContext context)
         {
-            if (_context == null)
-                return;
             _context = context;
             _dbSet = _context.Set<T>();
         }
@@ -221,7 +218,6 @@ namespace Data.Repository
             {
                 _dbSet.Add(entity);
                 _context.SaveChanges();
-                _mapper.Map(entity, entity);
             }
             else
             {

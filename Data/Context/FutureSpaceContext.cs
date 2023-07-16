@@ -32,7 +32,7 @@ namespace Data.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = _configuration.GetSection("ConnectionStrings").GetSection("default").Value;
+                var connection = _configuration.GetSection("ConnectionStrings:default").Value;
                 optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection));
             }
         }

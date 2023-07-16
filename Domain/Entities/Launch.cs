@@ -73,6 +73,6 @@ namespace Domain.Entities
         [Column("INFOGRAPHIC")]
         public string Infographic { get; set; }
         [Column("PROGRAMS")]
-        public string[] Programs { get; set; }
+        public string Programs { get; set; }
     }
 }

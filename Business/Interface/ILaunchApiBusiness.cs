@@ -13,6 +13,9 @@ namespace Business.Interface
     {
         Launch GetOneLaunch(int? launchId);
         Pagination<Launch> GetAllLaunchPaged(int? page);
-        void DeleteLaunch(int? launchId);
+        void HardDeleteLaunch(int? launchId);
+        void SoftDeleteLaunch(int? launchId);
+        Task<Launch> UpdateLaunch(int? launchId);
+        Task<bool> UpdateDataSet();
     }
 }

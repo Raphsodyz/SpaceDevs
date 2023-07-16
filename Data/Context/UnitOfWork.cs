@@ -11,7 +11,7 @@ namespace Data.Context
 {
     public class UnitOfWork : IUnitOfWork, IDisposable
     {
-        private readonly FutureSpaceContext _context;
+        public FutureSpaceContext _context;
         private readonly Dictionary<Type, IRepository> _repository;
         public UnitOfWork(FutureSpaceContext context)
         {

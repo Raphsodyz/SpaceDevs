@@ -21,7 +21,7 @@ namespace Services
             services.AddDbContext<FutureSpaceContext>();
 
             services.AddCors();
-
+            
             services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
             services.AddTransient<ILaunchDesignatorRepository, LaunchDesignatorRepository>();
             services.AddTransient<ILaunchRepository, LaunchRepository>();
@@ -39,6 +39,10 @@ namespace Services
             services.AddTransient<IPadBusiness, PadBusiness>();
             services.AddTransient<IRocketBusiness, RocketBusiness>();
             services.AddTransient<IStatusBusiness, StatusBusiness>();
+            
+            services.AddTransient<ILaunchApiBusiness, LaunchApiBusiness>();
+            services.AddTransient<IJobBusiness, JobBusiness>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }

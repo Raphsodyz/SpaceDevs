@@ -30,7 +30,7 @@ namespace Application.DTO
         public string Name { get; set; }
 
         [Display(Name = "Family")]
-        [StringLength(200, ErrorMessage = "Atention! Write a valid Family.", MinimumLength = 2)]
+        [StringLength(500, ErrorMessage = "Atention! Write a valid Family.", MinimumLength = 2)]
         public string Family { get; set; }
 
         [Display(Name = "Full Name")]

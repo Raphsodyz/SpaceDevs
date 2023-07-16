@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Application.DTO;
+using AutoMapper;
+using Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,10 @@ namespace Application.Mapper
     {
         public FutureSpaceMapper()
         {
-            
+            CreateMap<LaunchDTO, Launch>()
+                .ForMember(
+                    entity => entity.ApiGuId,
+                    dto => dto.MapFrom(src => src.Id)).ReverseMap();
         }
     }
 }

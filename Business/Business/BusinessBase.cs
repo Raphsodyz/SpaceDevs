@@ -11,8 +11,8 @@ namespace Business.Business
         where T : BaseEntity
         where TRepository : IGenericRepository<T>
     {
-        private readonly IUnitOfWork _uow;
-        protected readonly TRepository _repository;
+        public IUnitOfWork _uow;
+        protected TRepository _repository;
         public BusinessBase(IUnitOfWork uow)
         {
             _uow = uow;
