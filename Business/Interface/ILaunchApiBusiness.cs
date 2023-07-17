@@ -16,6 +16,6 @@ namespace Business.Interface
         void HardDeleteLaunch(int? launchId);
         void SoftDeleteLaunch(int? launchId);
         Task<Launch> UpdateLaunch(int? launchId);
-        Task<bool> UpdateDataSet();
+        Task<bool> UpdateDataSet(int? skip);
     }
 }

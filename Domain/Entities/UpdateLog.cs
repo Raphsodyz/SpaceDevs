@@ -20,5 +20,7 @@ namespace Domain.Entities
         public string Message { get; set; }
         [Column("ENTITY_COUNT")]
         public int EntityCount { get; set; }
+        [Column("ORIGIN")]
+        public string Origin { get; set; }
     }
 }

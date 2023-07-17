@@ -4,6 +4,8 @@ using Business.Interface;
 using Data.Context;
 using Data.Interface;
 using Data.Repository;
+using Quartz;
+using Services.Jobs;
 
 namespace Services
 {
@@ -46,6 +48,17 @@ namespace Services
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddQuartz(cfg =>
+            {
+                cfg.UseMicrosoftDependencyInjectionScopedJobFactory();
+                var jobKey = new JobKey("UpdateDataSetJob");
+                cfg.AddJob<UpdateDataSetJob>(opt => opt.WithIdentity(jobKey));
+
+                cfg.AddTrigger(opt => opt
+                    .ForJob(jobKey)
+                    .WithIdentity("UpdateDataSetJob-trigger")
+                    .WithCronSchedule("0 0 4 * * ?"));
+            });
         }
 
         public void Configure(WebApplication app, IWebHostEnvironment environment)

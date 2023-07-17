@@ -200,16 +200,8 @@ namespace Data.Repository
 
         public virtual void Save(T entity)
         {
-            if (entity.Id == 0)
-                _dbSet.Add(entity);
-            
-            if(_context.Entry(entity).State == EntityState.Detached)
-            {
-                T dbEntity = _dbSet.Find(entity.Id);
-                _context.Entry(dbEntity).CurrentValues.SetValues(entity);
-            }
-            else if(_context.Entry(entity).State == EntityState.Unchanged)
-                _context.Entry(entity).State = EntityState.Modified;
+            _dbSet.Add(entity);
+            _context.SaveChanges();
         }
 
         public virtual void SaveTransaction(T entity)

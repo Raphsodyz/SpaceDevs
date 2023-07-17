@@ -21,13 +21,15 @@ namespace Domain.Helper
         public static readonly string LaunchApiEndPointError = "Attention! The SpaceDevs API endpoint returned an error.";
         public static readonly string DeserializingEndPointContentError = "Attention! An error ocurred when retrieving a JSON data from Space Devs API.";
         public static readonly string NoDataFromSpaceDevApi = "Attention! There is no data received from Space Devs Api. Check the service disponibility and try again.";
+        public static readonly string UpdateJobError = "Attention! The update job has failed.";
     }
 
     public static class SuccessMessages
     {
         public static readonly string DeletedEntity = "The selected entity has deleted with success.";
         public static readonly string PartialImportSuccess = "The Data offset has loaded with success.";
-        public static readonly string ImportedDataSuccess = "The Data loading from Space Devs Api was successful.";
+        public static readonly string ImportedDataSuccess = "The Data loading from Space Devs Api was successfull.";
+        public static readonly string UpdateJob = "The Data loading from Space Devs Api by the update job was successfull.";
     }
 
     public static class EndPoints

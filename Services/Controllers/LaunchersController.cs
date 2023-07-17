@@ -143,12 +143,15 @@ namespace Services.Controllers
 
         [HttpPost]
         [Route("launchers")]
-        public async Task<IActionResult> UpdateData()
+        public async Task<IActionResult> UpdateData(int? skip)
         {
             try
             {
-                bool updated = await _launchApiBusiness.UpdateDataSet();
-                return Ok();
+                bool updated = await _launchApiBusiness.UpdateDataSet(skip);
+                if (updated)
+                    return Ok(SuccessMessages.ImportedDataSuccess);
+                else
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"{ErrorMessages.InternalServerError}");
             }
             catch (HttpRequestException ex)
             {

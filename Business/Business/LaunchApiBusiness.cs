@@ -157,13 +157,11 @@ namespace Business.Business
             }
         }
 
-        public async Task<bool> UpdateDataSet()
+        public async Task<bool> UpdateDataSet(int? skip)
         {
-            ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
-
             int limit = 100;
-            int offset = 0;
-            int max = 2000;
+            int offset = skip ?? 0;
+            int max = offset + 1500;
             int entityCounter = 0;
 
             for (int i = offset; i < max; i += limit)
@@ -187,6 +185,7 @@ namespace Business.Business
                         entityCounter++;
                     }
                     GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
+                    entityCounter = 0;
                     offset += limit;
                 }
                 catch (HttpRequestException ex)
@@ -417,15 +416,17 @@ namespace Business.Business
         {
             IUpdateLogBusiness _updateLogBusiness = GetBusiness(typeof(IUpdateLogBusiness)) as IUpdateLogBusiness;
             
-            var error = new UpdateLog()
+            var log = new UpdateLog()
             {
                 TransactionDate = DateTime.Now,
                 OffSet = offset,
                 Success = success,
                 Message = errorMessage,
-                EntityCount = entityCount
+                EntityCount = entityCount,
+                Origin = EOrigin.API_UPDATE.GetDisplayName(),
+                EntityStatus = EStatus.PUBLISHED.GetDisplayName()
             };
-            _updateLogBusiness.Save(error);
+            _updateLogBusiness.Save(log);
         }
     }
 }

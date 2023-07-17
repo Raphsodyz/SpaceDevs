@@ -43,6 +43,8 @@ namespace Business.Business
                     return new RocketBusiness(_uow);
                 case "IStatusBusiness":
                     return new StatusBusiness(_uow);
+                case "IUpdateLogBusiness":
+                    return new UpdateLogBusiness(_uow);
                 default:
                     throw new NotImplementedException();
             }
