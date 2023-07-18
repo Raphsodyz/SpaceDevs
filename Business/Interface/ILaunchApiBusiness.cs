@@ -1,4 +1,5 @@
-﻿using Data.Interface;
+﻿using Application.DTO;
+using Data.Interface;
 using Domain.Entities;
 using Domain.Helper;
 using System;
@@ -11,11 +12,10 @@ namespace Business.Interface
 {
     public interface ILaunchApiBusiness : IBusinessBase<Launch, ILaunchRepository>
     {
-        Launch GetOneLaunch(int? launchId);
-        Pagination<Launch> GetAllLaunchPaged(int? page);
-        void HardDeleteLaunch(int? launchId);
+        LaunchDTO GetOneLaunch(int? launchId);
+        Pagination<LaunchDTO> GetAllLaunchPaged(int? page);
         void SoftDeleteLaunch(int? launchId);
-        Task<Launch> UpdateLaunch(int? launchId);
+        Task<LaunchDTO> UpdateLaunch(int? launchId);
         Task<bool> UpdateDataSet(int? skip);
     }
 }

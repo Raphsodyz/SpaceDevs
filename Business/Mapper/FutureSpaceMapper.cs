@@ -1,6 +1,7 @@
 ﻿using Application.DTO;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Helper;
 using Microsoft.AspNetCore.Mvc.TagHelpers;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace Business.Mapper
             CreateMap<MissionDTO, Mission>().ReverseMap();
             CreateMap<OrbitDTO, Orbit>().ReverseMap();
             CreateMap<PadDTO, Pad>().ReverseMap();
+            CreateMap<Pagination<LaunchDTO>, Pagination<Launch>>().ReverseMap();
             CreateMap<LaunchDTO, Launch>()
                 .ForMember(
                     entity => entity.ApiGuId,

@@ -16,41 +16,40 @@ namespace Domain.Entities
         [JsonIgnore]
         public int? IdFromApi { get; set; }
 
-        private DateTime? _atualizationDate;
+        private DateTime? atualizationDate;
         
         [Column("ATUALIZATION_DATE")]
         public virtual DateTime AtualizationDate { 
             get 
             {
-                if(!_atualizationDate.HasValue)
-                    _atualizationDate = DateTime.Now;
-                return _atualizationDate.Value;
+                if(atualizationDate == DateTime.MinValue)
+                    atualizationDate = DateTime.Now;
+
+                return atualizationDate.Value;
             }
             set 
             {
-                if (value != DateTime.MinValue && value != new DateTime())
-                    _atualizationDate = value;
-                else
-                    _atualizationDate = DateTime.Now;
+                atualizationDate = DateTime.Now;
             }
         }
 
-        private DateTime? _importedT;
+        private DateTime? importedT;
 
         [Column("IMPORTED_T")]
-        public virtual DateTime importedT { 
+        public virtual DateTime ImportedT { 
             get 
             {
-                if (!_importedT.HasValue)
-                    _importedT = DateTime.Now;
-                return _importedT.Value;
+                if (importedT == DateTime.MinValue)
+                    importedT = DateTime.Now;
+
+                return importedT.Value;
             }
             set 
             {
-                if (value == DateTime.MinValue || value == new DateTime())
-                    _importedT = DateTime.Now;
+                if (value != null && value != new DateTime() && value != DateTime.MinValue)
+                    importedT = value;
                 else
-                    _importedT = value;
+                    importedT = DateTime.Now;
             }
         }
 

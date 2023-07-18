@@ -1,4 +1,5 @@
-﻿using Business.Interface;
+﻿using Application.DTO;
+using Business.Interface;
 using Domain.Entities;
 using Domain.Helper;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +52,7 @@ namespace Services.Controllers
         {
             try
             {
-                Pagination<Launch> pagedLaunchList = _launchApiBusiness.GetAllLaunchPaged(page);
+                Pagination<LaunchDTO> pagedLaunchList = _launchApiBusiness.GetAllLaunchPaged(page);
                 return Ok(new { CurrentlyPage = pagedLaunchList.CurrentPage, TotalRegisters = pagedLaunchList.NumberOfEntities, Pages = pagedLaunchList.NumberOfPages, Data = pagedLaunchList.Entities });
             }
             catch (InvalidOperationException ex)
@@ -69,31 +70,8 @@ namespace Services.Controllers
         }
 
         [HttpDelete]
-        [Route("launchers/hard-delete/{launchId}")]
-        public IActionResult HardDelete(int launchId)
-        {
-            try
-            {
-                _launchApiBusiness.HardDeleteLaunch(launchId);
-                return Ok(SuccessMessages.DeletedEntity);
-            }
-            catch (ArgumentNullException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"{ErrorMessages.InternalServerError}\n{ex.Message}");
-            }
-        }
-
-        [HttpDelete]
-        [Route("launchers/soft-delete/{launchId}")]
-        public IActionResult SoftDelete(int launchId)
+        [Route("launchers/{launchId}")]
+        public IActionResult Delete(int launchId)
         {
             try
             {
@@ -120,7 +98,7 @@ namespace Services.Controllers
         {
             try
             {
-                Launch updatedLaunch = await _launchApiBusiness.UpdateLaunch(launchId);
+                LaunchDTO updatedLaunch = await _launchApiBusiness.UpdateLaunch(launchId);
                 return Ok(updatedLaunch);
             }
             catch (ArgumentNullException ex)

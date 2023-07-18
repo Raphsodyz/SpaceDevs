@@ -45,7 +45,7 @@ namespace Data.Repository
 
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                query = query.Include(includeProperty);
+                query = query.Include(includeProperty.TrimStart());
 
             if (orderBy != null)
                 return orderBy.Compile()(query).ToList();
@@ -72,7 +72,7 @@ namespace Data.Repository
 
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                query = query.Include(includeProperty);
+                query = query.Include(includeProperty.TrimStart());
 
             if (orderBy != null)
                 return orderBy.Compile()(query).ToList();
@@ -102,7 +102,7 @@ namespace Data.Repository
             }
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                query = query.Include(includeProperty);
+                query = query.Include(includeProperty.TrimStart());
 
             if (selectColumns != null)
                 return query.Select(selectColumns);
@@ -125,7 +125,7 @@ namespace Data.Repository
 
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                query = query.Include(includeProperty);
+                query = query.Include(includeProperty.TrimStart());
 
             IList<T> results;
 
@@ -134,14 +134,14 @@ namespace Data.Repository
             if (orderBy != null)
             {
                 var q1 = orderBy.Compile()(query);
-                var q2 = q1.Skip((page - 1) * pageSize).Take(pageSize);
+                var q2 = q1.Skip(page * pageSize).Take(pageSize);
                 results = q2.ToList();
             }
             else
             {
                 orderBy = (q => q.OrderBy(c => c.Id));
                 var q1 = orderBy.Compile()(query);
-                var q2 = q1.Skip((page - 1) * pageSize).Take(pageSize);
+                var q2 = q1.Skip(page * pageSize).Take(pageSize);
                 results = q2.ToList();
             }
 
@@ -165,7 +165,7 @@ namespace Data.Repository
             {
                 foreach (var includeProperty in includedProperties.Split
                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    query = query.Include(includeProperty);
+                    query = query.Include(includeProperty.TrimStart());
             }
 
             return query.FirstOrDefault();
@@ -185,7 +185,7 @@ namespace Data.Repository
             {
                 foreach (var includeProperty in includedProperties.Split
                     (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    query = query.Include(includeProperty);
+                    query = query.Include(includeProperty.TrimStart());
             }
 
             TResult resultado;
