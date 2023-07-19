@@ -32,13 +32,13 @@ Os campos dentro da opção 'default' a serem preenchidos são:
 - User id: Seu usuário do Mysql.
 - Password: A senha do seu usuário Mysql.
 
-  Neste mesmo arquivo json, adicione uma vírgula após as chaves do objeto adicionado acima e crie esta seção:
+Neste mesmo arquivo json, adicione uma vírgula após as chaves do objeto adicionado acima e crie esta seção:
 
-  ```json
-    "TheSpaceDevsLaunchEndPoint": "https://ll.thespacedevs.com/2.2.0/launch/",
-  ```
+```json
+  "TheSpaceDevsLaunchEndPoint": "https://ll.thespacedevs.com/2.2.0/launch/",
+```
 
-  Ficando então assim:
+Ficando então assim:
 
 ```json
 {
