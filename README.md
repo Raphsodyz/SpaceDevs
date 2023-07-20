@@ -44,9 +44,9 @@ Ficando então assim:
 {
 "ConnectionStrings":{
   "default":"server= ; database= ; user id= ; password= ;"
-  }
-},
-"TheSpaceDevsLaunchEndPoint": "https://ll.thespacedevs.com/2.2.0/launch/",
+  },
+"TheSpaceDevsLaunchEndPoint": "https://ll.thespacedevs.com/2.2.0/launch/"
+}
 ```
 
 Está segunda seção é referente ao endpoint da api da Space Devs que a aplicação irá consumir.
