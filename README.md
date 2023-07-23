@@ -26,8 +26,8 @@ API
 Modelo de Dados:
 Para a definição do modelo, consultar o arquivo launchers.json com os principais campos que usaremos no projeto.
 
-imported_t: campo do tipo Date com a dia e hora que foi importado;
-status: campo do tipo Enum com os possíveis valores draft, trash e published;
+imported_t: campo do tipo Date com a dia e hora que foi importado;<br />
+status: campo do tipo Enum com os possíveis valores draft, trash e published;<br />
 
 Sistema do CRON
 Para prosseguir com o desafio, precisaremos criar na API um sistema de atualização que vai importar os dados para a Base de Dados com a versão mais recente do dataset uma vez ao día. Adicionar aos arquivos de configuração o melhor horário para executar a importação.
@@ -40,25 +40,18 @@ Limitar a importação a somente 2000 registros;
 A REST API
 Na REST API teremos um CRUD com os seguintes endpoints:
 
-GET /: Retornar uma mensagem "REST Back-end Challenge 20201209 Running"
-PUT /launchers/:launchId: Será responsável por receber atualizações realizadas
-DELETE /launchers/:launchId: Remover o launch da base
-GET /launchers/:launchId: Obter a informação somente de um launch da base de dados
-GET /launchers: Listar os launchers da base de dados de maneira paginada
+GET /: Retornar uma mensagem "REST Back-end Challenge 20201209 Running".<br />
+PUT /launchers/:launchId: Será responsável por receber atualizações realizadas.<br />
+DELETE /launchers/:launchId: Remover o launch da base.<br />
+GET /launchers/:launchId: Obter a informação somente de um launch da base de dados.<br />
+GET /launchers: Listar os launchers da base de dados de maneira paginada.<br />
 
 Extras
 
-Diferencial 1 Escrever Unit Test para os endpoints da REST API
-Diferencial 2 Executar o projeto usando Docker
-Diferencial 3 Escrever um esquema de segurança utilizando API KEY nos endpoints. Ref: https://learning.postman.com/docs/sending-requests/authorization/#api-key
-Diferencial 4 Descrever a documentação da API utilizando o conceito de Open API 3.0;
-
-Readme do Repositório
-
-Deve conter o título do projeto
-Uma descrição de uma frase
-Como instalar e usar o projeto (instruções)
-Não esqueça o .gitignore
+Diferencial 1 Escrever Unit Test para os endpoints da REST API<br />
+Diferencial 2 Executar o projeto usando Docker<br />
+Diferencial 3 Escrever um esquema de segurança utilizando API KEY nos endpoints. Ref: https://learning.postman.com/docs/sending-requests/authorization/#api-key<br />
+Diferencial 4 Descrever a documentação da API utilizando o conceito de Open API 3.0;<br />
 
 ## Instruções
 
