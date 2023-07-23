@@ -4,6 +4,62 @@ https://lab.coodesh.com/arthurvsr/challenge-20210221/-/blob/master/README.md
 
 Entrega de projeto para a empresa Coodesh. Gostaria de ter incluido testes, suporte a docker e autenticação. Mas não consegui por conta de meu tempo em minha ocupação.
 
+## O escopo
+
+Introdução
+Este é um desafio para testar seus conhecimentos de Back-end;
+O objetivo é avaliar a sua forma de estruturação e autonomia em decisões para construir algo escalável utilizando os Frameworks de Back-end modernos.
+
+Instruções iniciais obrigatórias
+
+Utilizar o seu github pessoal para publicar o desafio. Confirme que a visibilidade do projeto é pública (não esqueça de colocar no readme a referência a este challenge);
+Desenvolver uma Rotina para importar os dados do Projeto: https://ll.thespacedevs.com/2.0.0/launch/
+
+Desenvolver uma REST API com um CRUD
+
+Case
+A empresa FutureSpace Inc, está trabalhando em um projeto para a comunidade espacial para facilitar a gestão e visualização da informação los lançamentos de foguetes de maneira simples e objetiva em um Dashboard onde podem listar, filtrar e expandir os dados disponíveis.
+O seu objetivo nesse projeto, é trabalhar no desenvolvimento da REST API da empresa FutureSpace Inc seguindo os requisitos propostos neste desafio.
+
+API
+
+Modelo de Dados:
+Para a definição do modelo, consultar o arquivo launchers.json com os principais campos que usaremos no projeto.
+
+imported_t: campo do tipo Date com a dia e hora que foi importado;
+status: campo do tipo Enum com os possíveis valores draft, trash e published;
+
+Sistema do CRON
+Para prosseguir com o desafio, precisaremos criar na API um sistema de atualização que vai importar os dados para a Base de Dados com a versão mais recente do dataset uma vez ao día. Adicionar aos arquivos de configuração o melhor horário para executar a importação.
+Ter em conta que:
+
+Todos os produtos deverão ter os campos personalizados imported_t e status.
+Importar os dados de maneira paginada para não sobrecargar a API do The Space Devs. Por exemplo, de 100 registros.
+Limitar a importação a somente 2000 registros;
+
+A REST API
+Na REST API teremos um CRUD com os seguintes endpoints:
+
+GET /: Retornar uma mensagem "REST Back-end Challenge 20201209 Running"
+PUT /launchers/:launchId: Será responsável por receber atualizações realizadas
+DELETE /launchers/:launchId: Remover o launch da base
+GET /launchers/:launchId: Obter a informação somente de um launch da base de dados
+GET /launchers: Listar os launchers da base de dados de maneira paginada
+
+Extras
+
+Diferencial 1 Escrever Unit Test para os endpoints da REST API
+Diferencial 2 Executar o projeto usando Docker
+Diferencial 3 Escrever um esquema de segurança utilizando API KEY nos endpoints. Ref: https://learning.postman.com/docs/sending-requests/authorization/#api-key
+Diferencial 4 Descrever a documentação da API utilizando o conceito de Open API 3.0;
+
+Readme do Repositório
+
+Deve conter o título do projeto
+Uma descrição de uma frase
+Como instalar e usar o projeto (instruções)
+Não esqueça o .gitignore
+
 ## Instruções
 
 Requisitos:
