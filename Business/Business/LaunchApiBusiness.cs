@@ -235,8 +235,6 @@ namespace Business.Business
                     status.Name = launch.Status.Name;
                     status.IdFromApi = launch.Status.IdFromApi;
                     status.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                    status.ImportedT = DateTime.Now;
-                    status.AtualizationDate = DateTime.Now;
 
                     _statusBusiness.SaveTransaction(status);
                 }
@@ -252,8 +250,6 @@ namespace Business.Business
                     launchServiceProvider.Type = launch.LaunchServiceProvider.Type;
                     launchServiceProvider.IdFromApi = launch.LaunchServiceProvider.IdFromApi;
                     launchServiceProvider.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                    launchServiceProvider.ImportedT = DateTime.Now;
-                    launchServiceProvider.AtualizationDate = DateTime.Now;
 
                     _launchServiceProviderBusiness.SaveTransaction(launchServiceProvider);
                 }
@@ -275,8 +271,6 @@ namespace Business.Business
                         configuration.Variant = launch.Rocket.Configuration.Variant;
                         configuration.IdFromApi = launch.Rocket.Configuration.IdFromApi;
                         configuration.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                        configuration.ImportedT = DateTime.Now;
-                        configuration.AtualizationDate = DateTime.Now;
 
                         _configurationBusiness.SaveTransaction(configuration);
                     }
@@ -287,8 +281,6 @@ namespace Business.Business
                     rocket.IdConfiguration = configuration.Id == 0 ? null : configuration.Id;
                     rocket.IdFromApi = launch.Rocket.IdFromApi;
                     rocket.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                    rocket.ImportedT = DateTime.Now;
-                    rocket.AtualizationDate = DateTime.Now;
 
                     _rocketBusiness.SaveTransaction(rocket);
                 }
@@ -304,8 +296,6 @@ namespace Business.Business
                         launchDesignator.Id = id > 0 ? id : 0;
                         launchDesignator.IdFromApi = launch.Mission.LaunchDesignator.IdFromApi;
                         launchDesignator.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                        launchDesignator.ImportedT = DateTime.Now;
-                        launchDesignator.AtualizationDate= DateTime.Now;
 
                         _launchDesignatorBusiness.SaveTransaction(launchDesignator);
                     }
@@ -320,8 +310,6 @@ namespace Business.Business
                         orbit.Abbrev = launch.Mission.Orbit.Abbrev;
                         orbit.IdFromApi = launch.Mission.Orbit.IdFromApi;
                         orbit.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                        orbit.ImportedT = DateTime.Now;
-                        orbit.AtualizationDate = DateTime.Now;
 
                         _orbitBusiness.SaveTransaction(orbit);
                     }
@@ -336,8 +324,6 @@ namespace Business.Business
                     mission.IdLaunchDesignator = launchDesignator.Id == 0 ? null : launchDesignator.Id;
                     mission.IdFromApi = launch.Mission.IdFromApi;
                     mission.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                    mission.ImportedT = DateTime.Now;
-                    mission.AtualizationDate = DateTime.Now;
 
                     _missionBusiness.SaveTransaction(mission);
                 }
@@ -359,8 +345,6 @@ namespace Business.Business
                         location.TotalLaunchCount = launch.Pad.Location.TotalLaunchCount;
                         location.IdFromApi = launch.Pad.Location.IdFromApi;
                         location.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                        location.ImportedT = DateTime.Now;
-                        location.AtualizationDate = DateTime.Now;
 
                         _locationBuiness.SaveTransaction(location);
                     }
@@ -381,8 +365,6 @@ namespace Business.Business
                     pad.IdLocation = location.Id == 0 ? null : location.Id;
                     pad.IdFromApi = launch.Pad.IdFromApi;
                     pad.EntityStatus = EStatus.DRAFT.GetDisplayName();
-                    pad.ImportedT = DateTime.Now;
-                    pad.AtualizationDate = DateTime.Now;
 
                     _padBusiness.SaveTransaction(pad);
                 }
@@ -416,9 +398,7 @@ namespace Business.Business
                     Infographic = launch.Infographic,
                     Programs = launch.Programs,
                     EntityStatus = EStatus.DRAFT.GetDisplayName(),
-                    IdFromApi = launch.IdFromApi,
-                    ImportedT = DateTime.Now,
-                    AtualizationDate = DateTime.Now
+                    IdFromApi = launch.IdFromApi
                 };
                 _launchBusiness.SaveTransaction(saveLaunch);
 

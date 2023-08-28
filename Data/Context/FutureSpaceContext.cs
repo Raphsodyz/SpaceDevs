@@ -6,12 +6,6 @@ namespace Data.Context
 {
     public class FutureSpaceContext : DbContext
     {
-        private readonly IConfiguration _configuration;
-        public FutureSpaceContext(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
-
         public DbSet<Launch> Launch { get; set; }
         public DbSet<Configuration> Configuration { get; set; }
         public DbSet<LaunchDesignator> LaunchDesignator { get; set; }
@@ -33,9 +27,18 @@ namespace Data.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = _configuration.GetSection("ConnectionStrings:default").Value;
+                var connection = configuration.GetSection("ConnectionStrings:default").Value;
                 optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection));
             }
+        }
+
+        public override int SaveChanges()
+        {
+            foreach(var entry in ChangeTracker.Entries<BaseEntity>())
+                if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+                    entry.Entity.BeforeSave();
+
+            return base.SaveChanges();
         }
     }
 }

@@ -1,0 +1,12 @@
+global using Xunit;
+global using Xunit.Abstractions;
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using Business.Interface;
+global using Moq;
+global using Domain.Entities;
+global using Application.DTO;
+global using Domain.Enum;
+global using Domain.Helper;

@@ -16,54 +16,24 @@ namespace Domain.Entities
         [JsonIgnore]
         public int? IdFromApi { get; set; }
 
-        private DateTime? atualizationDate;
-        
         [Column("ATUALIZATION_DATE")]
-        public virtual DateTime AtualizationDate { 
-            get 
-            {
-                if(atualizationDate == DateTime.MinValue)
-                    atualizationDate = DateTime.Now;
-
-                return atualizationDate.Value;
-            }
-            set 
-            {
-                atualizationDate = DateTime.Now;
-            }
-        }
-
-        private DateTime? importedT;
+        public virtual DateTime AtualizationDate { get; set; } = DateTime.Now;
 
         [Column("IMPORTED_T")]
-        public virtual DateTime ImportedT { 
-            get 
-            {
-                if (importedT == DateTime.MinValue)
-                    importedT = DateTime.Now;
-
-                return importedT.Value;
-            }
-            set 
-            {
-                if (value != null && value != new DateTime() && value != DateTime.MinValue)
-                    importedT = value;
-                else
-                    importedT = DateTime.Now;
-            }
-        }
+        public virtual DateTime ImportedT { get; set; } = DateTime.Now;
 
         [NotMapped]
         [JsonIgnore]
         private EStatus? _statusEnum { get; set; }
 
         [Column("STATUS")]
-        public string EntityStatus { 
-            get 
-            { 
-                return _statusEnum.GetDisplayName(); 
-            } 
-            set 
+        public string EntityStatus
+        {
+            get
+            {
+                return _statusEnum.GetDisplayName();
+            }
+            set
             {
                 try
                 {
@@ -72,11 +42,26 @@ namespace Domain.Entities
                     else
                         _statusEnum = (EStatus)System.Enum.Parse(typeof(EStatus), value);
                 }
-                catch 
+                catch
                 {
                     _statusEnum = null;
                 }
-            } 
+            }
+        }
+
+        [NotMapped]
+        [JsonIgnore]
+        public bool IsNew => Id == 0;
+
+        public virtual void BeforeSave()
+        {
+            if (IsNew)
+            {
+                ImportedT = DateTime.Now;
+                AtualizationDate = DateTime.Now;
+            }
+            else
+                AtualizationDate = DateTime.Now;
         }
     }
 }

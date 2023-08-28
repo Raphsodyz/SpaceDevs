@@ -12,5 +12,11 @@ namespace Domain.Entities
     {
         [Column("NAME")]
         public string? Name { get; set; }
+
+        [Column("ABBREV")]
+        public string? Abbrev { get; set; }
+
+        [Column("DESCRIPTION")]
+        public string? Description  { get; set; }
     }
 }

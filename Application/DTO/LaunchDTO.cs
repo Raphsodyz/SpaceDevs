@@ -31,10 +31,6 @@ namespace Application.DTO
         [Display(Name = "Name")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Name.", MinimumLength = 2)]
         public string Name { get; set; }
-
-        [Range(0, int.MaxValue)]
-        [Display(Name = "Status")]
-        public int IdStatus { get; set; }
         
         public StatusDTO Status { get; set; }
 
