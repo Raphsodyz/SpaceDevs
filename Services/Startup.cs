@@ -26,7 +26,6 @@ namespace Services
             services.AddCors();
             
             services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
-            services.AddTransient<ILaunchDesignatorRepository, LaunchDesignatorRepository>();
             services.AddTransient<ILaunchRepository, LaunchRepository>();
             services.AddTransient<ILaunchServiceProviderRepository, LaunchServiceProviderRepository>();
             services.AddTransient<ILocationRepository, LocationRepository>();
@@ -35,7 +34,6 @@ namespace Services
             services.AddTransient<IStatusRepository, StatusRepository>();
 
             services.AddTransient<IConfigurationBusiness, ConfigurationBusiness>();
-            services.AddTransient<ILaunchDesignatorBusiness, LaunchDesignatorBusiness>();
             services.AddTransient<ILaunchBusiness, LaunchBusiness>();
             services.AddTransient<ILaunchServiceProviderBusiness, LaunchServiceProviderBusiness>();
             services.AddTransient<ILocationBusiness, LocationBusiness>();

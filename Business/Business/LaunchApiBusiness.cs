@@ -56,7 +56,7 @@ namespace Business.Business
             if (page > totalPages || page < 0)
                 throw new InvalidOperationException($"{ErrorMessages.InvalidPageSelected} Total pages = {totalPages}");
 
-            List<Expression<Func<Launch, bool>>> publishedLaunchQuery = new List<Expression<Func<Launch, bool>>>
+            List<Expression<Func<Launch, bool>>> publishedLaunchQuery = new()
             { l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
             var selectedPageLaunchList = _launchBusiness.GetAllPaged(
                 page ?? 0, 10,
@@ -211,7 +211,6 @@ namespace Business.Business
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
             IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
-            ILaunchDesignatorBusiness _launchDesignatorBusiness = GetBusiness(typeof(ILaunchDesignatorBusiness)) as ILaunchDesignatorBusiness;
             ILaunchServiceProviderBusiness _launchServiceProviderBusiness = GetBusiness(typeof(ILaunchServiceProviderBusiness)) as ILaunchServiceProviderBusiness;
             ILocationBusiness _locationBuiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
             IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
@@ -288,18 +287,6 @@ namespace Business.Business
                 Mission mission = new();
                 if (launch.Mission != null)
                 {
-                    LaunchDesignator launchDesignator = new();
-                    if (launch.Mission.LaunchDesignator != null)
-                    {
-                        int id = _launchDesignatorBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.LaunchDesignator.IdFromApi, selectColumns: s => s.Id);
-
-                        launchDesignator.Id = id > 0 ? id : 0;
-                        launchDesignator.IdFromApi = launch.Mission.LaunchDesignator.IdFromApi;
-                        launchDesignator.EntityStatus = EStatus.DRAFT.GetDisplayName();
-
-                        _launchDesignatorBusiness.SaveTransaction(launchDesignator);
-                    }
-
                     Orbit orbit = new();
                     if (launch.Mission.Orbit != null)
                     {
@@ -321,7 +308,6 @@ namespace Business.Business
                     mission.Name = launch.Mission.Name;
                     mission.Type = launch.Mission.Type;
                     mission.IdOrbit = orbit.Id == 0 ? null : orbit.Id;
-                    mission.IdLaunchDesignator = launchDesignator.Id == 0 ? null : launchDesignator.Id;
                     mission.IdFromApi = launch.Mission.IdFromApi;
                     mission.EntityStatus = EStatus.DRAFT.GetDisplayName();
 

@@ -18,7 +18,6 @@ namespace Business.Mapper
             CreateMap<StatusDTO, Status>().ReverseMap();
             CreateMap<RocketDTO, Rocket>().ReverseMap();
             CreateMap<ConfigurationDTO, Configuration>().ReverseMap();
-            CreateMap<LaunchDesignatorDTO, LaunchDesignator>().ReverseMap();
             CreateMap<LaunchServiceProviderDTO, LaunchServiceProvider>().ReverseMap();
             CreateMap<LocationDTO, Location>().ReverseMap();
             CreateMap<MissionDTO, Mission>().ReverseMap();
@@ -86,12 +85,6 @@ namespace Business.Mapper
                 .ForPath(
                     entity => entity.Mission.LaunchLibraryId,
                     dto => dto.MapFrom(src => src.Mission.Launch_Library_Id))
-                .ForPath(
-                    entity => entity.Mission.LaunchDesignator,
-                    dto => dto.MapFrom(src => src.Mission.Launch_Designator))
-                .ForPath(
-                    entity => entity.Mission.LaunchDesignator.IdFromApi,
-                    dto => dto.MapFrom(src => src.Mission.Launch_Designator.Id))
                 .ForPath(
                     entity => entity.Mission.Orbit,
                     dto => dto.MapFrom(src => src.Mission.Orbit))

@@ -31,8 +31,6 @@ namespace Application.DTO
         [StringLength(500, ErrorMessage = "Atention! Write a valid Description.", MinimumLength = 2)]
         public string Description { get; set; }
 
-        public LaunchDesignatorDTO? Launch_Designator { get; set; }
-
         [Display(Name = "Type")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Type.", MinimumLength = 2)]
         public string Type { get; set; }

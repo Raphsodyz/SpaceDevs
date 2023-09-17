@@ -8,7 +8,6 @@ namespace Data.Context
     {
         public DbSet<Launch> Launch { get; set; }
         public DbSet<Configuration> Configuration { get; set; }
-        public DbSet<LaunchDesignator> LaunchDesignator { get; set; }
         public DbSet<LaunchServiceProvider> LaunchServiceProvider { get; set; }
         public DbSet<Location> Location { get; set; }
         public DbSet<Mission> Mission { get; set; }

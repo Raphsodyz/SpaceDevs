@@ -17,11 +17,6 @@ namespace Domain.Entities
         public string? Name { get; set; }
         [Column("DESCRIPTION")]
         public string? Description { get; set; }
-        [Column("ID_LAUNCH_DESIGNATOR")]
-        public int? IdLaunchDesignator { get; set; }
-        [JsonIgnore]
-        [ForeignKey(nameof(IdLaunchDesignator))]
-        public LaunchDesignator? LaunchDesignator { get; set; }
         [Column("TYPE")]
         public string? Type { get; set; }
         [Column("ID_ORBIT")]
@@ -29,5 +24,7 @@ namespace Domain.Entities
         [JsonIgnore]
         [ForeignKey(nameof(IdOrbit))]
         public Orbit Orbit { get; set; }
+        [Column("LAUNCH_DESIGNATOR")]
+        public string LaunchDesignator { get; set; }
     }
 }

@@ -27,8 +27,6 @@ namespace Business.Business
                     return new ConfigurationBusiness(_uow);
                 case "ILaunchBusiness":
                     return new LaunchBusiness(_uow);
-                case "ILaunchDesignatorBusiness":
-                    return new LaunchDesignatorBusiness(_uow);
                 case "ILaunchServiceProviderBusiness":
                     return new LaunchServiceProviderBusiness(_uow);
                 case "ILocationBusiness":

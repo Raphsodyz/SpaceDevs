@@ -32,9 +32,6 @@ namespace Data.Context
                     case "ILaunchRepository":
                         repository = new LaunchRepository(_context);
                         break;
-                    case "ILaunchDesignatorRepository":
-                        repository = new LaunchDesignatorRepository(_context);
-                        break;
                     case "ILaunchServiceProviderRepository":
                         repository = new LaunchServiceProviderRepository(_context);
                         break;
