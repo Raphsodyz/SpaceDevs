@@ -12,10 +12,10 @@ namespace Business.Interface
 {
     public interface ILaunchApiBusiness : IBusinessBase<Launch, ILaunchRepository>
     {
-        LaunchDTO GetOneLaunch(int? launchId);
+        LaunchDTO GetOneLaunch(Guid? launchId);
         Pagination<LaunchDTO> GetAllLaunchPaged(int? page);
-        void SoftDeleteLaunch(int? launchId);
-        Task<LaunchDTO> UpdateLaunch(int? launchId);
+        void SoftDeleteLaunch(Guid? launchId);
+        Task<LaunchDTO> UpdateLaunch(Guid? launchId);
         Task<bool> UpdateDataSet(int? skip);
     }
 }

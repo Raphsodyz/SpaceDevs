@@ -1,0 +1,43 @@
+version: '3.5'
+
+volumes:
+  futurespacedb:
+
+networks:
+  default:
+    driver: bridge
+    name: futurespaceweb
+
+services:
+  mysql:
+    image: "mysql:8.0"
+    hostname: mysql
+    volumes:
+      - ./Data/Migrations/migrations.sql:/docker-entrypoint-initdb.d/migrations.sql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=futurespacedb
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=mysql
+  
+  api:
+    build:
+      context: .
+      dockerfile: dockerfile
+    hostname: api
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      - DB_CONNECTION_STRING=Server=mysql;Database=futurespacedb;User=mysql;Password=mysql;MinimumPoolSize=1;maximumpoolsize=2048;Connection Timeout=5;
+      - REDIS_CONNECTION_STRING=redis
+      - ASPNETCORE_URLS=http://+:5000;
+      - DOTNET_TieredPGO=1
+      - DOTNET_ReadyToRun=0
+      - DOTNET_TC_QuickJitForLoops=1
+    ports:
+      - "5000:5000"
+  
+  redis:
+    image: "redis:7.2.3-alpine"
+    hostname: redis

@@ -20,7 +20,7 @@ namespace Domain.Entities
         [Column("TYPE")]
         public string? Type { get; set; }
         [Column("ID_ORBIT")]
-        public int? IdOrbit { get; set; }
+        public Guid? IdOrbit { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdOrbit))]
         public Orbit Orbit { get; set; }

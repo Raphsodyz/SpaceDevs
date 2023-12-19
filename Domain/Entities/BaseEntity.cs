@@ -10,7 +10,7 @@ namespace Domain.Entities
     {
         [Key]
         [Column("ID")]
-        public virtual int Id { get; set; }
+        public virtual Guid Id { get; set; }
 
         [Column("ID_FROM_API")]
         [JsonIgnore]
@@ -51,7 +51,7 @@ namespace Domain.Entities
 
         [NotMapped]
         [JsonIgnore]
-        public bool IsNew => Id == 0;
+        public bool IsNew => Id == Guid.Empty;
 
         public virtual void BeforeSave()
         {

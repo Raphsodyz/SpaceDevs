@@ -28,7 +28,7 @@ namespace Domain.Entities
         [Column("LONGITUDE")]
         public double? Longitude { get; set; }
         [Column("ID_LOCATION")]
-        public int? IdLocation { get; set; }
+        public Guid? IdLocation { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdLocation))]
         public Location Location { get; set; }

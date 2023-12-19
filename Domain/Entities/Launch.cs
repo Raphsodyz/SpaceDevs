@@ -22,7 +22,7 @@ namespace Domain.Entities
         [Column("NAME")]
         public string Name { get; set; }
         [Column("ID_STATUS")]
-        public int? IdStatus { get; set; }
+        public Guid? IdStatus { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdStatus))]
         public Status Status { get; set; }
@@ -47,22 +47,22 @@ namespace Domain.Entities
         [Column("HASHTAG")]
         public string? Hashtag { get; set; }
         [Column("ID_LAUNCH_SERVICE_PROVIDER")]
-        public int? IdLaunchServiceProvider { get; set; }
+        public Guid? IdLaunchServiceProvider { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdLaunchServiceProvider))]
         public LaunchServiceProvider LaunchServiceProvider { get; set; }
         [Column("ID_ROCKET")]
-        public int? IdRocket { get; set; }
+        public Guid? IdRocket { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdRocket))]
         public Rocket Rocket { get; set; }
         [Column("ID_MISSION")]
-        public int? IdMission { get; set; }
+        public Guid? IdMission { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdMission))]
         public Mission Mission { get; set; }
         [Column("ID_PAD")]
-        public int? IdPad { get; set; }
+        public Guid? IdPad { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdPad))]
         public Pad Pad { get; set; }

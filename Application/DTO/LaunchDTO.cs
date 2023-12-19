@@ -72,7 +72,7 @@ namespace Application.DTO
         [StringLength(200, ErrorMessage = "Atention! Write a valid HashTag.", MinimumLength = 2)]
         public string Hashtag { get; set; }
 
-        public LaunchServiceProvider Launch_Service_Provider { get; set; }
+        public LaunchServiceProviderDTO Launch_Service_Provider { get; set; }
 
         public RocketDTO Rocket { get; set; }
 

@@ -206,7 +206,7 @@ namespace Data.Repository
 
         public virtual void SaveTransaction(T entity)
         {
-            if (entity.Id == 0)
+            if (entity.Id == Guid.Empty)
             {
                 _dbSet.Add(entity);
                 _context.SaveChanges();

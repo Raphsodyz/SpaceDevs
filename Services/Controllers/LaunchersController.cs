@@ -25,7 +25,7 @@ namespace Services.Controllers
 
         [HttpGet]
         [Route("launchers/{launchId}")]
-        public IActionResult GetById(int launchId)
+        public IActionResult GetById(Guid? launchId)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace Services.Controllers
 
         [HttpDelete]
         [Route("launchers/{launchId}")]
-        public IActionResult Delete(int launchId)
+        public IActionResult Delete(Guid? launchId)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace Services.Controllers
 
         [HttpPut]
         [Route("launchers/{launchId}")]
-        public async Task<IActionResult> Edit(int launchId)
+        public async Task<IActionResult> Edit(Guid? launchId)
         {
             try
             {

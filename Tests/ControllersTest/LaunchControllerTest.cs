@@ -24,7 +24,7 @@ namespace Tests.ControllersTest
         public void LaunchersController_GetById_OkObject()
         {
             //Arrange
-            int launchId = 1;
+            Guid launchId = Guid.NewGuid();
 
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
             launchApiBusiness.Setup(l => l.GetOneLaunch(launchId)).Returns(LaunchDTOTest);
@@ -44,7 +44,7 @@ namespace Tests.ControllersTest
 
         internal Launch LaunchTest = new()
         {
-            Id = 1,
+            Id = Guid.NewGuid(),
             ImportedT = DateTime.Now,
             EntityStatus = EStatus.PUBLISHED.GetDisplayName(),
             AtualizationDate = DateTime.Now,
@@ -53,10 +53,10 @@ namespace Tests.ControllersTest
             LaunchLibraryId = null,
             Slug = "sputnik-8k74ps-sputnik-1",
             Name = "Sputnik 8K74PS | Sputnik 1",
-            IdStatus = 3,
+            IdStatus = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75801"),
             Status = new Status
             {
-                Id = 3,
+                Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75801"),
                 Name = "Launch Successful",
                 Abbrev = "Success",
                 Description = "The launch vehicle successfully inserted its payload(s) into the target orbit(s)."
@@ -68,22 +68,22 @@ namespace Tests.ControllersTest
             HoldReason = null,
             FailReason = null,
             Hashtag = null,
-            IdLaunchServiceProvider = 66,
+            IdLaunchServiceProvider = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75802"),
             LaunchServiceProvider = new LaunchServiceProvider
             {
-                Id = 66,
+                Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75802"),
                 Url = "https://ll.thespacedevs.com/2.2.0/agencies/66/",
                 Name = "Soviet Space Program",
                 Type = "Government"
             },
-            IdRocket = 3003,
+            IdRocket = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75803"),
             Rocket = new Rocket
             {
-                Id = 3003,
-                IdConfiguration = 468,
+                Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75803"),
+                IdConfiguration = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75804"),
                 Configuration = new Configuration
                 {
-                    Id = 468,
+                    Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75804"),
                     Url = "https://ll.thespacedevs.com/2.2.0/config/launcher/468/",
                     Name = "Sputnik 8K74PS",
                     Family = "Sputnik",
@@ -91,26 +91,26 @@ namespace Tests.ControllersTest
                     Variant = "8K74PS"
                 }
             },
-            IdMission = 1430,
+            IdMission = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75805"),
             Mission = new Mission
             {
-                Id = 1430,
+                Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75805"),
                 Name = "Sputnik 1",
                 Description = "First artificial satellite consisting of a 58 cm pressurized aluminium shell containing two 1 W transmitters for a total mass of 83.6 kg.",
                 LaunchDesignator = null,
                 Type = "Test Flight",
-                IdOrbit = 8,
+                IdOrbit = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75806"),
                 Orbit = new Orbit
                 {
-                    Id = 8,
+                    Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75806"),
                     Name = "Low Earth Orbit",
                     Abbrev = "LEO"
                 }
             },
-            IdPad = 32,
+            IdPad = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75807"),
             Pad = new Pad
             {
-                Id = 32,
+                Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75807"),
                 Url = "https://ll.thespacedevs.com/2.2.0/pad/32/",
                 AgencyId = null,
                 Name = "1/5",
@@ -119,10 +119,10 @@ namespace Tests.ControllersTest
                 MapUrl = "https://www.google.com/maps?q=45.92,63.342",
                 Latitude = 45.92,
                 Longitude = 63.342,
-                IdLocation = 15,
+                IdLocation = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75808"),
                 Location = new Location
                 {
-                    Id = 15,
+                    Id = new Guid("e3df2ecd-c239-472f-95e4-2b89b4f75808"),
                     Url = "https://ll.thespacedevs.com/2.2.0/location/15/",
                     Name = "Baikonur Cosmodrome, Republic of Kazakhstan",
                     CountryCode = "KAZ",
@@ -160,7 +160,7 @@ namespace Tests.ControllersTest
             HoldReason = null,
             FailReason = null,
             Hashtag = null,
-            Launch_Service_Provider = new LaunchServiceProvider
+            Launch_Service_Provider = new LaunchServiceProviderDTO
             {
                 Id = 66,
                 Url = "https://ll.thespacedevs.com/2.2.0/agencies/66/",
@@ -185,7 +185,6 @@ namespace Tests.ControllersTest
                 Id = 1430,
                 Name = "Sputnik 1",
                 Description = "First artificial satellite consisting of a 58 cm pressurized aluminium shell containing two 1 W transmitters for a total mass of 83.6 kg.",
-                Launch_Designator = null,
                 Type = "Test Flight",
                 Orbit = new OrbitDTO
                 {
