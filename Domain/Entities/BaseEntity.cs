@@ -17,10 +17,10 @@ namespace Domain.Entities
         public int? IdFromApi { get; set; }
 
         [Column("ATUALIZATION_DATE")]
-        public virtual DateTime AtualizationDate { get; set; } = DateTime.Now;
+        public virtual DateTime AtualizationDate { get; set; }
 
         [Column("IMPORTED_T")]
-        public virtual DateTime ImportedT { get; set; } = DateTime.Now;
+        public virtual DateTime ImportedT { get; set; }
 
         [NotMapped]
         [JsonIgnore]

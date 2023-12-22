@@ -26,7 +26,7 @@ namespace Data.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:default").Value);
+                var connection = configuration.GetSection("ConnectionStrings:default").Value;
                 optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection));
             }
         }
