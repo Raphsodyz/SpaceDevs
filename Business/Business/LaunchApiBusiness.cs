@@ -230,7 +230,7 @@ namespace Business.Business
                 {
                     Guid id = _statusBusiness.GetSelected(filter: s => s.IdFromApi == launch.Status.IdFromApi, selectColumns: s => s.Id);
 
-                    status.Id = id != Guid.Empty ? id : Guid.NewGuid();
+                    status.Id = id != Guid.Empty ? id : Guid.Empty;
                     status.Name = launch.Status.Name;
                     status.IdFromApi = launch.Status.IdFromApi;
                     status.EntityStatus = EStatus.DRAFT.GetDisplayName();
@@ -243,7 +243,7 @@ namespace Business.Business
                 {
                     Guid id = _launchServiceProviderBusiness.GetSelected(filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi, selectColumns: s => s.Id);
 
-                    launchServiceProvider.Id = id != Guid.Empty ? id : Guid.NewGuid();
+                    launchServiceProvider.Id = id != Guid.Empty ? id : Guid.Empty;
                     launchServiceProvider.Name = launch.LaunchServiceProvider.Name;
                     launchServiceProvider.Url = launch.LaunchServiceProvider.Url;
                     launchServiceProvider.Type = launch.LaunchServiceProvider.Type;
@@ -261,7 +261,7 @@ namespace Business.Business
                     {
                         Guid idConfiguration = _configurationBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi, selectColumns: s => s.Id);
 
-                        configuration.Id = idConfiguration != Guid.Empty ? idConfiguration : Guid.NewGuid();
+                        configuration.Id = idConfiguration != Guid.Empty ? idConfiguration : Guid.Empty;
                         configuration.LaunchLibraryId = launch.Rocket.Configuration.LaunchLibraryId;
                         configuration.Url = launch.Rocket.Configuration.Url;
                         configuration.Name = launch.Rocket.Configuration.Name;
@@ -276,7 +276,7 @@ namespace Business.Business
 
                     Guid idRocket = _rocketBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.IdFromApi, selectColumns: s => s.Id);
 
-                    rocket.Id = idRocket != Guid.Empty ? idRocket : Guid.NewGuid();
+                    rocket.Id = idRocket != Guid.Empty ? idRocket : Guid.Empty;
                     rocket.IdConfiguration = configuration.Id == Guid.Empty ? null : configuration.Id;
                     rocket.IdFromApi = launch.Rocket.IdFromApi;
                     rocket.EntityStatus = EStatus.DRAFT.GetDisplayName();
@@ -292,7 +292,7 @@ namespace Business.Business
                     {
                         Guid idOrbit = _orbitBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi, selectColumns: s => s.Id);
 
-                        orbit.Id = idOrbit != Guid.Empty ? idOrbit : Guid.NewGuid();
+                        orbit.Id = idOrbit != Guid.Empty ? idOrbit : Guid.Empty;
                         orbit.Name = launch.Mission.Orbit.Name;
                         orbit.Abbrev = launch.Mission.Orbit.Abbrev;
                         orbit.IdFromApi = launch.Mission.Orbit.IdFromApi;
@@ -303,7 +303,7 @@ namespace Business.Business
 
                     Guid idMission = _missionBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.IdFromApi, selectColumns: s => s.Id);
 
-                    mission.Id = idMission != Guid.Empty ? idMission : Guid.NewGuid();
+                    mission.Id = idMission != Guid.Empty ? idMission : Guid.Empty;
                     mission.Description = launch.Mission.Description;
                     mission.Name = launch.Mission.Name;
                     mission.Type = launch.Mission.Type;
@@ -322,7 +322,7 @@ namespace Business.Business
                     {
                         Guid idLocation = _locationBuiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi, selectColumns: s => s.Id);
                         
-                        location.Id = idLocation != Guid.Empty ? idLocation : Guid.NewGuid();
+                        location.Id = idLocation != Guid.Empty ? idLocation : Guid.Empty;
                         location.Url = launch.Pad.Location.Url;
                         location.Name = launch.Pad.Location.Name;
                         location.CountryCode = launch.Pad.Location.CountryCode;
@@ -337,7 +337,7 @@ namespace Business.Business
 
                     Guid idPad = _padBusiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.IdFromApi, selectColumns: s => s.Id);
 
-                    pad.Id = idPad != Guid.Empty ? idPad : Guid.NewGuid();
+                    pad.Id = idPad != Guid.Empty ? idPad : Guid.Empty;
                     pad.Url = launch.Pad.Url;
                     pad.AgencyId = launch.Pad.AgencyId;
                     pad.Name = launch.Pad.Name;
@@ -358,7 +358,7 @@ namespace Business.Business
                 Guid idLaunch = _launchBusiness.GetSelected(filter: s => s.ApiGuId == launch.ApiGuId, selectColumns: s => s.Id);
                 Launch saveLaunch = new()
                 {
-                    Id = idLaunch != Guid.Empty ? idLaunch : Guid.NewGuid(),
+                    Id = idLaunch != Guid.Empty ? idLaunch : Guid.Empty,
                     ApiGuId = launch.ApiGuId,
                     Url = launch.Url,
                     LaunchLibraryId = launch.LaunchLibraryId,
@@ -403,7 +403,6 @@ namespace Business.Business
             
             var log = new UpdateLog()
             {
-                Id = Guid.NewGuid(),
                 TransactionDate = DateTime.Now,
                 OffSet = offset,
                 Success = success,
