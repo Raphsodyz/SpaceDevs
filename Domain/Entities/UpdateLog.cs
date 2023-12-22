@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("UPDATE_LOG")]
+    [Table("UPDATE_LOG_ROUTINE")]
     public class UpdateLog : BaseEntity
     {
         [Column("TRANSACTION_DATE")]
         public DateTime TransactionDate { get; set; }
-        [Column("OFFSET")]
+        [Column("OFFSET_DATA")]
         public int OffSet { get; set; }
         [Column("SUCCESS")]
         public bool Success { get; set; }
