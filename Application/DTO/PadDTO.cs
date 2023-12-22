@@ -14,10 +14,11 @@ namespace Application.DTO
     public class PadDTO
     {
         [Key]
-        [Range(0, int.MaxValue)]
+        [Range(1, int.MaxValue)]
         [Display(Name = "ID")]
-        [Required(ErrorMessage = "Atention! The ID field can't be null.")]
-        public int Id { get; set; }
+        [JsonPropertyName("id")]
+        [Required(ErrorMessage = "The field {0} can't be null.")]
+        public int IdFromApi { get; set; }
 
         [Display(Name = "Link")]
         [StringLength(500, ErrorMessage = "Atention! Write a valid link.", MinimumLength = 2)]

@@ -34,9 +34,6 @@ namespace Business.Mapper
                 .ForPath(
                     entity => entity.Status.Id,
                     dto => dto.Ignore())
-                .ForPath(
-                    entity => entity.Status.IdFromApi,
-                    dto => dto.MapFrom(src => src.Status.Id))
                 .ForMember(
                     entity => entity.WindowEnd,
                     dto => dto.MapFrom(src => src.Window_End))
@@ -47,20 +44,11 @@ namespace Business.Mapper
                     entity => entity.LaunchServiceProvider,
                     dto => dto.MapFrom(src => src.Launch_Service_Provider))
                 .ForPath(
-                    entity => entity.LaunchServiceProvider.IdFromApi,
-                    dto => dto.MapFrom(src => src.Launch_Service_Provider.Id))
-                .ForPath(
                     entity => entity.Rocket,
                     dto => dto.MapFrom(src => src.Rocket))
                 .ForPath(
-                    entity => entity.Rocket.IdFromApi,
-                    dto => dto.MapFrom(src => src.Rocket.Id))
-                .ForPath(
                     entity => entity.Rocket.Configuration,
                     dto => dto.MapFrom(src => src.Rocket.Configuration))
-                .ForPath(
-                    entity => entity.Rocket.Configuration.IdFromApi,
-                    dto => dto.MapFrom(src => src.Rocket.Configuration.Id))
                 .ForPath(
                     entity => entity.Rocket.Configuration.LaunchLibraryId,
                     dto => dto.MapFrom(src => src.Rocket.Configuration.Launch_Library_Id))
@@ -68,14 +56,8 @@ namespace Business.Mapper
                     entity => entity.Rocket.Configuration.FullName,
                     dto => dto.MapFrom(src => src.Rocket.Configuration.full_name))
                 .ForPath(
-                    entity => entity.Rocket.Configuration.IdFromApi,
-                    dto => dto.MapFrom(src => src.Rocket.Configuration.Id))
-                .ForPath(
                     entity => entity.Mission,
                     dto => dto.MapFrom(src => src.Mission))
-                .ForPath(
-                    entity => entity.Mission.IdFromApi,
-                    dto => dto.MapFrom(src => src.Mission.Id))
                 .ForPath(
                     entity => entity.Mission.LaunchLibraryId,
                     dto => dto.MapFrom(src => src.Mission.Launch_Library_Id))
@@ -83,14 +65,8 @@ namespace Business.Mapper
                     entity => entity.Mission.Orbit,
                     dto => dto.MapFrom(src => src.Mission.Orbit))
                 .ForPath(
-                    entity => entity.Mission.Orbit.IdFromApi,
-                    dto => dto.MapFrom(src => src.Mission.Orbit.Id))
-                .ForPath(
                     entity => entity.Pad,
                     dto => dto.MapFrom(src => src.Pad))
-                .ForPath(
-                    entity => entity.Pad.IdFromApi,
-                    dto => dto.MapFrom(src => src.Pad.Id))
                 .ForPath(
                     entity => entity.Pad.AgencyId,
                     dto => dto.MapFrom(src => src.Pad.Agency_Id))
@@ -106,9 +82,6 @@ namespace Business.Mapper
                 .ForPath(
                     entity => entity.Pad.Location,
                     dto => dto.MapFrom(src => src.Pad.Location))
-                .ForPath(
-                    entity => entity.Pad.Location.IdFromApi,
-                    dto => dto.MapFrom(src => src.Pad.Location.Id))
                 .ForPath(
                     entity => entity.Pad.Location.CountryCode,
                     dto => dto.MapFrom(src => src.Pad.Location.Country_Code))

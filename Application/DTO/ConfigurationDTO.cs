@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -12,10 +13,11 @@ namespace Application.DTO
     public class ConfigurationDTO
     {
         [Key]
-        [Range(0, int.MaxValue)]
+        [Range(1, int.MaxValue)]
         [Display(Name = "ID")]
-        [Required(ErrorMessage = "Atention! The ID field can't be null.")]
-        public int Id { get; set; }
+        [Required(ErrorMessage = "The field {0} can't be null.")]
+        [JsonPropertyName("id")]
+        public int IdFromApi { get; set; }
 
         [Range(0, int.MaxValue)]
         [Display(Name = "Launch Library")]
