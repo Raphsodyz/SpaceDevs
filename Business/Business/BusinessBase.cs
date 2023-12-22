@@ -93,6 +93,11 @@ namespace Business.Business
             return _repository.GetSelected(filter, includedProperties, selectColumns);
         }
 
+        public virtual void UpdateOnQuery(List<Expression<Func<T, bool>>> filters = null, Expression<Func<T, T>> updateColumns = null, string includedProperties = null)
+        {
+            _repository.UpdateOnQuery(filters, updateColumns, includedProperties);
+        }
+
         public void Save(T entity)
         {
             _repository.Save(entity);

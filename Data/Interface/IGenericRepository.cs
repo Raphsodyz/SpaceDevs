@@ -45,6 +45,11 @@ namespace Data.Interface
             string includedProperties = "",
             Func<T, TResult> selectColumns = null);
 
+        void UpdateOnQuery(
+            List<Expression<Func<T, bool>>> filters = null,
+            Expression<Func<T, T>> updateColumns = null,
+            string includedProperties = null);
+
         void Save(T entity);
         void SaveTransaction(T entity);
 

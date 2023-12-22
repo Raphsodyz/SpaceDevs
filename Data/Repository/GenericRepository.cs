@@ -198,6 +198,27 @@ namespace Data.Repository
             return resultado;
         }
 
+        public virtual void UpdateOnQuery(
+            List<Expression<Func<T, bool>>> filters = null,
+            Expression<Func<T, T>> updateColumns = null,
+            string includedProperties = null)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if(filters != null && filters.Count > 0)
+                foreach(var filter in filters)
+                    query = query.Where(filter);
+
+            if (!string.IsNullOrWhiteSpace(includedProperties))
+            {
+                foreach (var includeProperty in includedProperties.Split
+                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    query = query.Include(includeProperty.TrimStart());
+            }
+            
+            query.UpdateFromQuery(updateColumns);
+        }
+
         public virtual void Save(T entity)
         {
             _dbSet.Add(entity);
@@ -208,6 +229,8 @@ namespace Data.Repository
         {
             if (entity.Id == Guid.Empty)
             {
+                entity.Id = Guid.NewGuid();
+                
                 _dbSet.Add(entity);
                 _context.SaveChanges();
             }
