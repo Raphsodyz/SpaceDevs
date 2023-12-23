@@ -1,13 +1,13 @@
 ﻿using Application.DTO;
 using AutoMapper;
 using Domain.Entities;
-using Domain.Helper;
+using Cross.Cutting.Helper;
 
 namespace Business.Mapper
 {
-    public class FutureSpaceMapper : Profile
+    public class FutureSpaceDTOMapper : Profile
     {
-        public FutureSpaceMapper()
+        public FutureSpaceDTOMapper()
         {
             CreateMap<StatusDTO, Status>().ReverseMap();
             CreateMap<RocketDTO, Rocket>().ReverseMap();
@@ -102,8 +102,9 @@ namespace Business.Mapper
                     dto => dto.MapFrom(src => src.Pad.Total_Launch_Count))
                 .ForMember(
                     entity => entity.WebcastLive,
-                    dto => dto.MapFrom(src => src.Webcast_Live))
-                .ReverseMap();
+                    dto => dto.MapFrom(src => src.Webcast_Live)
+                )
+            .ReverseMap();
         }
     }
 }
