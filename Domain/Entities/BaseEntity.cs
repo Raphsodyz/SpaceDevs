@@ -1,8 +1,8 @@
-﻿using Domain.Enum;
-using Domain.Helper;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Cross.Cutting.Enum;
+using Cross.Cutting.Helper;
 
 namespace Domain.Entities
 {
@@ -51,7 +51,7 @@ namespace Domain.Entities
 
         [NotMapped]
         [JsonIgnore]
-        public bool IsNew => Id == Guid.Empty;
+        public bool IsNew => ImportedT == DateTime.MinValue;
 
         public virtual void BeforeSave()
         {

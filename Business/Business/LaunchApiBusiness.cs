@@ -3,12 +3,9 @@ using AutoMapper;
 using Business.Interface;
 using Data.Interface;
 using Domain.Entities;
-using Domain.Enum;
-using Domain.Helper;
-using Microsoft.AspNetCore.Identity;
+using Cross.Cutting.Enum;
+using Cross.Cutting.Helper;
 using Microsoft.Extensions.Configuration;
-using Microsoft.VisualBasic;
-using MySqlConnector;
 using System.Data;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
@@ -169,6 +166,7 @@ namespace Business.Business
                         entityCounter++;
                     }
                     GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
+                    
                     entityCounter = 0;
                     offset += limit;
                 }
@@ -188,22 +186,8 @@ namespace Business.Business
                     throw ex;
                 }
             }
+
             GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
-
-            using var conn = new MySqlConnection(Environment.GetEnvironmentVariable(_configuration.GetSection("ConnectionStrings:default").Value));
-            using var command = new MySqlCommand("sp_status_published_routine", conn) { CommandType = CommandType.StoredProcedure };
-            try
-            {
-                conn.Open();
-                command.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                conn.Close();
-                GenerateLog(offset, ErrorMessages.StoredProcedurePublishedRoutineError, entityCounter, false);
-            }
-
-            conn.Close();
             return true;
         }
 
@@ -233,7 +217,7 @@ namespace Business.Business
                     status.Id = id != Guid.Empty ? id : Guid.Empty;
                     status.Name = launch.Status.Name;
                     status.IdFromApi = launch.Status.IdFromApi;
-                    status.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                    status.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                     _statusBusiness.SaveTransaction(status);
                 }
@@ -248,7 +232,7 @@ namespace Business.Business
                     launchServiceProvider.Url = launch.LaunchServiceProvider.Url;
                     launchServiceProvider.Type = launch.LaunchServiceProvider.Type;
                     launchServiceProvider.IdFromApi = launch.LaunchServiceProvider.IdFromApi;
-                    launchServiceProvider.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                    launchServiceProvider.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                     _launchServiceProviderBusiness.SaveTransaction(launchServiceProvider);
                 }
@@ -269,7 +253,7 @@ namespace Business.Business
                         configuration.FullName = launch.Rocket.Configuration.FullName;
                         configuration.Variant = launch.Rocket.Configuration.Variant;
                         configuration.IdFromApi = launch.Rocket.Configuration.IdFromApi;
-                        configuration.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                        configuration.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                         _configurationBusiness.SaveTransaction(configuration);
                     }
@@ -279,7 +263,7 @@ namespace Business.Business
                     rocket.Id = idRocket != Guid.Empty ? idRocket : Guid.Empty;
                     rocket.IdConfiguration = configuration.Id == Guid.Empty ? null : configuration.Id;
                     rocket.IdFromApi = launch.Rocket.IdFromApi;
-                    rocket.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                    rocket.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                     _rocketBusiness.SaveTransaction(rocket);
                 }
@@ -296,7 +280,7 @@ namespace Business.Business
                         orbit.Name = launch.Mission.Orbit.Name;
                         orbit.Abbrev = launch.Mission.Orbit.Abbrev;
                         orbit.IdFromApi = launch.Mission.Orbit.IdFromApi;
-                        orbit.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                        orbit.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                         _orbitBusiness.SaveTransaction(orbit);
                     }
@@ -309,7 +293,7 @@ namespace Business.Business
                     mission.Type = launch.Mission.Type;
                     mission.IdOrbit = orbit.Id == Guid.Empty ? null : orbit.Id;
                     mission.IdFromApi = launch.Mission.IdFromApi;
-                    mission.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                    mission.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                     _missionBusiness.SaveTransaction(mission);
                 }
@@ -330,7 +314,7 @@ namespace Business.Business
                         location.TotalLandingCount = launch.Pad.Location.TotalLandingCount;
                         location.TotalLaunchCount = launch.Pad.Location.TotalLaunchCount;
                         location.IdFromApi = launch.Pad.Location.IdFromApi;
-                        location.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                        location.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                         _locationBuiness.SaveTransaction(location);
                     }
@@ -350,7 +334,7 @@ namespace Business.Business
                     pad.TotalLaunchCount = launch.Pad.TotalLaunchCount;
                     pad.IdLocation = location.Id == Guid.Empty ? null : location.Id;
                     pad.IdFromApi = launch.Pad.IdFromApi;
-                    pad.EntityStatus = EStatus.DRAFT.GetDisplayName();
+                    pad.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                     _padBusiness.SaveTransaction(pad);
                 }
@@ -383,7 +367,7 @@ namespace Business.Business
                     Image = launch.Image,
                     Infographic = launch.Infographic,
                     Programs = launch.Programs,
-                    EntityStatus = EStatus.DRAFT.GetDisplayName(),
+                    EntityStatus = EStatus.PUBLISHED.GetDisplayName(),
                     IdFromApi = launch.IdFromApi
                 };
                 _launchBusiness.SaveTransaction(saveLaunch);
@@ -395,6 +379,10 @@ namespace Business.Business
                 trans.Rollback();
                 throw ex;
             }
+            finally
+            {
+                trans.Dispose();
+            }
         }
 
         private void GenerateLog(int offset, string errorMessage, int entityCount, bool success)
@@ -403,7 +391,7 @@ namespace Business.Business
             
             var log = new UpdateLog()
             {
-                TransactionDate = DateTime.Now,
+                TransactionDate = DateTime.Now, 
                 OffSet = offset,
                 Success = success,
                 Message = errorMessage,

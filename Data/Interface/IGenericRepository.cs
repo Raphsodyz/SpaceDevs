@@ -1,4 +1,4 @@
-﻿using Domain.Helper;
+﻿using Cross.Cutting.Helper;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;

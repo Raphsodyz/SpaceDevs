@@ -2,7 +2,7 @@
 using Data.Context;
 using Data.Interface;
 using Domain.Entities;
-using Domain.Helper;
+using Cross.Cutting.Helper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
@@ -229,8 +229,6 @@ namespace Data.Repository
         {
             if (entity.Id == Guid.Empty)
             {
-                entity.Id = Guid.NewGuid();
-                
                 _dbSet.Add(entity);
                 _context.SaveChanges();
             }

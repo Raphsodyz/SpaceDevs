@@ -2,7 +2,7 @@
 using Data.Interface;
 using Data.Repository;
 using Domain.Entities;
-using Domain.Helper;
+using Cross.Cutting.Helper;
 using System.Linq.Expressions;
 
 namespace Business.Business

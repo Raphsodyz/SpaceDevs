@@ -1,7 +1,7 @@
 ﻿using Business.Interface;
 using Data.Interface;
 using Domain.Entities;
-using Domain.Helper;
+using Cross.Cutting.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;

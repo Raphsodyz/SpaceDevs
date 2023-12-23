@@ -1,5 +1,5 @@
 ﻿using Business.Interface;
-using Domain.Helper;
+using Cross.Cutting.Helper;
 using Quartz;
 
 namespace Services.Jobs

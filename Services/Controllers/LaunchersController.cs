@@ -1,8 +1,10 @@
 ﻿using Application.DTO;
+using AutoMapper;
 using Business.Interface;
 using Domain.Entities;
-using Domain.Helper;
+using Cross.Cutting.Helper;
 using Microsoft.AspNetCore.Mvc;
+using Services.ViewModel;
 using System.Net;
 
 namespace Services.Controllers
@@ -12,9 +14,11 @@ namespace Services.Controllers
     public class LaunchController : ControllerBase
     {
         private readonly ILaunchApiBusiness _launchApiBusiness;
-        public LaunchController(ILaunchApiBusiness launchApiBusiness)
+        private readonly IMapper _mapper;
+        public LaunchController(ILaunchApiBusiness launchApiBusiness,IMapper mapper)
         {
             _launchApiBusiness = launchApiBusiness;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -29,8 +33,10 @@ namespace Services.Controllers
         {
             try
             {
-                var launch = _launchApiBusiness.GetOneLaunch(launchId);
-                return Ok(launch);
+                var launchDTO = _launchApiBusiness.GetOneLaunch(launchId);
+                var viewModel = _mapper.Map<LaunchViewModel>(launchDTO);
+
+                return Ok(viewModel);
             }
             catch (ArgumentNullException ex)
             {
@@ -53,7 +59,9 @@ namespace Services.Controllers
             try
             {
                 Pagination<LaunchDTO> pagedLaunchList = _launchApiBusiness.GetAllLaunchPaged(page);
-                return Ok(new { CurrentlyPage = pagedLaunchList.CurrentPage, TotalRegisters = pagedLaunchList.NumberOfEntities, Pages = pagedLaunchList.NumberOfPages, Data = pagedLaunchList.Entities });
+                Pagination<LaunchViewModel> pagedLaunchListViewModel = _mapper.Map<Pagination<LaunchViewModel>>(pagedLaunchList);
+
+                return Ok(new { CurrentlyPage = pagedLaunchListViewModel.CurrentPage, TotalRegisters = pagedLaunchListViewModel.NumberOfEntities, Pages = pagedLaunchListViewModel.NumberOfPages, Data = pagedLaunchListViewModel.Entities });
             }
             catch (InvalidOperationException ex)
             {
