@@ -11,6 +11,9 @@ namespace Application.DTO
 {
     public class RocketDTO
     {
+        [JsonIgnore]
+        public Guid Id { get; set; }
+        
         [Key]
         [Range(1, int.MaxValue)]
         [Display(Name = "ID")]
