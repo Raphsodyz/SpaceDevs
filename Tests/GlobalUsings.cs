@@ -8,5 +8,5 @@ global using Business.Interface;
 global using Moq;
 global using Domain.Entities;
 global using Application.DTO;
-global using Domain.Enum;
-global using Domain.Helper;
+global using Cross.Cutting.Enum;
+global using Cross.Cutting.Helper;

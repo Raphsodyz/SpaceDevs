@@ -1,5 +1,7 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
+using Services.Mapper;
 
 namespace Tests.ControllersTest
 {
@@ -10,7 +12,7 @@ namespace Tests.ControllersTest
         {
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-            var controller = new LaunchController(launchApiBusiness.Object);
+            var controller = new LaunchController(launchApiBusiness.Object, MapperConfiguration());
 
             //Act
             var result = controller.GetServiceRunning();
@@ -29,7 +31,7 @@ namespace Tests.ControllersTest
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
             launchApiBusiness.Setup(l => l.GetOneLaunch(launchId)).Returns(LaunchDTOTest);
 
-            var controller = new LaunchController(launchApiBusiness.Object);
+            var controller = new LaunchController(launchApiBusiness.Object, MapperConfiguration());
 
             //Act
             var result = controller.GetById(launchId);
@@ -148,7 +150,7 @@ namespace Tests.ControllersTest
             Name = "Sputnik 8K74PS | Sputnik 1",
             Status = new StatusDTO
             {
-                Id = 3,
+                IdFromApi = 3,
                 Name = "Launch Successful",
                 Abbrev = "Success",
                 Description = "The launch vehicle successfully inserted its payload(s) into the target orbit(s)."
@@ -162,17 +164,17 @@ namespace Tests.ControllersTest
             Hashtag = null,
             Launch_Service_Provider = new LaunchServiceProviderDTO
             {
-                Id = 66,
+                IdFromApi = 66,
                 Url = "https://ll.thespacedevs.com/2.2.0/agencies/66/",
                 Name = "Soviet Space Program",
                 Type = "Government"
             },
             Rocket = new RocketDTO
             {
-                Id = 3003,
+                IdFromApi = 3003,
                 Configuration = new ConfigurationDTO
                 {
-                    Id = 468,
+                    IdFromApi = 468,
                     Url = "https://ll.thespacedevs.com/2.2.0/config/launcher/468/",
                     Name = "Sputnik 8K74PS",
                     Family = "Sputnik",
@@ -182,20 +184,20 @@ namespace Tests.ControllersTest
             },
             Mission = new MissionDTO
             {
-                Id = 1430,
+                IdFromApi = 1430,
                 Name = "Sputnik 1",
                 Description = "First artificial satellite consisting of a 58 cm pressurized aluminium shell containing two 1 W transmitters for a total mass of 83.6 kg.",
                 Type = "Test Flight",
                 Orbit = new OrbitDTO
                 {
-                    Id = 8,
+                    IdFromApi = 8,
                     Name = "Low Earth Orbit",
                     Abbrev = "LEO"
                 }
             },
             Pad = new PadDTO
             {
-                Id = 32,
+                IdFromApi = 32,
                 Url = "https://ll.thespacedevs.com/2.2.0/pad/32/",
                 Agency_Id = null,
                 Name = "1/5",
@@ -206,7 +208,7 @@ namespace Tests.ControllersTest
                 Longitude = 63.342,
                 Location = new LocationDTO
                 {
-                    Id = 15,
+                    IdFromApi = 15,
                     Url = "https://ll.thespacedevs.com/2.2.0/location/15/",
                     Name = "Baikonur Cosmodrome, Republic of Kazakhstan",
                     Country_Code = "KAZ",
@@ -222,5 +224,13 @@ namespace Tests.ControllersTest
             Infographic = null,
             Programs = null
         };
+
+        private static IMapper MapperConfiguration()
+        {
+            var mockMapper = new MapperConfiguration(cfg => { cfg.AddProfile(new FutureSpaceViewModelMapper()); });
+            var mapper = mockMapper.CreateMapper();
+
+            return mapper;
+        }
     }
 }
