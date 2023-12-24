@@ -188,14 +188,14 @@ namespace Data.Repository
                     query = query.Include(includeProperty.TrimStart());
             }
 
-            TResult resultado;
+            TResult result;
 
             if (selectColumns != null)
-                resultado = query.Select(selectColumns).FirstOrDefault();
+                result = query.Select(selectColumns).FirstOrDefault();
             else
-                resultado = query.Cast<TResult>().SingleOrDefault();
+                result = query.Cast<TResult>().SingleOrDefault();
 
-            return resultado;
+            return result;
         }
 
         public virtual void UpdateOnQuery(
