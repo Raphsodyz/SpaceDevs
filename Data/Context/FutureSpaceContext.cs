@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace Data.Context
 {
@@ -26,8 +27,8 @@ namespace Data.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = configuration.GetSection("ConnectionStrings:default").Value;
-                optionsBuilder.UseMySql(connection, ServerVersion.AutoDetect(connection));
+                var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:default").Value);
+                optionsBuilder.UseNpgsql(connection);
             }
         }
 

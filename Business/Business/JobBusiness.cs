@@ -6,7 +6,6 @@ using Domain.Entities;
 using Cross.Cutting.Enum;
 using Cross.Cutting.Helper;
 using Microsoft.Extensions.Configuration;
-using MySqlConnector;
 using System.Data;
 using System.Linq.Expressions;
 using System.Net.Http.Json;

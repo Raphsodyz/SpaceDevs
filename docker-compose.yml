@@ -9,16 +9,15 @@ networks:
     name: futurespaceweb
 
 services:
-  mysql:
-    image: "mysql:8.0"
-    hostname: mysql
+  postgresql:
+    image: "postgres:16.1"
+    hostname: postgresql
     volumes:
       - ./Data/Migrations/migrations.sql:/docker-entrypoint-initdb.d/migrations.sql
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=futurespacedb
-      - MYSQL_USER=mysql
-      - MYSQL_PASSWORD=mysql
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=futurespacedb
   
   api:
     build:
@@ -26,18 +25,11 @@ services:
       dockerfile: dockerfile
     hostname: api
     depends_on:
-      - mysql
-      - redis
+      - postgresql
     environment:
-      - DB_CONNECTION_STRING=Server=mysql;Database=futurespacedb;User=mysql;Password=mysql;MinimumPoolSize=1;maximumpoolsize=2048;Connection Timeout=5;
-      - REDIS_CONNECTION_STRING=redis
+      - DB_CONNECTION_STRING=Host=postgresql;Username=root;Password=root;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
       - ASPNETCORE_URLS=http://+:5000;
-      - DOTNET_TieredPGO=1
-      - DOTNET_ReadyToRun=0
-      - DOTNET_TC_QuickJitForLoops=1
+    expose:
+      - "5000"
     ports:
       - "5000:5000"
-  
-  redis:
-    image: "redis:7.2.3-alpine"
-    hostname: redis
