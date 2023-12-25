@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("ROCKET")]
+    [Table("rocket")]
     public class Rocket : BaseEntity
     {
-        [Column("ID_CONFIGURATION")]
+        [Column("id_configuration")]
         public Guid? IdConfiguration { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdConfiguration))]

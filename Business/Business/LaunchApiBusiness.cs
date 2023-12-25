@@ -391,7 +391,7 @@ namespace Business.Business
             
             var log = new UpdateLog()
             {
-                TransactionDate = DateTime.Now, 
+                TransactionDate = DateTime.Now,
                 OffSet = offset,
                 Success = success,
                 Message = errorMessage,

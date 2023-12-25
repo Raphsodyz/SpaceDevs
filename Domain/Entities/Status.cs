@@ -7,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("STATUS")]
+    [Table("status")]
     public class Status : BaseEntity
     {
-        [Column("NAME")]
+        [Column("name")]
         public string? Name { get; set; }
 
-        [Column("ABBREV")]
+        [Column("abbrev")]
         public string? Abbrev { get; set; }
 
-        [Column("DESCRIPTION")]
+        [Column("description")]
         public string? Description  { get; set; }
     }
 }

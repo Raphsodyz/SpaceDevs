@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("UPDATE_LOG_ROUTINE")]
+    [Table("update_log_routine")]
     public class UpdateLog : BaseEntity
     {
-        [Column("TRANSACTION_DATE")]
+        [Column("transction_date")]
         public DateTime TransactionDate { get; set; }
-        [Column("OFFSET_DATA")]
+        [Column("offset_data")]
         public int OffSet { get; set; }
-        [Column("SUCCESS")]
+        [Column("success")]
         public bool Success { get; set; }
-        [Column("MESSAGE")]
+        [Column("message")]
         public string Message { get; set; }
-        [Column("ENTITY_COUNT")]
+        [Column("entity_count")]
         public int EntityCount { get; set; }
-        [Column("ORIGIN")]
+        [Column("origin")]
         public string Origin { get; set; }
     }
 }

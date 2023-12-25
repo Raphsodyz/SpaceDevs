@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("ORBIT")]
+    [Table("orbit")]
     public class Orbit : BaseEntity
     {
-        [Column("NAME")]
+        [Column("name")]
         public string? Name { get; set; }
-        [Column("ABBREV")]
+        [Column("abbrev")]
         public string? Abbrev { get; set; }
     }
 }

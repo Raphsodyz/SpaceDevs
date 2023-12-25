@@ -9,24 +9,24 @@ namespace Domain.Entities
     public abstract class BaseEntity
     {
         [Key]
-        [Column("ID")]
+        [Column("id")]
         public virtual Guid Id { get; set; }
 
-        [Column("ID_FROM_API")]
+        [Column("id_from_api")]
         [JsonIgnore]
         public int? IdFromApi { get; set; }
 
-        [Column("ATUALIZATION_DATE")]
+        [Column("atualization_date")]
         public virtual DateTime AtualizationDate { get; set; }
 
-        [Column("IMPORTED_T")]
+        [Column("imported_t")]
         public virtual DateTime ImportedT { get; set; }
 
         [NotMapped]
         [JsonIgnore]
         private EStatus? _statusEnum { get; set; }
 
-        [Column("STATUS")]
+        [Column("status")]
         public string EntityStatus
         {
             get

@@ -8,33 +8,33 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("PAD")]
+    [Table("pad")]
     public class Pad : BaseEntity
     {
-        [Column("URL")]
+        [Column("url")]
         public string? Url { get; set; }
-        [Column("AGENCY_ID")]
+        [Column("agency_id")]
         public int? AgencyId { get; set; }
-        [Column("NAME")]
+        [Column("name")]
         public string? Name { get; set; }
-        [Column("INFO_URL")]
+        [Column("info_url")]
         public string? InfoUrl { get; set; }
-        [Column("WIKI_URL")]
+        [Column("wiki_url")]
         public string? WikiUrl { get; set; }
-        [Column("MAP_URL")]
+        [Column("map_url")]
         public string? MapUrl { get; set; }
-        [Column("LATITUDE")]
+        [Column("latitude")]
         public double? Latitude { get; set; }
-        [Column("LONGITUDE")]
+        [Column("longitude")]
         public double? Longitude { get; set; }
-        [Column("ID_LOCATION")]
+        [Column("id_location")]
         public Guid? IdLocation { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdLocation))]
         public Location Location { get; set; }
-        [Column("MAP_IMAGE")]
+        [Column("map_image")]
         public string? MapImage { get; set; }
-        [Column("TOTAL_LAUNCH_COUNT")]
+        [Column("total_launch_count")]
         public int? TotalLaunchCount { get; set; }
     }
 }

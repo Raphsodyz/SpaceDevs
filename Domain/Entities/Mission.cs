@@ -8,23 +8,23 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("MISSION")]
+    [Table("mission")]
     public class Mission : BaseEntity
     {
-        [Column("LAUNCH_LIBRARY_ID")]
+        [Column("launch_library_id")]
         public int? LaunchLibraryId { get; set; }
-        [Column("NAME")]
+        [Column("name")]
         public string? Name { get; set; }
-        [Column("DESCRIPTION")]
+        [Column("description")]
         public string? Description { get; set; }
-        [Column("TYPE")]
+        [Column("type")]
         public string? Type { get; set; }
-        [Column("ID_ORBIT")]
+        [Column("id_orbit")]
         public Guid? IdOrbit { get; set; }
         [JsonIgnore]
         [ForeignKey(nameof(IdOrbit))]
         public Orbit Orbit { get; set; }
-        [Column("LAUNCH_DESIGNATOR")]
+        [Column("launch_designator")]
         public string LaunchDesignator { get; set; }
     }
 }

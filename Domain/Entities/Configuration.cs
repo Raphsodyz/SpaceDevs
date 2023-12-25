@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("CONFIGURATION")]
+    [Table("configuration")]
     public class Configuration : BaseEntity
     {
-        [Column("LAUNCH_LIBRARY_ID")]
+        [Column("launch_library_id")]
         public int? LaunchLibraryId { get; set; }
-        [Column("URL")]
+        [Column("url")]
         public string? Url { get; set; }
-        [Column("NAME")]
+        [Column("name")]
         public string? Name { get; set; }
-        [Column("FAMILY")]
+        [Column("family")]
         public string? Family { get; set; }
-        [Column("FULL_NAME")]
+        [Column("full_name")]
         public string? FullName { get; set; }
-        [Column("VARIANT")]
+        [Column("variant")]
         public string? Variant { get; set; }
     }
 }

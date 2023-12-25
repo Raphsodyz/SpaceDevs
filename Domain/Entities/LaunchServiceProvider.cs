@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("LAUNCH_SERVICE_PROVIDER")]
+    [Table("launch_service_provider")]
     public class LaunchServiceProvider : BaseEntity
     {
-        [Column("URL")]
+        [Column("url")]
         public string? Url { get; set; }
-        [Column("NAME")]
+        [Column("name")]
         public string? Name { get; set; }
-        [Column("TYPE")]
+        [Column("type")]
         public string? Type { get; set; }
     }
 }

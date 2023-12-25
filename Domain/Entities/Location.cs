@@ -7,20 +7,20 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    [Table("LOCATION")]
+    [Table("location")]
     public class Location : BaseEntity
     {
-        [Column("URL")]
+        [Column("url")]
         public string? Url { get; set; }
-        [Column("NAME")]
+        [Column("name")]
         public string? Name { get; set; }
-        [Column("COUNTRY_CODE")]
+        [Column("country_code")]
         public string? CountryCode { get; set; }
-        [Column("MAP_IMAGE")]
+        [Column("map_image")]
         public string? MapImage { get; set; }
-        [Column("TOTAL_LAUNCH_COUNT")]
+        [Column("total_launch_count")]
         public int? TotalLaunchCount { get; set; }
-        [Column("TOTAL_LANDING_COUNT")]
+        [Column("total_landing_count")]
         public int? TotalLandingCount { get; set; }
     }
 }
