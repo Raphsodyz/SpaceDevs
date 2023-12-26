@@ -1,11 +1,9 @@
 ﻿using Application.DTO;
 using AutoMapper;
 using Business.Interface;
-using Domain.Entities;
 using Cross.Cutting.Helper;
 using Microsoft.AspNetCore.Mvc;
 using Services.ViewModel;
-using System.Net;
 
 namespace Services.Controllers
 {
@@ -22,9 +20,28 @@ namespace Services.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetServiceRunning()
+        [Route("launchers")]
+        public IActionResult SearchByParams([FromQuery]SearchLaunchViewModel search)
         {
-            return Ok("REST Back-end Challenge 20201209 Running");
+            try
+            {
+                _ = search ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
+                
+
+                return Ok();
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"{ErrorMessages.InternalServerError}\n{ex.Message}");
+            }
         }
 
         [HttpGet]
@@ -53,7 +70,7 @@ namespace Services.Controllers
         }
 
         [HttpGet]
-        [Route("launchers")]
+        [Route("launchers/paged")]
         public IActionResult GetAllPaged(int page)
         {
             try

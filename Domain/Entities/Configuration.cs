@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Domain.Entities
@@ -22,5 +23,8 @@ namespace Domain.Entities
         public string? FullName { get; set; }
         [Column("variant")]
         public string? Variant { get; set; }
+        [Column("search")]
+        [JsonIgnore]
+        public string? Search { get; set; }
     }
 }

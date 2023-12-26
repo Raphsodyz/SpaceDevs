@@ -7,6 +7,11 @@ namespace Data.Context
 {
     public class FutureSpaceContext : DbContext
     {
+        public FutureSpaceContext()
+        {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+        }
+        
         public DbSet<Launch> Launch { get; set; }
         public DbSet<Configuration> Configuration { get; set; }
         public DbSet<LaunchServiceProvider> LaunchServiceProvider { get; set; }

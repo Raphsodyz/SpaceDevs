@@ -20,7 +20,7 @@ namespace Domain.Entities
         [Column("slug")]
         public string? Slug { get; set; }
         [Column("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         [Column("id_status")]
         public Guid? IdStatus { get; set; }
         [JsonIgnore]
@@ -74,5 +74,8 @@ namespace Domain.Entities
         public string? Infographic { get; set; }
         [Column("programs")]
         public string? Programs { get; set; }
+        [Column("search")]
+        [JsonIgnore]
+        public string? Search { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace Domain.Entities
     [Table("update_log_routine")]
     public class UpdateLog : BaseEntity
     {
-        [Column("transction_date")]
+        [Column("transaction_date")]
         public DateTime TransactionDate { get; set; }
         [Column("offset_data")]
         public int OffSet { get; set; }

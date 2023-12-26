@@ -401,5 +401,19 @@ namespace Business.Business
             };
             _updateLogBusiness.Save(log);
         }
+    
+        /*public LaunchDTO SearchByParam(SearchLaunchDTO search)
+        {
+            IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
+            IRocketBusiness _rocketBusiness = GetBusiness(typeof(IRocketBusiness)) as IRocketBusiness;
+            ILocationBusiness _locationBusiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
+            ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+
+            Guid idMission, idRocket, idLocation;
+
+            if(!string.IsNullOrEmpty(search.Mission))
+                idMission = _missionBusiness.GetSelected();
+
+        }*/
     }
 }

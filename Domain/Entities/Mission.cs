@@ -25,6 +25,9 @@ namespace Domain.Entities
         [ForeignKey(nameof(IdOrbit))]
         public Orbit Orbit { get; set; }
         [Column("launch_designator")]
-        public string LaunchDesignator { get; set; }
+        public string? LaunchDesignator { get; set; }
+        [Column("search")]
+        [JsonIgnore]
+        public string? Search { get; set; }
     }
 }

@@ -1,3 +1,19 @@
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+SET default_tablespace = '';
+SET default_table_access_method = heap;
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+COMMENT ON EXTENSION pg_trgm IS 'Text similarity measurement and index searching based on trigrams.';
+
 CREATE TABLE IF NOT EXISTS orbit(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
@@ -20,6 +36,9 @@ CREATE TABLE IF NOT EXISTS mission(
     type VARCHAR(255) NULL,
     id_orbit UUID NULL,
     launch_designator VARCHAR(255) NULL,
+    search VARCHAR(360) GENERATED ALWAYS AS (
+        LOWER(name)
+    ) STORED NULL,
 
     CONSTRAINT fk_mission_orbit FOREIGN KEY (id_orbit) REFERENCES orbit(id)
 );
@@ -35,7 +54,10 @@ CREATE TABLE IF NOT EXISTS configuration(
     name VARCHAR(255) NULL,
     family VARCHAR(255) NULL,
     full_name VARCHAR(255) NULL,
-    variant VARCHAR(255) NULL
+    variant VARCHAR(255) NULL,
+    search VARCHAR(360) GENERATED ALWAYS AS (
+        LOWER(name || ' ' || family)
+    ) STORED NULL
 );
 
 CREATE TABLE IF NOT EXISTS status(
@@ -71,7 +93,10 @@ CREATE TABLE IF NOT EXISTS location(
     country_code VARCHAR(255) NULL,
     map_image VARCHAR(1000) NULL,
     total_launch_count INT NULL,
-    total_landing_count INT NULL
+    total_landing_count INT NULL,
+    search VARCHAR(360) GENERATED ALWAYS AS (
+        LOWER(name)
+    ) STORED NULL
 );
 
 CREATE TABLE IF NOT EXISTS pad(
@@ -91,6 +116,9 @@ CREATE TABLE IF NOT EXISTS pad(
     id_location UUID NULL,
     map_image VARCHAR(1000) NULL,
     total_launch_count INT NULL,
+    search VARCHAR(360) GENERATED ALWAYS AS (
+        LOWER(name)
+    ) STORED NULL,
 
     CONSTRAINT fk_pad_location FOREIGN KEY (id_location) REFERENCES location(id)
 );
@@ -136,12 +164,15 @@ CREATE TABLE IF NOT EXISTS launch(
     image VARCHAR(1000) NULL,
     infographic VARCHAR(255) NULL,
     programs VARCHAR(255) NULL,
+    search VARCHAR(360) GENERATED ALWAYS AS (
+        LOWER(name || ' ' || slug)
+    ) STORED NULL,
 
     CONSTRAINT fk_launch_status FOREIGN KEY (id_status) REFERENCES status(id),
     CONSTRAINT fk_launch_launch_service_provider FOREIGN KEY (id_launch_service_provider) REFERENCES launch_service_provider(id),
     CONSTRAINT fk_launch_rocket FOREIGN KEY (id_rocket) REFERENCES rocket(id),
     CONSTRAINT fk_launch_mission FOREIGN KEY (id_mission) REFERENCES mission(id),
-    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES pad(id)
+    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES pad(id),
 );
 
 CREATE TABLE IF NOT EXISTS update_log_routine(
@@ -157,3 +188,10 @@ CREATE TABLE IF NOT EXISTS update_log_routine(
     entity_count INT NOT NULL,
     origin VARCHAR(255) NOT NULL
 );
+
+CREATE INDEX IDX_GIN_LAUNCH_SLUG_NAME ON launch USING GIN (search gin_trgm_ops);
+CREATE INDEX IDX_GIN_CONFIGURATION_NAME_FAMILY ON configuration USING GIN (search gin_trgm_ops);
+CREATE INDEX IDX_GIN_MISSION_NAME ON mission USING GIN (search gin_trgm_ops);
+CREATE INDEX IDX_GIN_LOCATION_NAME ON location USING GIN (search gin_trgm_ops);
+
+SET search_path TO "$user", public;
