@@ -37,6 +37,31 @@ namespace Data.Context
             }
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Configuration>()
+                .Property(e => e.Search)
+                .HasComputedColumnSql("LOWER(name || ' ' || family)");
+
+            modelBuilder.Entity<Mission>()
+                .Property(e => e.Search)
+                .HasComputedColumnSql("LOWER(name)");
+
+            modelBuilder.Entity<Location>()
+                .Property(e => e.Search)
+                .HasComputedColumnSql("LOWER(name)");
+
+            modelBuilder.Entity<Pad>()
+                .Property(e => e.Search)
+                .HasComputedColumnSql("LOWER(name)");
+
+            modelBuilder.Entity<Launch>()
+                .Property(e => e.Search)
+                .HasComputedColumnSql("LOWER(name || ' ' || slug)");
+
+            base.OnModelCreating(modelBuilder);
+        }
+
         public override int SaveChanges()
         {
             foreach(var entry in ChangeTracker.Entries<BaseEntity>())

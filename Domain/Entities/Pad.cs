@@ -36,5 +36,8 @@ namespace Domain.Entities
         public string? MapImage { get; set; }
         [Column("total_launch_count")]
         public int? TotalLaunchCount { get; set; }
+        [Column("search")]
+        [JsonIgnore]
+        public string? Search { get; set; }
     }
 }

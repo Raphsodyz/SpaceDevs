@@ -10,5 +10,6 @@ namespace Business.Interface
 {
     public interface ILaunchBusiness : IBusinessBase<Launch, ILaunchRepository>
     {
+        Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Func<Launch, TResult> selectColumns, string includedProperties = null);
     }
 }

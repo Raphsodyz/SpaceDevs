@@ -15,5 +15,10 @@ namespace Business.Business
         {
             
         }
+
+        public async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Func<Pad, TResult> selectColumns, string includedProperties = null)
+        {
+            return await _repository.ILikeSearch(searchTerm, selectColumns, includedProperties);
+        }
     }
 }

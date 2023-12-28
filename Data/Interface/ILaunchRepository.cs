@@ -9,5 +9,5 @@ namespace Data.Interface
 {
     public interface ILaunchRepository : IGenericRepository<Launch>
     {
+        Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Func<Launch, TResult> selectColumns, string includedProperties = null);    }
     }
-}

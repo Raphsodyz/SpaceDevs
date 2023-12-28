@@ -10,5 +10,6 @@ namespace Business.Interface
 {
     public interface IPadBusiness : IBusinessBase<Pad, IPadRepository>
     {
+        Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Func<Pad, TResult> selectColumns, string includedProperties = null);
     }
 }

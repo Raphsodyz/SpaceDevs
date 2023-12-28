@@ -23,6 +23,11 @@ namespace Services.ViewModel
         [StringLength(360, ErrorMessage = "Attention! The length of the field {0} is invalid.", MinimumLength = 2)]
         public string? Location { get; set; }
 
+        [Display(Name = "Pad")]
+        [DataType(DataType.Text)]
+        [StringLength(360, ErrorMessage = "Attention! The length of the field {0} is invalid.", MinimumLength = 2)]
+        public string? Pad { get; set; }
+
         [Display(Name = "Launch")]
         [DataType(DataType.Text)]
         [StringLength(360, ErrorMessage = "Attention! The length of the field {0} is invalid.", MinimumLength = 2)]

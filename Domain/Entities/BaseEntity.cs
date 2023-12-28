@@ -52,7 +52,7 @@ namespace Domain.Entities
         [NotMapped]
         [JsonIgnore]
         public bool IsNew => ImportedT == DateTime.MinValue;
-
+        
         public virtual void BeforeSave()
         {
             if (IsNew)

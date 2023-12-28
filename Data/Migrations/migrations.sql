@@ -14,7 +14,7 @@ SET default_table_access_method = heap;
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 COMMENT ON EXTENSION pg_trgm IS 'Text similarity measurement and index searching based on trigrams.';
 
-CREATE TABLE IF NOT EXISTS orbit(
+CREATE TABLE IF NOT EXISTS public.orbit(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS orbit(
     abbrev VARCHAR(255) NULL
 );
 
-CREATE TABLE IF NOT EXISTS mission(
+CREATE TABLE IF NOT EXISTS public.mission(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -40,10 +40,10 @@ CREATE TABLE IF NOT EXISTS mission(
         LOWER(name)
     ) STORED NULL,
 
-    CONSTRAINT fk_mission_orbit FOREIGN KEY (id_orbit) REFERENCES orbit(id)
+    CONSTRAINT fk_mission_orbit FOREIGN KEY (id_orbit) REFERENCES public.orbit(id)
 );
 
-CREATE TABLE IF NOT EXISTS configuration(
+CREATE TABLE IF NOT EXISTS public.configuration(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS configuration(
     ) STORED NULL
 );
 
-CREATE TABLE IF NOT EXISTS status(
+CREATE TABLE IF NOT EXISTS public.status(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS status(
     description VARCHAR(2500) NULL
 );
 
-CREATE TABLE IF NOT EXISTS launch_service_provider(
+CREATE TABLE IF NOT EXISTS public.launch_service_provider(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS launch_service_provider(
     type VARCHAR(255) NULL
 );
 
-CREATE TABLE IF NOT EXISTS location(
+CREATE TABLE IF NOT EXISTS public.location(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS location(
     ) STORED NULL
 );
 
-CREATE TABLE IF NOT EXISTS pad(
+CREATE TABLE IF NOT EXISTS public.pad(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -120,10 +120,10 @@ CREATE TABLE IF NOT EXISTS pad(
         LOWER(name)
     ) STORED NULL,
 
-    CONSTRAINT fk_pad_location FOREIGN KEY (id_location) REFERENCES location(id)
+    CONSTRAINT fk_pad_location FOREIGN KEY (id_location) REFERENCES public.location(id)
 );
 
-CREATE TABLE IF NOT EXISTS rocket(
+CREATE TABLE IF NOT EXISTS public.rocket(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -131,10 +131,10 @@ CREATE TABLE IF NOT EXISTS rocket(
     status VARCHAR(15) NOT NULL,
     id_configuration UUID NULL,
 
-    CONSTRAINT fk_rocket_configuration FOREIGN KEY(id_configuration) REFERENCES configuration(id)
+    CONSTRAINT fk_rocket_configuration FOREIGN KEY(id_configuration) REFERENCES public.configuration(id)
 );
 
-CREATE TABLE IF NOT EXISTS launch(
+CREATE TABLE IF NOT EXISTS public.launch(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -168,14 +168,14 @@ CREATE TABLE IF NOT EXISTS launch(
         LOWER(name || ' ' || slug)
     ) STORED NULL,
 
-    CONSTRAINT fk_launch_status FOREIGN KEY (id_status) REFERENCES status(id),
-    CONSTRAINT fk_launch_launch_service_provider FOREIGN KEY (id_launch_service_provider) REFERENCES launch_service_provider(id),
-    CONSTRAINT fk_launch_rocket FOREIGN KEY (id_rocket) REFERENCES rocket(id),
-    CONSTRAINT fk_launch_mission FOREIGN KEY (id_mission) REFERENCES mission(id),
-    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES pad(id),
+    CONSTRAINT fk_launch_status FOREIGN KEY (id_status) REFERENCES public.status(id),
+    CONSTRAINT fk_launch_launch_service_provider FOREIGN KEY (id_launch_service_provider) REFERENCES public.launch_service_provider(id),
+    CONSTRAINT fk_launch_rocket FOREIGN KEY (id_rocket) REFERENCES public.rocket(id),
+    CONSTRAINT fk_launch_mission FOREIGN KEY (id_mission) REFERENCES public.mission(id),
+    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES public.pad(id)
 );
 
-CREATE TABLE IF NOT EXISTS update_log_routine(
+CREATE TABLE IF NOT EXISTS public.update_log_routine(
     id UUID PRIMARY KEY,
     id_from_api INT NULL,
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
@@ -189,9 +189,10 @@ CREATE TABLE IF NOT EXISTS update_log_routine(
     origin VARCHAR(255) NOT NULL
 );
 
-CREATE INDEX IDX_GIN_LAUNCH_SLUG_NAME ON launch USING GIN (search gin_trgm_ops);
-CREATE INDEX IDX_GIN_CONFIGURATION_NAME_FAMILY ON configuration USING GIN (search gin_trgm_ops);
-CREATE INDEX IDX_GIN_MISSION_NAME ON mission USING GIN (search gin_trgm_ops);
-CREATE INDEX IDX_GIN_LOCATION_NAME ON location USING GIN (search gin_trgm_ops);
+CREATE INDEX IDX_GIN_LAUNCH_SLUG_NAME ON public.launch USING GIN (search public.gin_trgm_ops);
+CREATE INDEX IDX_GIN_CONFIGURATION_NAME_FAMILY ON public.configuration USING GIN (search public.gin_trgm_ops);
+CREATE INDEX IDX_GIN_MISSION_NAME ON public.mission USING GIN (search public.gin_trgm_ops);
+CREATE INDEX IDX_GIN_LOCATION_NAME ON public.location USING GIN (search public.gin_trgm_ops);
+CREATE INDEX IDX_GIN_PAD_NAME ON public.pad USING GIN (search public.gin_trgm_ops);
 
 SET search_path TO "$user", public;

@@ -1,4 +1,4 @@
-using Application.DTO;
+using Business.DTO;
 using AutoMapper;
 using Cross.Cutting.Helper;
 using Services.ViewModel;
@@ -19,6 +19,7 @@ namespace Services.Mapper
             CreateMap<PadDTO, PadViewModel>().ReverseMap();
             CreateMap<Pagination<LaunchDTO>, Pagination<LaunchViewModel>>().ReverseMap();
             CreateMap<LaunchDTO, LaunchViewModel>().ReverseMap();
+            CreateMap<SearchLaunchDTO, SearchLaunchViewModel>().ReverseMap();
         }
     }
 }

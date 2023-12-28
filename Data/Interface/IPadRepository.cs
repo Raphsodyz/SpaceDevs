@@ -9,5 +9,5 @@ namespace Data.Interface
 {
     public interface IPadRepository : IGenericRepository<Pad>
     {
+        Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Func<Pad, TResult> selectColumns, string includedProperties = null);    }
     }
-}

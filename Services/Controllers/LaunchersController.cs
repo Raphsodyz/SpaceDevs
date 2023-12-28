@@ -1,4 +1,4 @@
-﻿using Application.DTO;
+﻿using Business.DTO;
 using AutoMapper;
 using Business.Interface;
 using Cross.Cutting.Helper;
@@ -21,14 +21,15 @@ namespace Services.Controllers
 
         [HttpGet]
         [Route("launchers")]
-        public IActionResult SearchByParams([FromQuery]SearchLaunchViewModel search)
+        public async Task<IActionResult> SearchByParams([FromQuery]SearchLaunchViewModel search)
         {
             try
             {
                 _ = search ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-                
+                var registers = await _launchApiBusiness.SearchByParam(_mapper.Map<SearchLaunchDTO>(search));
+                var data = _mapper.Map<List<LaunchViewModel>>(registers);
 
-                return Ok();
+                return Ok(data);
             }
             catch (ArgumentNullException ex)
             {
@@ -46,11 +47,11 @@ namespace Services.Controllers
 
         [HttpGet]
         [Route("launchers/{launchId}")]
-        public IActionResult GetById(Guid? launchId)
+        public async Task<IActionResult> GetById(Guid? launchId)
         {
             try
             {
-                var launchDTO = _launchApiBusiness.GetOneLaunch(launchId);
+                var launchDTO = await _launchApiBusiness.GetOneLaunch(launchId);
                 var viewModel = _mapper.Map<LaunchViewModel>(launchDTO);
 
                 return Ok(viewModel);
@@ -71,11 +72,11 @@ namespace Services.Controllers
 
         [HttpGet]
         [Route("launchers/paged")]
-        public IActionResult GetAllPaged(int page)
+        public async Task<IActionResult> GetAllPaged(int page)
         {
             try
             {
-                Pagination<LaunchDTO> pagedLaunchList = _launchApiBusiness.GetAllLaunchPaged(page);
+                Pagination<LaunchDTO> pagedLaunchList = await _launchApiBusiness.GetAllLaunchPaged(page);
                 Pagination<LaunchViewModel> pagedLaunchListViewModel = _mapper.Map<Pagination<LaunchViewModel>>(pagedLaunchList);
 
                 return Ok(new { CurrentlyPage = pagedLaunchListViewModel.CurrentPage, TotalRegisters = pagedLaunchListViewModel.NumberOfEntities, Pages = pagedLaunchListViewModel.NumberOfPages, Data = pagedLaunchListViewModel.Entities });
@@ -96,11 +97,11 @@ namespace Services.Controllers
 
         [HttpDelete]
         [Route("launchers/{launchId}")]
-        public IActionResult Delete(Guid? launchId)
+        public async Task<IActionResult> Delete(Guid? launchId)
         {
             try
             {
-                _launchApiBusiness.SoftDeleteLaunch(launchId);
+                await _launchApiBusiness.SoftDeleteLaunch(launchId);
                 return Ok(SuccessMessages.DeletedEntity);
             }
             catch (ArgumentNullException ex)
