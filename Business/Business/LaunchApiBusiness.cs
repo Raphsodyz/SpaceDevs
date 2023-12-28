@@ -1,4 +1,4 @@
-﻿using Application.DTO;
+﻿using Business.DTO;
 using AutoMapper;
 using Business.Interface;
 using Data.Interface;
@@ -24,7 +24,7 @@ namespace Business.Business
             _mapper = mapper;
         }
 
-        public LaunchDTO GetOneLaunch(Guid? launchId)
+        public async Task<LaunchDTO> GetOneLaunch(Guid? launchId)
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
 
@@ -32,11 +32,11 @@ namespace Business.Business
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             Expression<Func<Launch, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            bool launchExist = _launchBusiness.GetSelected(filter: launchQuery, selectColumns: l => l.Id) != Guid.Empty;
+            bool launchExist = await _launchBusiness.GetSelected(filter: launchQuery, selectColumns: l => l.Id) != Guid.Empty;
             if (!launchExist)
                 throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
-            Launch launch = _launchBusiness.Get(
+            Launch launch = await _launchBusiness.Get(
                 filter: launchQuery,
                 includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location");
 
@@ -44,18 +44,18 @@ namespace Business.Business
             return result;
         }
 
-        public Pagination<LaunchDTO> GetAllLaunchPaged(int? page)
+        public async Task<Pagination<LaunchDTO>> GetAllLaunchPaged(int? page)
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
 
-            int totalEntities = _launchBusiness.EntityCount(l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());
+            int totalEntities = await _launchBusiness.EntityCount(l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());
             int totalPages = totalEntities % 10 == 0 ? totalEntities / 10 : (totalEntities / 10) + 1;
             if (page > totalPages || page < 0)
                 throw new InvalidOperationException($"{ErrorMessages.InvalidPageSelected} Total pages = {totalPages}");
 
             List<Expression<Func<Launch, bool>>> publishedLaunchQuery = new()
             { l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
-            var selectedPageLaunchList = _launchBusiness.GetAllPaged(
+            var selectedPageLaunchList = await _launchBusiness.GetAllPaged(
                 page ?? 0, 10,
                 filters: publishedLaunchQuery,
                 includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location",
@@ -70,7 +70,7 @@ namespace Business.Business
             return resultado;
         }
 
-        public void SoftDeleteLaunch(Guid? launchId)
+        public async Task SoftDeleteLaunch(Guid? launchId)
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
 
@@ -78,18 +78,18 @@ namespace Business.Business
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             Expression<Func<Launch, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            var launch = _launchBusiness.Get(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+            var launch = await _launchBusiness.Get(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
-            using var trans = _repository.GetTransaction();
+            using var trans = await _repository.GetTransaction();
             try
             {
                 launch.EntityStatus = EStatus.TRASH.GetDisplayName();
-                _launchBusiness.SaveTransaction(launch);
-                trans.Commit();
+                await _launchBusiness.SaveTransaction(launch);
+                await trans.CommitAsync();
             }
             catch (Exception ex)
             {
-                trans.Rollback();
+                await trans.RollbackAsync();
                 throw ex;
             }
         }
@@ -102,9 +102,9 @@ namespace Business.Business
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             Expression<Func<Launch, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            var launch = _launchBusiness.Get(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+            var launch = await _launchBusiness.Get(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
-            using var trans = _repository.GetTransaction();
+            using var trans = await _repository.GetTransaction();
             using HttpClient client = new();
             try
             {
@@ -113,14 +113,11 @@ namespace Business.Business
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
 
-                var updatedLaunch = await response.Content.ReadFromJsonAsync<LaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError);
-                if (updatedLaunch == null)
-                    throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
-
+                var updatedLaunch = (await response.Content.ReadFromJsonAsync<LaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError)) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
                 launch = _mapper.Map<Launch>(updatedLaunch);
                 launch.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                trans.Commit();
+                await trans.CommitAsync();
                 return updatedLaunch;
             }
             catch (HttpRequestException ex)
@@ -133,18 +130,14 @@ namespace Business.Business
             }
             catch (Exception ex)
             {
-                trans.Rollback();
+                await trans.RollbackAsync();
                 throw ex;
             }
         }
 
         public async Task<bool> UpdateDataSet(int? skip)
         {
-            int limit = 100;
-            int offset = skip ?? 0;
-            int max = offset + 1500;
-            int entityCounter = 0;
-
+            int limit = 100, offset = skip ?? 0, max = offset + 1500, entityCounter = 0;
             for (int i = offset; i < max; i += limit)
             {
                 using HttpClient client = new();
@@ -156,42 +149,42 @@ namespace Business.Business
                         throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
 
                     RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError);
-                    if (dataList.Results?.Count == 0)
+                    if ((bool)!dataList.Results?.Any())
                         throw new InvalidOperationException(ErrorMessages.NoDataFromSpaceDevApi);
 
                     foreach(var data in dataList.Results)
                     {
                         var launch = _mapper.Map<Launch>(data);
-                        SaveLaunch(launch);
+                        await SaveLaunch(launch);
                         entityCounter++;
                     }
-                    GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
-                    
+
+                    await GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
                     entityCounter = 0;
                     offset += limit;
                 }
                 catch (HttpRequestException ex)
                 {
-                    GenerateLog(offset, ex.Message, entityCounter, false);
+                    await GenerateLog(offset, ex.Message, entityCounter, false);
                     throw ex;
                 }
                 catch (InvalidOperationException ex)
                 {
-                    GenerateLog(offset, ex.Message, entityCounter, false);
+                    await GenerateLog(offset, ex.Message, entityCounter, false);
                     throw ex;
                 }
                 catch (Exception ex)
                 {
-                    GenerateLog(offset, ex.Message, entityCounter, false);
+                    await GenerateLog(offset, ex.Message, entityCounter, false);
                     throw ex;
                 }
             }
 
-            GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
+            await GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
             return true;
         }
 
-        private void SaveLaunch(Launch launch)
+        private async Task SaveLaunch(Launch launch)
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
             IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
@@ -206,26 +199,26 @@ namespace Business.Business
             if (launch == null)
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
-            using var trans = _repository.GetTransaction();
+            using var trans = await _repository.GetTransaction();
             try
             {
                 Status status = new();
                 if (launch.Status != null)
                 {
-                    Guid id = _statusBusiness.GetSelected(filter: s => s.IdFromApi == launch.Status.IdFromApi, selectColumns: s => s.Id);
+                    Guid id = await _statusBusiness.GetSelected(filter: s => s.IdFromApi == launch.Status.IdFromApi, selectColumns: s => s.Id);
 
                     status.Id = id != Guid.Empty ? id : Guid.Empty;
                     status.Name = launch.Status.Name;
                     status.IdFromApi = launch.Status.IdFromApi;
                     status.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _statusBusiness.SaveTransaction(status);
+                    await _statusBusiness.SaveTransaction(status);
                 }
 
                 LaunchServiceProvider launchServiceProvider = new();
                 if (launch.LaunchServiceProvider != null)
                 {
-                    Guid id = _launchServiceProviderBusiness.GetSelected(filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi, selectColumns: s => s.Id);
+                    Guid id = await _launchServiceProviderBusiness.GetSelected(filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi, selectColumns: s => s.Id);
 
                     launchServiceProvider.Id = id != Guid.Empty ? id : Guid.Empty;
                     launchServiceProvider.Name = launch.LaunchServiceProvider.Name;
@@ -234,7 +227,7 @@ namespace Business.Business
                     launchServiceProvider.IdFromApi = launch.LaunchServiceProvider.IdFromApi;
                     launchServiceProvider.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _launchServiceProviderBusiness.SaveTransaction(launchServiceProvider);
+                    await _launchServiceProviderBusiness.SaveTransaction(launchServiceProvider);
                 }
 
                 Rocket rocket = new();
@@ -243,7 +236,7 @@ namespace Business.Business
                     Configuration configuration = new();
                     if (launch.Rocket.Configuration != null)
                     {
-                        Guid idConfiguration = _configurationBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi, selectColumns: s => s.Id);
+                        Guid idConfiguration = await _configurationBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi, selectColumns: s => s.Id);
 
                         configuration.Id = idConfiguration != Guid.Empty ? idConfiguration : Guid.Empty;
                         configuration.LaunchLibraryId = launch.Rocket.Configuration.LaunchLibraryId;
@@ -255,17 +248,17 @@ namespace Business.Business
                         configuration.IdFromApi = launch.Rocket.Configuration.IdFromApi;
                         configuration.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                        _configurationBusiness.SaveTransaction(configuration);
+                        await _configurationBusiness.SaveTransaction(configuration);
                     }
 
-                    Guid idRocket = _rocketBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.IdFromApi, selectColumns: s => s.Id);
+                    Guid idRocket = await _rocketBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.IdFromApi, selectColumns: s => s.Id);
 
                     rocket.Id = idRocket != Guid.Empty ? idRocket : Guid.Empty;
                     rocket.IdConfiguration = configuration.Id == Guid.Empty ? null : configuration.Id;
                     rocket.IdFromApi = launch.Rocket.IdFromApi;
                     rocket.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _rocketBusiness.SaveTransaction(rocket);
+                    await _rocketBusiness.SaveTransaction(rocket);
                 }
 
                 Mission mission = new();
@@ -274,7 +267,7 @@ namespace Business.Business
                     Orbit orbit = new();
                     if (launch.Mission.Orbit != null)
                     {
-                        Guid idOrbit = _orbitBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi, selectColumns: s => s.Id);
+                        Guid idOrbit = await _orbitBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi, selectColumns: s => s.Id);
 
                         orbit.Id = idOrbit != Guid.Empty ? idOrbit : Guid.Empty;
                         orbit.Name = launch.Mission.Orbit.Name;
@@ -282,10 +275,10 @@ namespace Business.Business
                         orbit.IdFromApi = launch.Mission.Orbit.IdFromApi;
                         orbit.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                        _orbitBusiness.SaveTransaction(orbit);
+                        await _orbitBusiness.SaveTransaction(orbit);
                     }
 
-                    Guid idMission = _missionBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.IdFromApi, selectColumns: s => s.Id);
+                    Guid idMission = await _missionBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.IdFromApi, selectColumns: s => s.Id);
 
                     mission.Id = idMission != Guid.Empty ? idMission : Guid.Empty;
                     mission.Description = launch.Mission.Description;
@@ -295,7 +288,7 @@ namespace Business.Business
                     mission.IdFromApi = launch.Mission.IdFromApi;
                     mission.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _missionBusiness.SaveTransaction(mission);
+                    await _missionBusiness.SaveTransaction(mission);
                 }
 
                 Pad pad = new();
@@ -304,7 +297,7 @@ namespace Business.Business
                     Location location = new();
                     if (launch.Pad.Location != null)
                     {
-                        Guid idLocation = _locationBuiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi, selectColumns: s => s.Id);
+                        Guid idLocation = await _locationBuiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi, selectColumns: s => s.Id);
                         
                         location.Id = idLocation != Guid.Empty ? idLocation : Guid.Empty;
                         location.Url = launch.Pad.Location.Url;
@@ -316,10 +309,10 @@ namespace Business.Business
                         location.IdFromApi = launch.Pad.Location.IdFromApi;
                         location.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                        _locationBuiness.SaveTransaction(location);
+                        await _locationBuiness.SaveTransaction(location);
                     }
 
-                    Guid idPad = _padBusiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.IdFromApi, selectColumns: s => s.Id);
+                    Guid idPad = await _padBusiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.IdFromApi, selectColumns: s => s.Id);
 
                     pad.Id = idPad != Guid.Empty ? idPad : Guid.Empty;
                     pad.Url = launch.Pad.Url;
@@ -336,10 +329,10 @@ namespace Business.Business
                     pad.IdFromApi = launch.Pad.IdFromApi;
                     pad.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _padBusiness.SaveTransaction(pad);
+                    await _padBusiness.SaveTransaction(pad);
                 }
 
-                Guid idLaunch = _launchBusiness.GetSelected(filter: s => s.ApiGuId == launch.ApiGuId, selectColumns: s => s.Id);
+                Guid idLaunch = await _launchBusiness.GetSelected(filter: s => s.ApiGuId == launch.ApiGuId, selectColumns: s => s.Id);
                 Launch saveLaunch = new()
                 {
                     Id = idLaunch != Guid.Empty ? idLaunch : Guid.Empty,
@@ -370,22 +363,21 @@ namespace Business.Business
                     EntityStatus = EStatus.PUBLISHED.GetDisplayName(),
                     IdFromApi = launch.IdFromApi
                 };
-                _launchBusiness.SaveTransaction(saveLaunch);
-
-                trans.Commit();
+                await _launchBusiness.SaveTransaction(saveLaunch);
+                await trans.CommitAsync();
             }
             catch (Exception ex)
             {
-                trans.Rollback();
+                await trans.RollbackAsync();
                 throw ex;
             }
             finally
             {
-                trans.Dispose();
+                await trans.DisposeAsync();
             }
         }
 
-        private void GenerateLog(int offset, string errorMessage, int entityCount, bool success)
+        private async Task GenerateLog(int offset, string message, int entityCount, bool success)
         {
             IUpdateLogBusiness _updateLogBusiness = GetBusiness(typeof(IUpdateLogBusiness)) as IUpdateLogBusiness;
             
@@ -394,26 +386,58 @@ namespace Business.Business
                 TransactionDate = DateTime.Now,
                 OffSet = offset,
                 Success = success,
-                Message = errorMessage,
+                Message = message,
                 EntityCount = entityCount,
                 Origin = EOrigin.API_UPDATE.GetDisplayName(),
                 EntityStatus = EStatus.PUBLISHED.GetDisplayName()
             };
-            _updateLogBusiness.Save(log);
+            await _updateLogBusiness.Save(log);
         }
     
-        /*public LaunchDTO SearchByParam(SearchLaunchDTO search)
+        public async Task<List<LaunchDTO>> SearchByParam(SearchLaunchDTO search)
         {
             IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
-            IRocketBusiness _rocketBusiness = GetBusiness(typeof(IRocketBusiness)) as IRocketBusiness;
+            IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
             ILocationBusiness _locationBusiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
+            IPadBusiness _padBusiness = GetBusiness(typeof(IPadBusiness)) as IPadBusiness;
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
 
-            Guid idMission, idRocket, idLocation;
-
+            List<Expression<Func<Launch, bool>>> query = new();
             if(!string.IsNullOrEmpty(search.Mission))
-                idMission = _missionBusiness.GetSelected();
+            {
+                var idsMission = await _missionBusiness.ILikeSearch(searchTerm: search.Mission.Trim(), selectColumns: m => m.Id);
+                if(idsMission != null && idsMission.Any()) query.Add(l => idsMission.Contains((Guid)l.IdMission));
+            }
+                
+            if(!string.IsNullOrWhiteSpace(search.Rocket))
+            {
+                var idsRocket = await _configurationBusiness.ILikeSearch(searchTerm: search.Rocket.Trim(), selectColumns: r => r.Id);
+                if(idsRocket != null && idsRocket.Any()) query.Add(l => idsRocket.Contains((Guid)l.Rocket.IdConfiguration));
+            }
+        
+            if(!string.IsNullOrWhiteSpace(search.Location))
+            {
+                var idsLocation = await _locationBusiness.ILikeSearch(searchTerm: search.Location.Trim(), selectColumns: l => l.Id);
+                if(idsLocation != null && idsLocation.Any()) query.Add(l => idsLocation.Contains((Guid)l.Pad.IdLocation));
+            }
 
-        }*/
+            if(!string.IsNullOrWhiteSpace(search.Pad))
+            {
+                var idsPad = await _padBusiness.ILikeSearch(searchTerm: search.Pad.Trim(), selectColumns: p => p.Id);
+                if(idsPad != null && idsPad.Any()) query.Add(l => idsPad.Contains((Guid)l.IdPad));
+            }
+
+            if(!string.IsNullOrWhiteSpace(search.Launch))
+            {
+                var idsLaunch = await _launchBusiness.ILikeSearch(searchTerm: search.Launch.Trim(), selectColumns: l => l.Id);
+                if(idsLaunch != null && idsLaunch.Any()) query.Add(l => idsLaunch.Contains(l.Id));
+            }
+
+            if(!query.Any())
+                throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+
+            var found = await _launchBusiness.GetMany(query, includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location", howMany: 20) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+            return _mapper.Map<List<LaunchDTO>>(found);
+        }
     }
 }

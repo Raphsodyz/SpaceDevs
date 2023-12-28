@@ -1,16 +1,9 @@
-﻿using AutoMapper;
-using Data.Context;
-using Data.Interface;
+﻿using Data.Interface;
 using Domain.Entities;
 using Cross.Cutting.Helper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Data.Repository
 {
@@ -19,9 +12,9 @@ namespace Data.Repository
         public DbContext _context;
         public DbSet<T> _dbSet;
 
-        public IDbContextTransaction GetTransaction()
+        public async Task<IDbContextTransaction> GetTransaction()
         {
-            return _context.Database.BeginTransaction(System.Data.IsolationLevel.ReadUncommitted);
+            return await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
         }
 
         public GenericRepository(DbContext context)
@@ -30,7 +23,7 @@ namespace Data.Repository
             _dbSet = _context.Set<T>();
         }
 
-        public virtual IList<T> GetAll(
+        public async Task<IList<T>> GetAll(
             IEnumerable<Expression<Func<T, bool>>> filters = null,
             Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null,
             string includedProperties = "")
@@ -48,12 +41,12 @@ namespace Data.Repository
                 query = query.Include(includeProperty.TrimStart());
 
             if (orderBy != null)
-                return orderBy.Compile()(query).ToList();
+                return await orderBy.Compile()(query).ToListAsync();
             else
-                return query.ToList();
+                return await query.ToListAsync();
         }
 
-        public virtual IList<T> GetMany(
+        public async Task<IList<T>> GetMany(
             IEnumerable<Expression<Func<T, bool>>> filters = null,
             Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null,
             string includedProperties = "",
@@ -61,56 +54,52 @@ namespace Data.Repository
         {
             IQueryable<T> query = _dbSet;
 
-            if (howMany != null)
-                query = query.Take(howMany.Value);
-
             if (filters != null)
             {
                 foreach (var filter in filters)
                     query = query.Where(filter);
             }
+
+            if (howMany != null)
+                query = query.Take(howMany.Value);
 
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 query = query.Include(includeProperty.TrimStart());
 
             if (orderBy != null)
-                return orderBy.Compile()(query).ToList();
+                return await orderBy.Compile()(query).ToListAsync();
             else
-                return query.ToList();
+                return await query.ToListAsync();
         }
 
-        public virtual IEnumerable<TResult> GetAllSelectedColumns<TResult>(
-            IEnumerable<Expression<Func<T, bool>>> filters = null,
+        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
+            Func<T, TResult> selectColumns,
+            IEnumerable<Expression<Func<T, bool>>> filters,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             string includedProperties = "",
-            int? howMany = null,
-            Func<T, TResult> selectColumns = null)
+            int? howMany = null)
         {
             IQueryable<T> query = _dbSet;
+            
+            foreach (var filter in filters)
+                query = query.Where(filter);
 
             if (howMany != null)
                 query = query.Take(howMany.Value);
 
-            if (filters != null)
-            {
-                foreach (var filter in filters)
-                    query = query.Where(filter);
+            if (orderBy != null)
+                query = orderBy(query);
 
-                if (orderBy != null)
-                    orderBy(query).ToList();
-            }
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 query = query.Include(includeProperty.TrimStart());
 
-            if (selectColumns != null)
-                return query.Select(selectColumns);
-            else
-                return query.Cast<TResult>();
+            var result = await query.ToListAsync();
+            return result.Select(selectColumns);
         }
 
-        public virtual Pagination<T> GetAllPaged(int page, int pageSize,
+        public async Task<Pagination<T>> GetAllPaged(int page, int pageSize,
             IEnumerable<Expression<Func<T, bool>>> filters = null,
             Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null,
             string includedProperties = "")
@@ -129,52 +118,32 @@ namespace Data.Repository
 
             IList<T> results;
 
-            var entityCount = query.Count();
+            var entityCount = await query.CountAsync();
             if ((entityCount / pageSize) + 1 < page) page = 1;
             if (orderBy != null)
             {
                 var q1 = orderBy.Compile()(query);
                 var q2 = q1.Skip(page * pageSize).Take(pageSize);
-                results = q2.ToList();
+                results = await q2.ToListAsync();
             }
             else
             {
-                orderBy = (q => q.OrderBy(c => c.Id));
+                orderBy = q => q.OrderBy(c => c.Id);
                 var q1 = orderBy.Compile()(query);
                 var q2 = q1.Skip(page * pageSize).Take(pageSize);
-                results = q2.ToList();
+                results = await q2.ToListAsync();
             }
 
             var result = new Pagination<T>(results, (int)Math.Ceiling((decimal)entityCount / pageSize), page, entityCount);
             return result;
         }
 
-        public virtual int EntityCount(Expression<Func<T, bool>> filter = null)
+        public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
         {
-            return _dbSet.Count(filter);
+            return await _dbSet.CountAsync(filter);
         }
 
-        public virtual T Get(Expression<Func<T, bool>> filter, string includedProperties = "")
-        {
-            IQueryable<T> query = _dbSet;
-
-            if (filter != null)
-                query = query.Where(filter);
-
-            if (!string.IsNullOrWhiteSpace(includedProperties))
-            {
-                foreach (var includeProperty in includedProperties.Split
-                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    query = query.Include(includeProperty.TrimStart());
-            }
-
-            return query.FirstOrDefault();
-        }
-
-        public virtual TResult GetSelected<TResult>(
-            Expression<Func<T, bool>> filter = null,
-            string includedProperties = "",
-            Func<T, TResult> selectColumns = null)
+        public async Task<T> Get(Expression<Func<T, bool>> filter, string includedProperties = "")
         {
             IQueryable<T> query = _dbSet;
 
@@ -188,26 +157,37 @@ namespace Data.Repository
                     query = query.Include(includeProperty.TrimStart());
             }
 
-            TResult result;
-
-            if (selectColumns != null)
-                result = query.Select(selectColumns).FirstOrDefault();
-            else
-                result = query.Cast<TResult>().SingleOrDefault();
-
-            return result;
+            return await query.FirstOrDefaultAsync();
         }
 
-        public virtual void UpdateOnQuery(
-            List<Expression<Func<T, bool>>> filters = null,
-            Expression<Func<T, T>> updateColumns = null,
+        public async Task<TResult> GetSelected<TResult>(
+            Expression<Func<T, bool>> filter,
+            Expression<Func<T, TResult>> selectColumns,
+            string includedProperties = "")
+        {
+            IQueryable<T> query = _dbSet;
+
+            query = query.Where(filter);
+
+            if (!string.IsNullOrWhiteSpace(includedProperties))
+            {
+                foreach (var includeProperty in includedProperties.Split
+                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    query = query.Include(includeProperty.TrimStart());
+            }
+
+            return await query.Select(selectColumns).FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateOnQuery(
+            List<Expression<Func<T, bool>>> filters,
+            Expression<Func<T, T>> updateColumns,
             string includedProperties = null)
         {
             IQueryable<T> query = _dbSet;
 
-            if(filters != null && filters.Count > 0)
-                foreach(var filter in filters)
-                    query = query.Where(filter);
+            foreach(var filter in filters)
+                query = query.Where(filter);
 
             if (!string.IsNullOrWhiteSpace(includedProperties))
             {
@@ -216,39 +196,39 @@ namespace Data.Repository
                     query = query.Include(includeProperty.TrimStart());
             }
             
-            query.UpdateFromQuery(updateColumns);
+            await query.UpdateFromQueryAsync(updateColumns);
         }
 
-        public virtual void Save(T entity)
+        public async Task Save(T entity)
         {
-            _dbSet.Add(entity);
-            _context.SaveChanges();
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
         }
 
-        public virtual void SaveTransaction(T entity)
+        public async Task SaveTransaction(T entity)
         {
             if (entity.Id == Guid.Empty)
             {
-                _dbSet.Add(entity);
-                _context.SaveChanges();
+                await _dbSet.AddAsync(entity);
+                await _context.SaveChangesAsync();
             }
             else
             {
                 if (_context.Entry(entity).State == EntityState.Detached)
                 {
-                    T dbEntity = _dbSet.Find(entity.Id);
+                    T dbEntity = await _dbSet.FindAsync(entity.Id);
                     _context.Entry(dbEntity).CurrentValues.SetValues(entity);
                 }
                 else if (_context.Entry(entity).State == EntityState.Unchanged)
                     _context.Entry(entity).State = EntityState.Modified;
 
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
 
-        public virtual void Delete(T entity) 
+        public async Task Delete(T entity) 
         {
-            T dbEntity = _dbSet.Find(entity.Id);
+            T dbEntity = await _dbSet.FindAsync(entity.Id);
 
             if (_context.Entry(dbEntity).State == EntityState.Detached)
                 _dbSet.Attach(dbEntity);
@@ -256,14 +236,14 @@ namespace Data.Repository
             _dbSet.Remove(dbEntity);
         }
 
-        public virtual void DeleteTransaction(T entity)
+        public async Task DeleteTransaction(T entity)
         {
-            T dbEntity = _dbSet.Find(entity.Id);
+            T dbEntity = await _dbSet.FindAsync(entity.Id);
             if(_context.Entry(dbEntity).State == EntityState.Detached)
                 _dbSet.Attach(dbEntity);
             
             _dbSet.Remove(dbEntity);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

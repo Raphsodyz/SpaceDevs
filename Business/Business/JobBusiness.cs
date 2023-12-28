@@ -1,4 +1,4 @@
-﻿using Application.DTO;
+﻿using Business.DTO;
 using AutoMapper;
 using Business.Interface;
 using Data.Interface;
@@ -24,22 +24,11 @@ namespace Business.Business
             _mapper = mapper;
         }
 
-        public async Task<bool> UpdateDataSet()
+        public async Task UpdateDataSet()
         {
-            int limit = 100;
-            int offset = 0;
-            int max = 2000;
-            int entityCounter = 0;
-
             IUpdateLogBusiness _updateLogBusiness = GetBusiness(typeof(IUpdateLogBusiness)) as IUpdateLogBusiness;
 
-            List<Expression<Func<UpdateLog, bool>>> qryLastUpdateJobLog = new()
-            { u => u.Origin == EOrigin.API_UPDATE.GetDisplayName() };
-            offset = _updateLogBusiness.GetAllSelectedColumns(
-                filters: qryLastUpdateJobLog,
-                selectColumns: c => c.OffSet,
-                orderBy: u => u.OrderByDescending(d => d.TransactionDate)).FirstOrDefault();
-
+            int limit = 100, offset = await _updateLogBusiness.LastOffSet(), max = 1500, entityCounter = 0;
             for (int i = offset; i < max; i += limit)
             {
                 using HttpClient client = new();
@@ -51,67 +40,39 @@ namespace Business.Business
                         throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
 
                     RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError);
-                    if (dataList.Results?.Count == 0)
+                    if ((bool)!dataList.Results?.Any())
                         throw new InvalidOperationException(ErrorMessages.NoDataFromSpaceDevApi);
 
                     foreach (var data in dataList.Results)
                     {
                         var launch = _mapper.Map<Launch>(data);
-                        SaveLaunch(launch);
+                        await SaveLaunch(launch);
                         entityCounter++;
                     }
-                    GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
+                    await GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
                     offset += limit;
                 }
                 catch (HttpRequestException ex)
                 {
-                    GenerateLog(offset, ex.Message, entityCounter, false);
+                    await GenerateLog(offset, ex.Message, entityCounter, false);
                     throw ex;
                 }
                 catch (InvalidOperationException ex)
                 {
-                    GenerateLog(offset, ex.Message, entityCounter, false);
+                    await GenerateLog(offset, ex.Message, entityCounter, false);
                     throw ex;
                 }
                 catch (Exception ex)
                 {
-                    GenerateLog(offset, ex.Message, entityCounter, false);
+                    await GenerateLog(offset, ex.Message, entityCounter, false);
                     throw ex;
                 }
             }
             
-            GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
-            return true;
+            await GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
         }
 
-        public void GenerateJobLog(bool success, string message)
-        {
-            IUpdateLogBusiness _updateLogBusiness = GetBusiness(typeof(IUpdateLogBusiness)) as IUpdateLogBusiness;
-
-            List<Expression<Func<UpdateLog, bool>>> qryLastUpdateJobLog = new() 
-            { u => u.Origin == EOrigin.API_UPDATE.GetDisplayName() };
-            var lastLog = _updateLogBusiness.GetAllSelectedColumns(
-                filters: qryLastUpdateJobLog,
-                selectColumns: c => new { c.TransactionDate, c.OffSet, c.EntityCount },
-                orderBy: u => u.OrderByDescending(d => d.TransactionDate)).FirstOrDefault();
-
-            if(lastLog != null)
-            {
-                var log = new UpdateLog()
-                {
-                    TransactionDate = DateTime.Now,
-                    OffSet = lastLog.OffSet,
-                    Success = success,
-                    Message = message,
-                    EntityCount = lastLog.EntityCount,
-                    Origin = EOrigin.JOB.GetDisplayName(),
-                    EntityStatus = EStatus.PUBLISHED.GetDisplayName()
-                };
-                _updateLogBusiness.Save(log);
-            }
-        }
-
-        private void SaveLaunch(Launch launch)
+        private async Task SaveLaunch(Launch launch)
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
             IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
@@ -126,26 +87,26 @@ namespace Business.Business
             if (launch == null)
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
-            using var trans = _repository.GetTransaction();
+            using var trans = await _repository.GetTransaction();
             try
             {
                 Status status = new();
                 if (launch.Status != null)
                 {
-                    Guid id = _statusBusiness.GetSelected(filter: s => s.IdFromApi == launch.Status.IdFromApi, selectColumns: s => s.Id);
+                    Guid id = await _statusBusiness.GetSelected(filter: s => s.IdFromApi == launch.Status.IdFromApi, selectColumns: s => s.Id);
 
                     status.Id = id != Guid.Empty ? id : Guid.Empty;
                     status.Name = launch.Status.Name;
                     status.IdFromApi = launch.Status.IdFromApi;
                     status.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _statusBusiness.SaveTransaction(status);
+                    await _statusBusiness.SaveTransaction(status);
                 }
 
                 LaunchServiceProvider launchServiceProvider = new();
                 if (launch.LaunchServiceProvider != null)
                 {
-                    Guid id = _launchServiceProviderBusiness.GetSelected(filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi, selectColumns: s => s.Id);
+                    Guid id = await _launchServiceProviderBusiness.GetSelected(filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi, selectColumns: s => s.Id);
 
                     launchServiceProvider.Id = id != Guid.Empty ? id : Guid.Empty;
                     launchServiceProvider.Name = launch.LaunchServiceProvider.Name;
@@ -154,7 +115,7 @@ namespace Business.Business
                     launchServiceProvider.IdFromApi = launch.LaunchServiceProvider.IdFromApi;
                     launchServiceProvider.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _launchServiceProviderBusiness.SaveTransaction(launchServiceProvider);
+                    await _launchServiceProviderBusiness.SaveTransaction(launchServiceProvider);
                 }
 
                 Rocket rocket = new();
@@ -163,7 +124,7 @@ namespace Business.Business
                     Configuration configuration = new();
                     if (launch.Rocket.Configuration != null)
                     {
-                        Guid idConfiguration = _configurationBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi, selectColumns: s => s.Id);
+                        Guid idConfiguration = await _configurationBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi, selectColumns: s => s.Id);
 
                         configuration.Id = idConfiguration != Guid.Empty ? idConfiguration : Guid.Empty;
                         configuration.LaunchLibraryId = launch.Rocket.Configuration.LaunchLibraryId;
@@ -175,17 +136,17 @@ namespace Business.Business
                         configuration.IdFromApi = launch.Rocket.Configuration.IdFromApi;
                         configuration.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                        _configurationBusiness.SaveTransaction(configuration);
+                        await _configurationBusiness.SaveTransaction(configuration);
                     }
 
-                    Guid idRocket = _rocketBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.IdFromApi, selectColumns: s => s.Id);
+                    Guid idRocket = await _rocketBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.IdFromApi, selectColumns: s => s.Id);
 
                     rocket.Id = idRocket != Guid.Empty ? idRocket : Guid.Empty;
                     rocket.IdConfiguration = configuration.Id == Guid.Empty ? null : configuration.Id;
                     rocket.IdFromApi = launch.Rocket.IdFromApi;
                     rocket.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _rocketBusiness.SaveTransaction(rocket);
+                    await _rocketBusiness.SaveTransaction(rocket);
                 }
 
                 Mission mission = new();
@@ -194,7 +155,7 @@ namespace Business.Business
                     Orbit orbit = new();
                     if (launch.Mission.Orbit != null)
                     {
-                        Guid idOrbit = _orbitBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi, selectColumns: s => s.Id);
+                        Guid idOrbit = await _orbitBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi, selectColumns: s => s.Id);
 
                         orbit.Id = idOrbit != Guid.Empty ? idOrbit : Guid.Empty;
                         orbit.Name = launch.Mission.Orbit.Name;
@@ -202,10 +163,10 @@ namespace Business.Business
                         orbit.IdFromApi = launch.Mission.Orbit.IdFromApi;
                         orbit.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                        _orbitBusiness.SaveTransaction(orbit);
+                        await _orbitBusiness.SaveTransaction(orbit);
                     }
 
-                    Guid idMission = _missionBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.IdFromApi, selectColumns: s => s.Id);
+                    Guid idMission = await _missionBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.IdFromApi, selectColumns: s => s.Id);
 
                     mission.Id = idMission != Guid.Empty ? idMission : Guid.Empty;
                     mission.Description = launch.Mission.Description;
@@ -215,7 +176,7 @@ namespace Business.Business
                     mission.IdFromApi = launch.Mission.IdFromApi;
                     mission.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _missionBusiness.SaveTransaction(mission);
+                    await _missionBusiness.SaveTransaction(mission);
                 }
 
                 Pad pad = new();
@@ -224,7 +185,7 @@ namespace Business.Business
                     Location location = new();
                     if (launch.Pad.Location != null)
                     {
-                        Guid idLocation = _locationBuiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi, selectColumns: s => s.Id);
+                        Guid idLocation = await _locationBuiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi, selectColumns: s => s.Id);
 
                         location.Id = idLocation != Guid.Empty ? idLocation : Guid.Empty;
                         location.Url = launch.Pad.Location.Url;
@@ -236,10 +197,10 @@ namespace Business.Business
                         location.IdFromApi = launch.Pad.Location.IdFromApi;
                         location.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                        _locationBuiness.SaveTransaction(location);
+                        await _locationBuiness.SaveTransaction(location);
                     }
 
-                    Guid idPad = _padBusiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.IdFromApi, selectColumns: s => s.Id);
+                    Guid idPad = await _padBusiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.IdFromApi, selectColumns: s => s.Id);
 
                     pad.Id = idPad != Guid.Empty ? idPad : Guid.Empty;
                     pad.Url = launch.Pad.Url;
@@ -256,10 +217,10 @@ namespace Business.Business
                     pad.IdFromApi = launch.Pad.IdFromApi;
                     pad.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-                    _padBusiness.SaveTransaction(pad);
+                    await _padBusiness.SaveTransaction(pad);
                 }
 
-                Guid idLaunch = _launchBusiness.GetSelected(filter: s => s.ApiGuId == launch.ApiGuId, selectColumns: s => s.Id);
+                Guid idLaunch = await _launchBusiness.GetSelected(filter: s => s.ApiGuId == launch.ApiGuId, selectColumns: s => s.Id);
                 Launch saveLaunch = new()
                 {
                     Id = idLaunch != Guid.Empty ? idLaunch : Guid.Empty,
@@ -290,18 +251,22 @@ namespace Business.Business
                     EntityStatus = EStatus.PUBLISHED.GetDisplayName(),
                     IdFromApi = launch.IdFromApi
                 };
-                _launchBusiness.SaveTransaction(saveLaunch);
+                await _launchBusiness.SaveTransaction(saveLaunch);
 
-                trans.Commit();
+                await trans.CommitAsync();
             }
             catch (Exception ex)
             {
-                trans.Rollback();
+                await trans.RollbackAsync();
                 throw ex;
+            }
+            finally
+            {
+                await trans.DisposeAsync();
             }
         }
 
-        private void GenerateLog(int offset, string errorMessage, int entityCount, bool success)
+        private async Task GenerateLog(int offset, string errorMessage, int entityCount, bool success)
         {
             IUpdateLogBusiness _updateLogBusiness = GetBusiness(typeof(IUpdateLogBusiness)) as IUpdateLogBusiness;
 
@@ -314,7 +279,7 @@ namespace Business.Business
                 EntityCount = entityCount,
                 EntityStatus = EStatus.PUBLISHED.GetDisplayName()
             };
-            _updateLogBusiness.Save(log);
+            await _updateLogBusiness.Save(log);
         }
     }
 }

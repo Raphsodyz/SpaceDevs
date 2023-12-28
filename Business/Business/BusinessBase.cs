@@ -48,64 +48,64 @@ namespace Business.Business
             }
         }
 
-        public virtual void Delete(T entity)
+        public async Task Delete(T entity)
         {
-            _repository.Delete(entity);
+            await _repository.Delete(entity);
         }
 
-        public virtual void DeleteTransaction(T entity)
+        public async Task DeleteTransaction(T entity)
         {
-            _repository.DeleteTransaction(entity);
+            await _repository.DeleteTransaction(entity);
         }
 
-        public virtual int EntityCount(Expression<Func<T, bool>> filter = null)
+        public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
         {
-            return _repository.EntityCount(filter);
+            return await _repository.EntityCount(filter);
         }
 
-        public virtual T Get(Expression<Func<T, bool>> filter, string includedProperties = "")
+        public async Task<T> Get(Expression<Func<T, bool>> filter, string includedProperties = "")
         {
-            return _repository.Get(filter, includedProperties);
+            return await _repository.Get(filter, includedProperties);
         }
 
-        public virtual IList<T> GetAll(IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "")
+        public async Task<IList<T>> GetAll(IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "")
         {
-            return _repository.GetAll(filters, orderBy, includedProperties);
+            return await _repository.GetAll(filters, orderBy, includedProperties);
         }
 
-        public virtual Pagination<T> GetAllPaged(int page, int pageSize, IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "")
+        public async Task<Pagination<T>> GetAllPaged(int page, int pageSize, IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "")
         {
-            return _repository.GetAllPaged(page, pageSize, filters, orderBy, includedProperties);
+            return await _repository.GetAllPaged(page, pageSize, filters, orderBy, includedProperties);
         }
 
-        public virtual IEnumerable<TResult> GetAllSelectedColumns<TResult>(IEnumerable<Expression<Func<T, bool>>> filters = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includedProperties = "", int? howMany = null, Func<T, TResult> selectColumns = null)
+        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(Func<T, TResult> selectColumns, IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includedProperties = "", int? howMany = null)
         {
-            return _repository.GetAllSelectedColumns(filters, orderBy, includedProperties, howMany, selectColumns);
+            return await _repository.GetAllSelectedColumns(selectColumns, filters, orderBy, includedProperties, howMany);
         }
 
-        public virtual IList<T> GetMany(IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "", int? howMany = null)
+        public async Task<IList<T>> GetMany(IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "", int? howMany = null)
         {
-            return _repository.GetMany(filters, orderBy, includedProperties, howMany);
+            return await _repository.GetMany(filters, orderBy, includedProperties, howMany);
         }
 
-        public virtual TResult GetSelected<TResult>(Expression<Func<T, bool>> filter = null, string includedProperties = "", Func<T, TResult> selectColumns = null)
+        public async Task<TResult> GetSelected<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selectColumns, string includedProperties = "")
         {
-            return _repository.GetSelected(filter, includedProperties, selectColumns);
+            return await _repository.GetSelected(filter, selectColumns, includedProperties);
         }
 
-        public virtual void UpdateOnQuery(List<Expression<Func<T, bool>>> filters = null, Expression<Func<T, T>> updateColumns = null, string includedProperties = null)
+        public async Task UpdateOnQuery(List<Expression<Func<T, bool>>> filters, Expression<Func<T, T>> updateColumns, string includedProperties = null)
         {
-            _repository.UpdateOnQuery(filters, updateColumns, includedProperties);
+            await _repository.UpdateOnQuery(filters, updateColumns, includedProperties);
         }
 
-        public void Save(T entity)
+        public async Task Save(T entity)
         {
-            _repository.Save(entity);
+            await _repository.Save(entity);
         }
 
-        public void SaveTransaction(T entity)
+        public async Task SaveTransaction(T entity)
         {
-            _repository.SaveTransaction(entity);
+            await _repository.SaveTransaction(entity);
         }
     }
 }
