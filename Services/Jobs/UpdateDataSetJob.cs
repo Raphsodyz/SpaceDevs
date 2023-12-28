@@ -16,12 +16,7 @@ namespace Services.Jobs
         {
             try
             {
-                var success = await _jobBusiness.UpdateDataSet();
-                if (success)
-                    _jobBusiness.GenerateJobLog(true, SuccessMessages.UpdateJob);
-                else
-                    _jobBusiness.GenerateJobLog(false, ErrorMessages.UpdateJobError);
-
+                await _jobBusiness.UpdateDataSet();
             }
             catch (Exception ex) 
             {

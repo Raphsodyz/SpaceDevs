@@ -10,7 +10,6 @@ namespace Business.Interface
 {
     public interface IJobBusiness : IBusinessBase<Launch, ILaunchRepository>
     {
-        Task<bool> UpdateDataSet();
-        void GenerateJobLog(bool success, string message);
+        Task UpdateDataSet();
     }
 }

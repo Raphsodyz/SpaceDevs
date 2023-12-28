@@ -15,5 +15,10 @@ namespace Business.Business
         {
             
         }
+
+        public async Task<int> LastOffSet()
+        {
+            return await _repository.LastOffSet();
+        }
     }
 }

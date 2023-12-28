@@ -10,5 +10,6 @@ namespace Business.Interface
 {
     public interface IUpdateLogBusiness : IBusinessBase<UpdateLog, IUpdateLogRepository>
     {
+        Task<int> LastOffSet();
     }
 }

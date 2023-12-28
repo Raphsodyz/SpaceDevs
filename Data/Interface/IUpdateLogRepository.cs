@@ -9,5 +9,6 @@ namespace Data.Interface
 {
     public interface IUpdateLogRepository : IGenericRepository<UpdateLog>
     {
+        Task<int> LastOffSet();
     }
 }
