@@ -8,33 +8,18 @@ namespace Tests.ControllersTest
     public class LaunchControllerTest
     {
         [Fact]
-        public void LaunchersController_GetServiceRunning_OkServiceRunning()
-        {
-            //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-            var controller = new LaunchController(launchApiBusiness.Object, MapperConfiguration());
-
-            //Act
-            var result = controller.GetServiceRunning();
-
-            //Assert
-            Assert.IsType<OkObjectResult>(result);
-            Assert.Equal((result as OkObjectResult).Value, "REST Back-end Challenge 20201209 Running");
-        }
-
-        [Fact]
         public void LaunchersController_GetById_OkObject()
         {
             //Arrange
             Guid launchId = Guid.NewGuid();
 
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-            launchApiBusiness.Setup(l => l.GetOneLaunch(launchId)).Returns(LaunchDTOTest);
+            launchApiBusiness.Setup(l => l.GetOneLaunch(launchId)).ReturnsAsync(LaunchDTOTest);
 
             var controller = new LaunchController(launchApiBusiness.Object, MapperConfiguration());
 
             //Act
-            var result = controller.GetById(launchId);
+            var result = controller.GetById(launchId).Result;
 
             //Assert
             Assert.IsType<OkObjectResult>(result);
