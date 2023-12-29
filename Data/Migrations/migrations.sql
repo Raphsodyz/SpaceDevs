@@ -189,6 +189,44 @@ CREATE TABLE IF NOT EXISTS public.update_log_routine(
     origin VARCHAR(255) NOT NULL
 );
 
+CREATE MATERIALIZED VIEW IF NOT EXISTS public.launch_view AS
+    SELECT
+        l.id AS launch_id, l.atualization_date AS launch_atualization_date,
+        l.imported_t AS launch_imported_t, l.status AS launch_status, l.api_guid AS launch_api_guid,
+        l.url AS launch_url, l.launch_library_id AS launch_launch_library_id, l.slug AS launch_slug,
+        l.name AS launch_name, l.id_status, l.net AS launch_net, l.window_end AS launch_window_end,
+        l.window_start AS launch_window_start, l.inhold AS launch_inhold, l.tbd_time AS launch_tbd_time,
+        l.tbd_date AS launch_tbd_date, l.probability AS launch_probability, l.hold_reason AS launch_hold_reason,
+        l.fail_reason AS launch_fail_reason, l.hashtag AS launch_hashtag, l.id_launch_service_provider,
+        l.id_rocket, l.id_mission, l.id_pad,
+        l.web_cast_live AS launch_web_cast_live, l.image AS launch_image, l.infographic AS launch_infographic,
+        l.programs AS launch_programs,
+        s.name AS status_name, s.abbrev AS status_abbrev, s.description AS status_description,
+        lsp.url AS launch_service_provider_url, lsp.name AS launch_service_provider_name, lsp.type AS launch_service_provider_type,
+        r.id_configuration,
+        c.launch_library_id AS configuration_launch_library_id, c.url AS configuration_url, c.name AS configuration_name,
+        c.family AS configuration_family, c.full_name AS configuration_full_name, c.variant AS configuration_variant,
+        m.launch_library_id AS mission_launch_library_id,  m.name AS mission_name, m.description AS mission_description,
+        m.type AS mission_type, m.id_orbit, m.launch_designator AS mission_launch_designator,
+        o.name AS orbit_name, o.abbrev AS orbit_abbrev, 
+        p.url AS pad_url, p.agency_id AS pad_agency_id, p.name AS pad_name,
+        p.info_url AS pad_info_url, p.wiki_url AS pad_wiki_url, p.map_url AS pad_map_url,
+        p.latitude AS pad_latitude, p.longitude AS pad_longitude, p.id_location,
+        p.map_image AS pad_map_image, p.total_launch_count AS pad_total_launch_count,
+        loc.url AS location_url, loc.name AS location_name, loc.country_code AS location_country_code,
+        loc.map_image AS location_map_image, loc.total_launch_count AS location_total_launch_count,
+        loc.total_landing_count AS location_total_landing_count
+    FROM
+        launch AS l
+        JOIN status AS s ON l.id_status = s.id
+        JOIN launch_service_provider AS lsp ON l.id_launch_service_provider = lsp.id
+        JOIN rocket AS r ON l.id_rocket = r.id
+        JOIN configuration AS c ON r.id_configuration = c.id
+        JOIN mission AS m ON l.id_mission = m.id
+        JOIN orbit AS o ON m.id_orbit = o.id
+        JOIN pad AS p ON l.id_pad = p.id
+        JOIN location AS loc ON p.id_location = loc.id
+
 CREATE INDEX IDX_GIN_LAUNCH_SLUG_NAME ON public.launch USING GIN (search public.gin_trgm_ops);
 CREATE INDEX IDX_GIN_CONFIGURATION_NAME_FAMILY ON public.configuration USING GIN (search public.gin_trgm_ops);
 CREATE INDEX IDX_GIN_MISSION_NAME ON public.mission USING GIN (search public.gin_trgm_ops);
