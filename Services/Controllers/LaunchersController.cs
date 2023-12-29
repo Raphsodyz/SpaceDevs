@@ -1,33 +1,31 @@
 ﻿using Business.DTO;
-using AutoMapper;
 using Business.Interface;
 using Cross.Cutting.Helper;
 using Microsoft.AspNetCore.Mvc;
-using Services.ViewModel;
+using Services.Request;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Services.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/launches")]
     public class LaunchController : ControllerBase
     {
         private readonly ILaunchApiBusiness _launchApiBusiness;
-        private readonly IMapper _mapper;
-        public LaunchController(ILaunchApiBusiness launchApiBusiness,IMapper mapper)
+        public LaunchController(ILaunchApiBusiness launchApiBusiness)
         {
             _launchApiBusiness = launchApiBusiness;
-            _mapper = mapper;
         }
 
         [HttpGet]
-        [Route("launchers")]
-        public async Task<IActionResult> SearchByParams([FromQuery]SearchLaunchViewModel search)
+        [Route("search")]
+        [SwaggerOperation(Summary = "Method for fuzzy search of mission, location, pad, rocket and launch.")]
+        public async Task<IActionResult>SearchByParams([FromQuery]SearchLaunchRequest search)
         {
             try
             {
                 _ = search ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-                var registers = await _launchApiBusiness.SearchByParam(_mapper.Map<SearchLaunchDTO>(search));
-                var data = _mapper.Map<List<LaunchViewModel>>(registers);
+                var data = await _launchApiBusiness.SearchByParam(search.Mission, search.Rocket, search.Location, search.Pad, search.Launch);
 
                 return Ok(data);
             }
@@ -46,15 +44,14 @@ namespace Services.Controllers
         }
 
         [HttpGet]
-        [Route("launchers/{launchId}")]
+        [Route("{launchId}")]
+        [SwaggerOperation(Summary = "Method for search a launch by his UUID. This UUID is proveniente from the database.")]
         public async Task<IActionResult> GetById(Guid? launchId)
         {
             try
             {
                 var launchDTO = await _launchApiBusiness.GetOneLaunch(launchId);
-                var viewModel = _mapper.Map<LaunchViewModel>(launchDTO);
-
-                return Ok(viewModel);
+                return Ok(launchDTO);
             }
             catch (ArgumentNullException ex)
             {
@@ -71,15 +68,14 @@ namespace Services.Controllers
         }
 
         [HttpGet]
-        [Route("launchers/paged")]
-        public async Task<IActionResult> GetAllPaged(int page)
+        [Route("paged")]
+        [SwaggerOperation(Summary = "Method for return launches paged")]
+        public async Task<IActionResult> GetAllPaged([FromQuery]int page)
         {
             try
             {
                 Pagination<LaunchDTO> pagedLaunchList = await _launchApiBusiness.GetAllLaunchPaged(page);
-                Pagination<LaunchViewModel> pagedLaunchListViewModel = _mapper.Map<Pagination<LaunchViewModel>>(pagedLaunchList);
-
-                return Ok(new { CurrentlyPage = pagedLaunchListViewModel.CurrentPage, TotalRegisters = pagedLaunchListViewModel.NumberOfEntities, Pages = pagedLaunchListViewModel.NumberOfPages, Data = pagedLaunchListViewModel.Entities });
+                return Ok(new { CurrentlyPage = pagedLaunchList.CurrentPage, TotalRegisters = pagedLaunchList.NumberOfEntities, Pages = pagedLaunchList.NumberOfPages, Data = pagedLaunchList.Entities });
             }
             catch (InvalidOperationException ex)
             {
@@ -96,7 +92,8 @@ namespace Services.Controllers
         }
 
         [HttpDelete]
-        [Route("launchers/{launchId}")]
+        [Route("{launchId}")]
+        [SwaggerOperation(Summary = "Method for delete a launch by his UUID.")]
         public async Task<IActionResult> Delete(Guid? launchId)
         {
             try
@@ -119,7 +116,8 @@ namespace Services.Controllers
         }
 
         [HttpPut]
-        [Route("launchers/{launchId}")]
+        [Route("{launchId}")]
+        [SwaggerOperation(Summary = "Method to update a launch by synchronize his data with ll.thespacedevs API.")]
         public async Task<IActionResult> Edit(Guid? launchId)
         {
             try
@@ -147,11 +145,12 @@ namespace Services.Controllers
 
         [HttpPost]
         [Route("launchers")]
-        public async Task<IActionResult> UpdateData(int? skip)
+        [SwaggerOperation(Summary = "Method to synchronize data with ll.thespacedevs API.", Description = "The offset query string is launch count starting point. It will bring 1500 to 1500 new launches.")]
+        public async Task<IActionResult> UpdateData([FromQuery]int? offset)
         {
             try
             {
-                bool updated = await _launchApiBusiness.UpdateDataSet(skip);
+                bool updated = await _launchApiBusiness.UpdateDataSet(offset);
                 if (updated)
                     return Ok(SuccessMessages.ImportedDataSuccess);
                 else

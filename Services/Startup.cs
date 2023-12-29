@@ -20,7 +20,9 @@ namespace Services
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen();
+            services.AddSwaggerGen(cfg => {
+                cfg.EnableAnnotations();
+            });
             services.AddDbContext<FutureSpaceContext>();
 
             services.AddCors();
