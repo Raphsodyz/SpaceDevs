@@ -50,6 +50,8 @@ namespace Data.Interface
             Expression<Func<T, T>> updateColumns,
             string includedProperties = null);
 
+        Task<bool> EntityExist(Expression<Func<T, bool>> filter, string includedProperties = null);
+
         Task Save(T entity);
         Task SaveTransaction(T entity);
 

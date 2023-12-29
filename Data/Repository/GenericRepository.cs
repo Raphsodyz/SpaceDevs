@@ -199,6 +199,22 @@ namespace Data.Repository
             await query.UpdateFromQueryAsync(updateColumns);
         }
 
+        public async Task<bool> EntityExist(Expression<Func<T, bool>> filter, string includedProperties = null)
+        {
+            IQueryable<T> query = _dbSet;
+
+            query = query.Where(filter);
+
+            if (!string.IsNullOrWhiteSpace(includedProperties))
+            {
+                foreach (var includeProperty in includedProperties.Split
+                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    query = query.Include(includeProperty.TrimStart());
+            }
+
+            return await query.AnyAsync();
+        }
+
         public async Task Save(T entity)
         {
             await _dbSet.AddAsync(entity);

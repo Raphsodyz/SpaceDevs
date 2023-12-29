@@ -107,5 +107,10 @@ namespace Business.Business
         {
             await _repository.SaveTransaction(entity);
         }
+
+        public async Task<bool> EntityExist(Expression<Func<T, bool>> filter, string includedProperties = null)
+        {
+            return await _repository.EntityExist(filter, includedProperties);
+        }
     }
 }
