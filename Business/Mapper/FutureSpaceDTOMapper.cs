@@ -24,7 +24,7 @@ namespace Business.Mapper
                     dto => dto.MapFrom(src => src.Id))
                 .ForMember(
                     entity => entity.Id,
-                    dto => dto.Ignore())
+                    dto => dto.MapFrom(src => src.Id))
                 .ForMember(
                     entity => entity.LaunchLibraryId,
                     dto => dto.MapFrom(src => src.Launch_Library_Id))
