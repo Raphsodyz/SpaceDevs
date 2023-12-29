@@ -12,6 +12,6 @@ namespace Business.Interface
         Task SoftDeleteLaunch(Guid? launchId);
         Task<LaunchDTO> UpdateLaunch(Guid? launchId);
         Task<bool> UpdateDataSet(int? skip);
-        Task<List<LaunchDTO>> SearchByParam(SearchLaunchDTO search);
+        Task<List<LaunchDTO>> SearchByParam(string mission, string rocket, string location, string pad, string launch);
     }
 }

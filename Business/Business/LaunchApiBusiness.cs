@@ -32,7 +32,7 @@ namespace Business.Business
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             Expression<Func<Launch, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            bool launchExist = await _launchBusiness.GetSelected(filter: launchQuery, selectColumns: l => l.Id) != Guid.Empty;
+            bool launchExist = await _launchBusiness.EntityExist(filter: launchQuery);
             if (!launchExist)
                 throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
@@ -394,7 +394,7 @@ namespace Business.Business
             await _updateLogBusiness.Save(log);
         }
     
-        public async Task<List<LaunchDTO>> SearchByParam(SearchLaunchDTO search)
+        public async Task<List<LaunchDTO>> SearchByParam(string mission, string rocket, string location, string pad, string launch)
         {
             IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
             IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
@@ -403,33 +403,33 @@ namespace Business.Business
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
 
             List<Expression<Func<Launch, bool>>> query = new();
-            if(!string.IsNullOrEmpty(search.Mission))
+            if(!string.IsNullOrEmpty(mission))
             {
-                var idsMission = await _missionBusiness.ILikeSearch(searchTerm: search.Mission.Trim(), selectColumns: m => m.Id);
+                var idsMission = await _missionBusiness.ILikeSearch(searchTerm: mission.Trim(), selectColumns: m => m.Id);
                 if(idsMission != null && idsMission.Any()) query.Add(l => idsMission.Contains((Guid)l.IdMission));
             }
                 
-            if(!string.IsNullOrWhiteSpace(search.Rocket))
+            if(!string.IsNullOrWhiteSpace(rocket))
             {
-                var idsRocket = await _configurationBusiness.ILikeSearch(searchTerm: search.Rocket.Trim(), selectColumns: r => r.Id);
+                var idsRocket = await _configurationBusiness.ILikeSearch(searchTerm: rocket.Trim(), selectColumns: r => r.Id);
                 if(idsRocket != null && idsRocket.Any()) query.Add(l => idsRocket.Contains((Guid)l.Rocket.IdConfiguration));
             }
         
-            if(!string.IsNullOrWhiteSpace(search.Location))
+            if(!string.IsNullOrWhiteSpace(location))
             {
-                var idsLocation = await _locationBusiness.ILikeSearch(searchTerm: search.Location.Trim(), selectColumns: l => l.Id);
+                var idsLocation = await _locationBusiness.ILikeSearch(searchTerm: location.Trim(), selectColumns: l => l.Id);
                 if(idsLocation != null && idsLocation.Any()) query.Add(l => idsLocation.Contains((Guid)l.Pad.IdLocation));
             }
 
-            if(!string.IsNullOrWhiteSpace(search.Pad))
+            if(!string.IsNullOrWhiteSpace(pad))
             {
-                var idsPad = await _padBusiness.ILikeSearch(searchTerm: search.Pad.Trim(), selectColumns: p => p.Id);
+                var idsPad = await _padBusiness.ILikeSearch(searchTerm: pad.Trim(), selectColumns: p => p.Id);
                 if(idsPad != null && idsPad.Any()) query.Add(l => idsPad.Contains((Guid)l.IdPad));
             }
 
-            if(!string.IsNullOrWhiteSpace(search.Launch))
+            if(!string.IsNullOrWhiteSpace(launch))
             {
-                var idsLaunch = await _launchBusiness.ILikeSearch(searchTerm: search.Launch.Trim(), selectColumns: l => l.Id);
+                var idsLaunch = await _launchBusiness.ILikeSearch(searchTerm: launch.Trim(), selectColumns: l => l.Id);
                 if(idsLaunch != null && idsLaunch.Any()) query.Add(l => idsLaunch.Contains(l.Id));
             }
 
