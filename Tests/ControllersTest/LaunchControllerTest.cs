@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
-using Services.Mapper;
 
 namespace Tests.ControllersTest
 {
@@ -16,7 +15,7 @@ namespace Tests.ControllersTest
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
             launchApiBusiness.Setup(l => l.GetOneLaunch(launchId)).ReturnsAsync(LaunchDTOTest);
 
-            var controller = new LaunchController(launchApiBusiness.Object, MapperConfiguration());
+            var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
             var result = controller.GetById(launchId).Result;
@@ -209,13 +208,5 @@ namespace Tests.ControllersTest
             Infographic = null,
             Programs = null
         };
-
-        private static IMapper MapperConfiguration()
-        {
-            var mockMapper = new MapperConfiguration(cfg => { cfg.AddProfile(new FutureSpaceViewModelMapper()); });
-            var mapper = mockMapper.CreateMapper();
-
-            return mapper;
-        }
     }
 }
