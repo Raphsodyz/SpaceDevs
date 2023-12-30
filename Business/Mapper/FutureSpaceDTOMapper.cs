@@ -2,6 +2,7 @@
 using AutoMapper;
 using Domain.Entities;
 using Cross.Cutting.Helper;
+using Data.Materializated.Views;
 
 namespace Business.Mapper
 {
