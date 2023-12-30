@@ -21,31 +21,21 @@ namespace Business.Business
 
         public IBusiness GetBusiness(Type type)
         {
-            switch (type.Name)
+            return type.Name switch
             {
-                case "IConfigurationBusiness":
-                    return new ConfigurationBusiness(_uow);
-                case "ILaunchBusiness":
-                    return new LaunchBusiness(_uow);
-                case "ILaunchServiceProviderBusiness":
-                    return new LaunchServiceProviderBusiness(_uow);
-                case "ILocationBusiness":
-                    return new LocationBusiness(_uow);
-                case "IMissionBusiness":
-                    return new MissionBusiness(_uow);
-                case "IOrbitBusiness":
-                    return new OrbitBusiness(_uow);
-                case "IPadBusiness":
-                    return new PadBusiness(_uow);
-                case "IRocketBusiness":
-                    return new RocketBusiness(_uow);
-                case "IStatusBusiness":
-                    return new StatusBusiness(_uow);
-                case "IUpdateLogBusiness":
-                    return new UpdateLogBusiness(_uow);
-                default:
-                    throw new NotImplementedException();
-            }
+                "IConfigurationBusiness" => new ConfigurationBusiness(_uow),
+                "ILaunchBusiness" => new LaunchBusiness(_uow),
+                "ILaunchServiceProviderBusiness" => new LaunchServiceProviderBusiness(_uow),
+                "ILocationBusiness" => new LocationBusiness(_uow),
+                "IMissionBusiness" => new MissionBusiness(_uow),
+                "IOrbitBusiness" => new OrbitBusiness(_uow),
+                "IPadBusiness" => new PadBusiness(_uow),
+                "IRocketBusiness" => new RocketBusiness(_uow),
+                "IStatusBusiness" => new StatusBusiness(_uow),
+                "IUpdateLogBusiness" => new UpdateLogBusiness(_uow),
+                "ILaunchViewBusiness" => new LaunchViewBusiness(_uow),
+                _ => throw new NotImplementedException()
+            };
         }
 
         public async Task Delete(T entity)
@@ -68,9 +58,9 @@ namespace Business.Business
             return await _repository.Get(filter, includedProperties);
         }
 
-        public async Task<IList<T>> GetAll(IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "")
+        public async Task<IList<T>> GetAll(IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "", int? howMany = null)
         {
-            return await _repository.GetAll(filters, orderBy, includedProperties);
+            return await _repository.GetAll(filters, orderBy, includedProperties, howMany);
         }
 
         public async Task<Pagination<T>> GetAllPaged(int page, int pageSize, IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null, string includedProperties = "")
