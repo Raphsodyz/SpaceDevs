@@ -26,26 +26,10 @@ namespace Services
             services.AddDbContext<FutureSpaceContext>();
 
             services.AddCors();
-            
-            services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
-            services.AddTransient<ILaunchRepository, LaunchRepository>();
-            services.AddTransient<ILaunchServiceProviderRepository, LaunchServiceProviderRepository>();
-            services.AddTransient<ILocationRepository, LocationRepository>();
-            services.AddTransient<IPadRepository, PadRepository>();
-            services.AddTransient<IRocketRepository, RocketRepository>();
-            services.AddTransient<IStatusRepository, StatusRepository>();
 
-            services.AddTransient<IConfigurationBusiness, ConfigurationBusiness>();
-            services.AddTransient<ILaunchBusiness, LaunchBusiness>();
-            services.AddTransient<ILaunchServiceProviderBusiness, LaunchServiceProviderBusiness>();
-            services.AddTransient<ILocationBusiness, LocationBusiness>();
-            services.AddTransient<IPadBusiness, PadBusiness>();
-            services.AddTransient<IRocketBusiness, RocketBusiness>();
-            services.AddTransient<IStatusBusiness, StatusBusiness>();
-            
             services.AddTransient<ILaunchApiBusiness, LaunchApiBusiness>();
             services.AddTransient<IJobBusiness, JobBusiness>();
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddQuartz(cfg =>
