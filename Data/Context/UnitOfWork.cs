@@ -1,11 +1,5 @@
 ﻿using Data.Interface;
 using Data.Repository;
-using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Data.Context
 {
@@ -55,6 +49,9 @@ namespace Data.Context
                         break;
                     case "IUpdateLogRepository":
                         repository = new UpdateLogRepository(_context);
+                        break;
+                    case "ILaunchViewRepository":
+                        repository = new LaunchViewRepository(_context);
                         break;
                     default:
                         return null;
