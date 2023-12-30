@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using System.Data;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
+using Data.Materializated.Views;
 
 namespace Business.Business
 {
@@ -24,24 +25,20 @@ namespace Business.Business
             _mapper = mapper;
         }
 
-        public async Task<LaunchDTO> GetOneLaunch(Guid? launchId)
+        public async Task<LaunchView> GetOneLaunch(Guid? launchId)
         {
-            ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
 
             if (launchId == null)
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
-            Expression<Func<Launch, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            bool launchExist = await _launchBusiness.EntityExist(filter: launchQuery);
+            Expression<Func<LaunchView, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
+            bool launchExist = await _launchViewBusiness.ViewExists();
             if (!launchExist)
-                throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+                throw new Exception(ErrorMessages.ViewNotExists);
 
-            Launch launch = await _launchBusiness.Get(
-                filter: launchQuery,
-                includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location");
-
-            var result = _mapper.Map<LaunchDTO>(launch);
-            return result;
+            LaunchView launch = await _launchViewBusiness.GetById(filter: launchQuery);
+            return launch;
         }
 
         public async Task<Pagination<LaunchDTO>> GetAllLaunchPaged(int? page)

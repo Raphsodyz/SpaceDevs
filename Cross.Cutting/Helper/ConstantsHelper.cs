@@ -23,6 +23,7 @@ namespace Cross.Cutting.Helper
         public static readonly string NoDataFromSpaceDevApi = "Attention! There is no data received from Space Devs Api. Check the service disponibility and try again.";
         public static readonly string UpdateJobError = "Attention! The update job has failed.";
         public static readonly string StoredProcedurePublishedRoutineError = "Attention! The update to published stored procedure has failed.";
+        public static readonly string ViewNotExists = "Attention! The launch view not exists. Contact the sys admin to get support.";
     }
 
     public static class SuccessMessages
