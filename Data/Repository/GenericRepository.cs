@@ -9,6 +9,7 @@ namespace Data.Repository
 {
     public abstract class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
+        const int maxEntityReturn = 10;
         public DbContext _context;
         public DbSet<T> _dbSet;
 
@@ -26,7 +27,8 @@ namespace Data.Repository
         public async Task<IList<T>> GetAll(
             IEnumerable<Expression<Func<T, bool>>> filters = null,
             Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null,
-            string includedProperties = "")
+            string includedProperties = "",
+            int? howMany = null)
         {
             IQueryable<T> query = _dbSet;
 
@@ -35,6 +37,8 @@ namespace Data.Repository
                 foreach (var filter in filters)
                     query = query.Where(filter);
             }
+
+            query = query.Take(howMany ?? maxEntityReturn);
 
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -60,8 +64,7 @@ namespace Data.Repository
                     query = query.Where(filter);
             }
 
-            if (howMany != null)
-                query = query.Take(howMany.Value);
+            query = query.Take(howMany ?? maxEntityReturn);
 
             foreach (var includeProperty in includedProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -85,8 +88,7 @@ namespace Data.Repository
             foreach (var filter in filters)
                 query = query.Where(filter);
 
-            if (howMany != null)
-                query = query.Take(howMany.Value);
+            query = query.Take(howMany ?? maxEntityReturn);
 
             if (orderBy != null)
                 query = orderBy(query);

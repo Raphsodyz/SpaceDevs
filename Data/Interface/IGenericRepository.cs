@@ -14,7 +14,8 @@ namespace Data.Interface
         Task<IList<T>> GetAll(
             IEnumerable<Expression<Func<T, bool>>> filters = null,
             Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null,
-            string includedProperties = "");
+            string includedProperties = "",
+            int? howMany = null);
 
         Task<IList<T>> GetMany(
             IEnumerable<Expression<Func<T, bool>>> filters = null,
