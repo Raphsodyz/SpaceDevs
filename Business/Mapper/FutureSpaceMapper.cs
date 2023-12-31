@@ -6,9 +6,9 @@ using Data.Materializated.Views;
 
 namespace Business.Mapper
 {
-    public class FutureSpaceDTOMapper : Profile
+    public class FutureSpaceMapper : Profile
     {
-        public FutureSpaceDTOMapper()
+        public FutureSpaceMapper()
         {
             CreateMap<StatusDTO, Status>().ReverseMap();
             CreateMap<RocketDTO, Rocket>().ReverseMap();
