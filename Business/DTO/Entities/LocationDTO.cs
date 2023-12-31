@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Business.DTO
+namespace Business.DTO.Entities
 {
     public class LocationDTO
     {

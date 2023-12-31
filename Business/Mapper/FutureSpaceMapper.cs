@@ -1,8 +1,8 @@
-﻿using Business.DTO;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Entities;
 using Cross.Cutting.Helper;
 using Data.Materializated.Views;
+using Business.DTO.Entities;
 
 namespace Business.Mapper
 {

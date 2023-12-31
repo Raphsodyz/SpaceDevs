@@ -1,13 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
-namespace Business.DTO
+namespace Business.DTO.Entities
 {
-    public class StatusDTO
+    public class OrbitDTO
     {
         [JsonIgnore]
         public Guid Id { get; set; }
-
+        
         [Key]
         [Range(1, int.MaxValue)]
         [Display(Name = "ID")]
@@ -22,9 +29,5 @@ namespace Business.DTO
         [Display(Name = "Abbrev")]
         [StringLength(200, ErrorMessage = "Atention! Write a valid Abbrev.", MinimumLength = 2)]
         public string Abbrev { get; set; }
-
-        [Display(Name = "Description")]
-        [StringLength(200, ErrorMessage = "Atention! Write a valid Description.", MinimumLength = 2)]
-        public string Description  { get; set; }
     }
 }

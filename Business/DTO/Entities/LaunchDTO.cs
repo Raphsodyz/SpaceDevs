@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Business.DTO
+namespace Business.DTO.Entities
 {
     public class LaunchDTO
     {

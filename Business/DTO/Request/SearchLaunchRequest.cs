@@ -1,9 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using Swashbuckle.AspNetCore.Annotations;
 
-namespace Services.Request
+namespace Business.DTO.Entities
 {
-    [SwaggerSchema(Description = "Request Query")]
     public class SearchLaunchRequest
     {
         [Display(Name = "Mission")]

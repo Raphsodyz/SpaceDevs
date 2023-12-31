@@ -1,9 +1,8 @@
-﻿using Business.DTO;
+﻿using Business.DTO.Entities;
 using Business.Interface;
 using Cross.Cutting.Helper;
 using Data.Materializated.Views;
 using Microsoft.AspNetCore.Mvc;
-using Services.Request;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Services.Controllers
@@ -26,7 +25,7 @@ namespace Services.Controllers
             try
             {
                 _ = search ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-                var data = await _launchApiBusiness.SearchByParam(search.Mission, search.Rocket, search.Location, search.Pad, search.Launch);
+                var data = await _launchApiBusiness.SearchByParam(search);
 
                 return Ok(data);
             }

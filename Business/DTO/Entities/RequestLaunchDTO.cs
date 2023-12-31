@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Business.DTO
+namespace Business.DTO.Entities
 {
     public class RequestLaunchDTO
     {
