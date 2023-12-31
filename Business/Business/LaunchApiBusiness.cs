@@ -411,7 +411,7 @@ namespace Business.Business
             await _launchViewBusiness.RefreshView();
         }
 
-        public async Task<List<LaunchDTO>> SearchByParam(string mission, string rocket, string location, string pad, string launch, int? page = null)
+        public async Task<Pagination<LaunchView>> SearchByParam(string mission, string rocket, string location, string pad, string launch, int? page = null)
         {
             ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
 
@@ -460,7 +460,11 @@ namespace Business.Business
                 throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
             var found = await _launchViewBusiness.GetViewPaged(page ?? 0, 10, query) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
-            return _mapper.Map<List<LaunchDTO>>(found);
+            
+            var result = new Pagination<LaunchView>();
+            result = _mapper.Map<Pagination<LaunchView>>(found);
+            
+            return result;
         }
     }
 }
