@@ -14,5 +14,11 @@ namespace Business.Business
         {
             return await _repository.ViewExists();
         }
+
+        public async Task RefreshView()
+        {
+            await _repository.RefreshView();
+            return;
+        }
     }
 }

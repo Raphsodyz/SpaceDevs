@@ -16,5 +16,11 @@ namespace Data.Repository
         {
             return await _context.Database.SqlQuery<bool>($"SELECT matviewname FROM pg_matviews WHERE matviewname = 'launch_view'").AnyAsync();
         }
+
+        public async Task RefreshView()
+        {
+            _ = await _context.Database.ExecuteSqlRawAsync("REFRESH MATERIALIZED VIEW launch_view");
+            return;
+        }
     }
 }

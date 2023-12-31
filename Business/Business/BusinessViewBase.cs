@@ -43,5 +43,10 @@ namespace Business.Business
         {
             return await _repository.GetViewPaged(page, pageSize, filters, orderBy);
         }
+
+        public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
+        {
+            return await _repository.EntityCount(filter);
+        }
     }
 }

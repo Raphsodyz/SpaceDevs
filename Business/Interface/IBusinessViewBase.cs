@@ -29,5 +29,7 @@ namespace Business.Interface
             IEnumerable<Expression<Func<T, bool>>> filters,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             int? howMany = null);
+
+        Task<int> EntityCount(Expression<Func<T, bool>> filter = null);
     }
 }

@@ -113,5 +113,10 @@ namespace Data.Repository
             var result = await query.ToListAsync();
             return result.Select(selectColumns);
         }
+
+        public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
+        {
+            return await _dbSet.CountAsync(filter);
+        }
     }
 }
