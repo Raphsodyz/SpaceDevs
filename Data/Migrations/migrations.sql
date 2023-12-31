@@ -217,15 +217,15 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS public.launch_view AS
         loc.map_image AS location_map_image, loc.total_launch_count AS location_total_launch_count,
         loc.total_landing_count AS location_total_landing_count
     FROM
-        launch AS l
-        JOIN status AS s ON l.id_status = s.id
-        JOIN launch_service_provider AS lsp ON l.id_launch_service_provider = lsp.id
-        JOIN rocket AS r ON l.id_rocket = r.id
-        JOIN configuration AS c ON r.id_configuration = c.id
-        JOIN mission AS m ON l.id_mission = m.id
-        JOIN orbit AS o ON m.id_orbit = o.id
-        JOIN pad AS p ON l.id_pad = p.id
-        JOIN location AS loc ON p.id_location = loc.id
+        public.launch AS l
+        LEFT JOIN public.status AS s ON l.id_status = s.id
+        LEFT JOIN public.launch_service_provider AS lsp ON l.id_launch_service_provider = lsp.id
+        LEFT JOIN public.rocket AS r ON l.id_rocket = r.id
+        LEFT JOIN public.configuration AS c ON r.id_configuration = c.id
+        LEFT JOIN public.mission AS m ON l.id_mission = m.id
+        LEFT JOIN public.orbit AS o ON m.id_orbit = o.id
+        LEFT JOIN public.pad AS p ON l.id_pad = p.id
+        LEFT JOIN public.location AS loc ON p.id_location = loc.id;
 
 CREATE INDEX IDX_GIN_LAUNCH_SLUG_NAME ON public.launch USING GIN (search public.gin_trgm_ops);
 CREATE INDEX IDX_GIN_CONFIGURATION_NAME_FAMILY ON public.configuration USING GIN (search public.gin_trgm_ops);
