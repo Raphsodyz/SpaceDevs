@@ -1,10 +1,9 @@
 Projeto inicialmente feito como teste de um processo seletivo a qual estava participando. Agora estou incluindo uma série de funcionalidades e coisas que estou usando para testar meus conhecimentos, e tambem para aprender coisas novas.
 
-##Execução
-
-###Requisitos
+## Requisitos
 - Docker
 
+## Execução
 Para rodar o projeto e necessário somente possuir docker.
 Faça o download do código acima. Extraia o arquivo. Dentro da raiz do projeto extraido(onde estão os dockerfile e docker-compose.yml) rode o comando no shell ou prompt de comando:
 
