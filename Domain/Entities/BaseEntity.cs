@@ -59,6 +59,7 @@ namespace Domain.Entities
             {
                 ImportedT = DateTime.Now;
                 AtualizationDate = DateTime.Now;
+                EntityStatus = EStatus.PUBLISHED.GetDisplayName();
             }
             else
                 AtualizationDate = DateTime.Now;
