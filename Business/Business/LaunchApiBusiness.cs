@@ -41,30 +41,28 @@ namespace Business.Business
             return launch;
         }
 
-        public async Task<Pagination<LaunchDTO>> GetAllLaunchPaged(int? page)
+        public async Task<Pagination<LaunchView>> GetAllLaunchPaged(int? page)
         {
-            ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
 
-            int totalEntities = await _launchBusiness.EntityCount(l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());
+            int totalEntities = await _launchViewBusiness.EntityCount(l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());
             int totalPages = totalEntities % 10 == 0 ? totalEntities / 10 : (totalEntities / 10) + 1;
             if (page > totalPages || page < 0)
                 throw new InvalidOperationException($"{ErrorMessages.InvalidPageSelected} Total pages = {totalPages}");
 
-            List<Expression<Func<Launch, bool>>> publishedLaunchQuery = new()
+            List<Expression<Func<LaunchView, bool>>> publishedLaunchQuery = new()
             { l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
-            var selectedPageLaunchList = await _launchBusiness.GetAllPaged(
+            var selectedPageLaunchList = await _launchViewBusiness.GetViewPaged(
                 page ?? 0, 10,
-                filters: publishedLaunchQuery,
-                includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location",
-                orderBy: l => l.OrderBy(la => la.Id));
+                filters: publishedLaunchQuery);
 
             if (selectedPageLaunchList.Entities?.Count == 0)
                 throw new KeyNotFoundException(ErrorMessages.NoData);
 
-            var resultado = new Pagination<LaunchDTO>();
-            resultado = _mapper.Map<Pagination<LaunchDTO>>(selectedPageLaunchList);
+            var result = new Pagination<LaunchView>();
+            result = _mapper.Map<Pagination<LaunchView>>(selectedPageLaunchList);
             
-            return resultado;
+            return result;
         }
 
         public async Task SoftDeleteLaunch(Guid? launchId)
@@ -130,6 +128,11 @@ namespace Business.Business
                 await trans.RollbackAsync();
                 throw ex;
             }
+            finally
+            {
+                await RefreshView();
+                await trans.DisposeAsync();
+            }
         }
 
         public async Task<bool> UpdateDataSet(int? skip)
@@ -175,8 +178,11 @@ namespace Business.Business
                     await GenerateLog(offset, ex.Message, entityCounter, false);
                     throw ex;
                 }
+                finally
+                {
+                    await RefreshView();
+                }
             }
-
             await GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
             return true;
         }
@@ -184,14 +190,6 @@ namespace Business.Business
         private async Task SaveLaunch(Launch launch)
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
-            IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
-            ILaunchServiceProviderBusiness _launchServiceProviderBusiness = GetBusiness(typeof(ILaunchServiceProviderBusiness)) as ILaunchServiceProviderBusiness;
-            ILocationBusiness _locationBuiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
-            IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
-            IOrbitBusiness _orbitBusiness = GetBusiness(typeof(IOrbitBusiness)) as IOrbitBusiness;
-            IPadBusiness _padBusiness = GetBusiness(typeof(IPadBusiness)) as IPadBusiness;
-            IRocketBusiness _rocketBusiness = GetBusiness(typeof(IRocketBusiness)) as IRocketBusiness;
-            IStatusBusiness _statusBusiness = GetBusiness(typeof(IStatusBusiness)) as IStatusBusiness;
 
             if (launch == null)
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
@@ -199,6 +197,8 @@ namespace Business.Business
             using var trans = await _repository.GetTransaction();
             try
             {
+                IStatusBusiness _statusBusiness = GetBusiness(typeof(IStatusBusiness)) as IStatusBusiness;
+
                 Status status = new();
                 if (launch.Status != null)
                 {
@@ -215,6 +215,8 @@ namespace Business.Business
                 LaunchServiceProvider launchServiceProvider = new();
                 if (launch.LaunchServiceProvider != null)
                 {
+                    ILaunchServiceProviderBusiness _launchServiceProviderBusiness = GetBusiness(typeof(ILaunchServiceProviderBusiness)) as ILaunchServiceProviderBusiness;
+
                     Guid id = await _launchServiceProviderBusiness.GetSelected(filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi, selectColumns: s => s.Id);
 
                     launchServiceProvider.Id = id != Guid.Empty ? id : Guid.Empty;
@@ -233,6 +235,8 @@ namespace Business.Business
                     Configuration configuration = new();
                     if (launch.Rocket.Configuration != null)
                     {
+                        IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
+
                         Guid idConfiguration = await _configurationBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi, selectColumns: s => s.Id);
 
                         configuration.Id = idConfiguration != Guid.Empty ? idConfiguration : Guid.Empty;
@@ -247,6 +251,8 @@ namespace Business.Business
 
                         await _configurationBusiness.SaveTransaction(configuration);
                     }
+
+                    IRocketBusiness _rocketBusiness = GetBusiness(typeof(IRocketBusiness)) as IRocketBusiness;
 
                     Guid idRocket = await _rocketBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.IdFromApi, selectColumns: s => s.Id);
 
@@ -263,7 +269,9 @@ namespace Business.Business
                 {
                     Orbit orbit = new();
                     if (launch.Mission.Orbit != null)
-                    {
+                    {            
+                        IOrbitBusiness _orbitBusiness = GetBusiness(typeof(IOrbitBusiness)) as IOrbitBusiness;
+
                         Guid idOrbit = await _orbitBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi, selectColumns: s => s.Id);
 
                         orbit.Id = idOrbit != Guid.Empty ? idOrbit : Guid.Empty;
@@ -274,6 +282,7 @@ namespace Business.Business
 
                         await _orbitBusiness.SaveTransaction(orbit);
                     }
+                    IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
 
                     Guid idMission = await _missionBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.IdFromApi, selectColumns: s => s.Id);
 
@@ -294,6 +303,9 @@ namespace Business.Business
                     Location location = new();
                     if (launch.Pad.Location != null)
                     {
+
+                        ILocationBusiness _locationBuiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
+
                         Guid idLocation = await _locationBuiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi, selectColumns: s => s.Id);
                         
                         location.Id = idLocation != Guid.Empty ? idLocation : Guid.Empty;
@@ -308,6 +320,8 @@ namespace Business.Business
 
                         await _locationBuiness.SaveTransaction(location);
                     }
+
+                    IPadBusiness _padBusiness = GetBusiness(typeof(IPadBusiness)) as IPadBusiness;
 
                     Guid idPad = await _padBusiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.IdFromApi, selectColumns: s => s.Id);
 
@@ -391,41 +405,53 @@ namespace Business.Business
             await _updateLogBusiness.Save(log);
         }
     
-        public async Task<List<LaunchDTO>> SearchByParam(string mission, string rocket, string location, string pad, string launch)
+        private async Task RefreshView()
         {
-            IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
-            IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
-            ILocationBusiness _locationBusiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
-            IPadBusiness _padBusiness = GetBusiness(typeof(IPadBusiness)) as IPadBusiness;
-            ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+            await _launchViewBusiness.RefreshView();
+        }
 
-            List<Expression<Func<Launch, bool>>> query = new();
+        public async Task<List<LaunchDTO>> SearchByParam(string mission, string rocket, string location, string pad, string launch, int? page = null)
+        {
+            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+
+            List<Expression<Func<LaunchView, bool>>> query = new();
             if(!string.IsNullOrEmpty(mission))
             {
+                IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
+
                 var idsMission = await _missionBusiness.ILikeSearch(searchTerm: mission.Trim(), selectColumns: m => m.Id);
                 if(idsMission != null && idsMission.Any()) query.Add(l => idsMission.Contains((Guid)l.IdMission));
             }
                 
             if(!string.IsNullOrWhiteSpace(rocket))
-            {
+            {            
+                IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
+
                 var idsRocket = await _configurationBusiness.ILikeSearch(searchTerm: rocket.Trim(), selectColumns: r => r.Id);
                 if(idsRocket != null && idsRocket.Any()) query.Add(l => idsRocket.Contains((Guid)l.Rocket.IdConfiguration));
             }
         
             if(!string.IsNullOrWhiteSpace(location))
             {
+                ILocationBusiness _locationBusiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
+
                 var idsLocation = await _locationBusiness.ILikeSearch(searchTerm: location.Trim(), selectColumns: l => l.Id);
                 if(idsLocation != null && idsLocation.Any()) query.Add(l => idsLocation.Contains((Guid)l.Pad.IdLocation));
             }
 
             if(!string.IsNullOrWhiteSpace(pad))
             {
+                IPadBusiness _padBusiness = GetBusiness(typeof(IPadBusiness)) as IPadBusiness;
+
                 var idsPad = await _padBusiness.ILikeSearch(searchTerm: pad.Trim(), selectColumns: p => p.Id);
                 if(idsPad != null && idsPad.Any()) query.Add(l => idsPad.Contains((Guid)l.IdPad));
             }
 
             if(!string.IsNullOrWhiteSpace(launch))
             {
+                ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+
                 var idsLaunch = await _launchBusiness.ILikeSearch(searchTerm: launch.Trim(), selectColumns: l => l.Id);
                 if(idsLaunch != null && idsLaunch.Any()) query.Add(l => idsLaunch.Contains(l.Id));
             }
@@ -433,7 +459,7 @@ namespace Business.Business
             if(!query.Any())
                 throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
-            var found = await _launchBusiness.GetMany(query, includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location", howMany: 20) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+            var found = await _launchViewBusiness.GetViewPaged(page ?? 0, 10, query) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
             return _mapper.Map<List<LaunchDTO>>(found);
         }
     }

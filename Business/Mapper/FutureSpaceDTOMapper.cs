@@ -18,7 +18,7 @@ namespace Business.Mapper
             CreateMap<MissionDTO, Mission>().ReverseMap();
             CreateMap<OrbitDTO, Orbit>().ReverseMap();
             CreateMap<PadDTO, Pad>().ReverseMap();
-            CreateMap<Pagination<LaunchDTO>, Pagination<Launch>>().ReverseMap();
+            CreateMap<Pagination<LaunchView>, Pagination<Launch>>().ReverseMap();
             CreateMap<LaunchDTO, Launch>()
                 .ForMember(
                     entity => entity.ApiGuId,

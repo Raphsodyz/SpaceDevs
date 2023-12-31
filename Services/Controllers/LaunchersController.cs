@@ -1,6 +1,7 @@
 ﻿using Business.DTO;
 using Business.Interface;
 using Cross.Cutting.Helper;
+using Data.Materializated.Views;
 using Microsoft.AspNetCore.Mvc;
 using Services.Request;
 using Swashbuckle.AspNetCore.Annotations;
@@ -74,7 +75,7 @@ namespace Services.Controllers
         {
             try
             {
-                Pagination<LaunchDTO> pagedLaunchList = await _launchApiBusiness.GetAllLaunchPaged(page);
+                Pagination<LaunchView> pagedLaunchList = await _launchApiBusiness.GetAllLaunchPaged(page);
                 return Ok(new { CurrentlyPage = pagedLaunchList.CurrentPage, TotalRegisters = pagedLaunchList.NumberOfEntities, Pages = pagedLaunchList.NumberOfPages, Data = pagedLaunchList.Entities });
             }
             catch (InvalidOperationException ex)
