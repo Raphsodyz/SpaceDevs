@@ -50,32 +50,6 @@ namespace Data.Repository
                 return await query.ToListAsync();
         }
 
-        public async Task<IList<T>> GetMany(
-            IEnumerable<Expression<Func<T, bool>>> filters = null,
-            Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null,
-            string includedProperties = "",
-            int? howMany = null)
-        {
-            IQueryable<T> query = _dbSet;
-
-            if (filters != null)
-            {
-                foreach (var filter in filters)
-                    query = query.Where(filter);
-            }
-
-            query = query.Take(howMany ?? maxEntityReturn);
-
-            foreach (var includeProperty in includedProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                query = query.Include(includeProperty.TrimStart());
-
-            if (orderBy != null)
-                return await orderBy.Compile()(query).ToListAsync();
-            else
-                return await query.ToListAsync();
-        }
-
         public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
             Func<T, TResult> selectColumns,
             IEnumerable<Expression<Func<T, bool>>> filters,
