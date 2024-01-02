@@ -25,8 +25,7 @@ namespace Tests.ControllersTest
 
             var controller = new LaunchController(launchApiBusiness.Object);
 
-            launchApiBusiness.Setup(l => l.GetOneLaunch(new Guid("000ebc80-d782-4dee-8606-1199d9074039")))
-                .Returns(_context.LaunchBusiness.);
+            launchApiBusiness.Setup(l => l.GetOneLaunch(new Guid("000ebc80-d782-4dee-8606-1199d9074039")));
 
             //Act
             
