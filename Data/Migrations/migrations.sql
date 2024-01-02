@@ -40,7 +40,8 @@ CREATE TABLE IF NOT EXISTS public.mission(
         LOWER(name)
     ) STORED NULL,
 
-    CONSTRAINT fk_mission_orbit FOREIGN KEY (id_orbit) REFERENCES public.orbit(id)
+    CONSTRAINT fk_mission_orbit FOREIGN KEY (id_orbit) REFERENCES public.orbit(id),
+    CREATE INDEX idx_mission_id_orbit ON public.mission USING btree(id_orbit)
 );
 
 CREATE TABLE IF NOT EXISTS public.configuration(
@@ -120,7 +121,8 @@ CREATE TABLE IF NOT EXISTS public.pad(
         LOWER(name)
     ) STORED NULL,
 
-    CONSTRAINT fk_pad_location FOREIGN KEY (id_location) REFERENCES public.location(id)
+    CONSTRAINT fk_pad_location FOREIGN KEY (id_location) REFERENCES public.location(id),
+    CREATE INDEX idx_pad_id_location ON public.pad USING btree(id_location)
 );
 
 CREATE TABLE IF NOT EXISTS public.rocket(
@@ -131,7 +133,8 @@ CREATE TABLE IF NOT EXISTS public.rocket(
     status VARCHAR(15) NOT NULL,
     id_configuration UUID NULL,
 
-    CONSTRAINT fk_rocket_configuration FOREIGN KEY(id_configuration) REFERENCES public.configuration(id)
+    CONSTRAINT fk_rocket_configuration FOREIGN KEY(id_configuration) REFERENCES public.configuration(id),
+    CREATE INDEX idx_rocket_id_configuration ON public.rocket USING btree(id_configuration)
 );
 
 CREATE TABLE IF NOT EXISTS public.launch(
@@ -172,7 +175,12 @@ CREATE TABLE IF NOT EXISTS public.launch(
     CONSTRAINT fk_launch_launch_service_provider FOREIGN KEY (id_launch_service_provider) REFERENCES public.launch_service_provider(id),
     CONSTRAINT fk_launch_rocket FOREIGN KEY (id_rocket) REFERENCES public.rocket(id),
     CONSTRAINT fk_launch_mission FOREIGN KEY (id_mission) REFERENCES public.mission(id),
-    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES public.pad(id)
+    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES public.pad(id),
+    CREATE INDEX idx_launch_id_status ON public.launch USING btree(id_status),
+    CREATE INDEX idx_launch_id_launch_service_provider ON public.launch USING btree(id_launch_service_provider),
+    CREATE INDEX idx_launch_id_rocket ON public.launch USING btree(id_rocket),
+    CREATE INDEX idx_launch_id_mission ON public.launch USING btree(id_mission),
+    CREATE INDEX idx_launch_id_pad ON public.launch USING btree(id_pad)
 );
 
 CREATE TABLE IF NOT EXISTS public.update_log_routine(
@@ -191,30 +199,70 @@ CREATE TABLE IF NOT EXISTS public.update_log_routine(
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS public.launch_view AS
     SELECT
-        l.id AS launch_id, l.atualization_date AS launch_atualization_date,
-        l.imported_t AS launch_imported_t, l.status AS launch_status, l.api_guid AS launch_api_guid,
-        l.url AS launch_url, l.launch_library_id AS launch_launch_library_id, l.slug AS launch_slug,
-        l.name AS launch_name, l.id_status, l.net AS launch_net, l.window_end AS launch_window_end,
-        l.window_start AS launch_window_start, l.inhold AS launch_inhold, l.tbd_time AS launch_tbd_time,
-        l.tbd_date AS launch_tbd_date, l.probability AS launch_probability, l.hold_reason AS launch_hold_reason,
-        l.fail_reason AS launch_fail_reason, l.hashtag AS launch_hashtag, l.id_launch_service_provider,
-        l.id_rocket, l.id_mission, l.id_pad,
-        l.web_cast_live AS launch_web_cast_live, l.image AS launch_image, l.infographic AS launch_infographic,
+        l.id AS launch_id,
+        l.atualization_date AS launch_atualization_date,
+        l.imported_t AS launch_imported_t,
+        l.status AS launch_status,
+        l.api_guid AS launch_api_guid,
+        l.url AS launch_url,
+        l.launch_library_id AS launch_launch_library_id,
+        l.slug AS launch_slug,
+        l.name AS launch_name,
+        l.id_status, l.net AS launch_net,
+        l.window_end AS launch_window_end,
+        l.window_start AS launch_window_start,
+        l.inhold AS launch_inhold,
+        l.tbd_time AS launch_tbd_time,
+        l.tbd_date AS launch_tbd_date,
+        l.probability AS launch_probability,
+        l.hold_reason AS launch_hold_reason,
+        l.fail_reason AS launch_fail_reason,
+        l.hashtag AS launch_hashtag,
+        l.id_launch_service_provider,
+        l.id_rocket,
+        l.id_mission,
+        l.id_pad,
+        l.web_cast_live AS launch_web_cast_live,
+        l.image AS launch_image,
+        l.infographic AS launch_infographic,
         l.programs AS launch_programs,
-        s.name AS status_name, s.abbrev AS status_abbrev, s.description AS status_description,
-        lsp.url AS launch_service_provider_url, lsp.name AS launch_service_provider_name, lsp.type AS launch_service_provider_type,
+        s.name AS status_name,
+        s.abbrev AS status_abbrev,
+        s.description AS status_description,
+        lsp.url AS launch_service_provider_url,
+        lsp.name AS launch_service_provider_name,
+        lsp.type AS launch_service_provider_type,
         r.id_configuration,
-        c.launch_library_id AS configuration_launch_library_id, c.url AS configuration_url, c.name AS configuration_name,
-        c.family AS configuration_family, c.full_name AS configuration_full_name, c.variant AS configuration_variant,
-        m.launch_library_id AS mission_launch_library_id,  m.name AS mission_name, m.description AS mission_description,
-        m.type AS mission_type, m.id_orbit, m.launch_designator AS mission_launch_designator,
-        o.name AS orbit_name, o.abbrev AS orbit_abbrev, 
-        p.url AS pad_url, p.agency_id AS pad_agency_id, p.name AS pad_name,
-        p.info_url AS pad_info_url, p.wiki_url AS pad_wiki_url, p.map_url AS pad_map_url,
-        p.latitude AS pad_latitude, p.longitude AS pad_longitude, p.id_location,
-        p.map_image AS pad_map_image, p.total_launch_count AS pad_total_launch_count,
-        loc.url AS location_url, loc.name AS location_name, loc.country_code AS location_country_code,
-        loc.map_image AS location_map_image, loc.total_launch_count AS location_total_launch_count,
+        c.launch_library_id AS configuration_launch_library_id,
+        c.url AS configuration_url,
+        c.name AS configuration_name,
+        c.family AS configuration_family,
+        c.full_name AS configuration_full_name,
+        c.variant AS configuration_variant,
+        m.launch_library_id AS mission_launch_library_id, 
+        m.name AS mission_name,
+        m.description AS mission_description,
+        m.type AS mission_type,
+        m.id_orbit,
+        m.launch_designator AS mission_launch_designator,
+        o.name AS orbit_name,
+        o.abbrev AS orbit_abbrev, 
+        p.url AS pad_url,
+        p.agency_id AS pad_agency_id,
+        p.name AS pad_name,
+        p.info_url AS pad_info_url,
+        p.wiki_url AS pad_wiki_url,
+        p.map_url AS pad_map_url,
+        p.latitude AS pad_latitude,
+        p.longitude AS pad_longitude,
+        p.id_location,
+        p.map_image AS pad_map_image,
+        p.total_launch_count AS pad_total_launch_count,
+        loc.url AS location_url,
+        loc.name AS location_name,
+        loc.country_code AS location_country_code,
+        loc.map_image AS location_map_image,
+        loc.total_launch_count AS location_total_launch_count,
         loc.total_landing_count AS location_total_landing_count
     FROM
         public.launch AS l
@@ -227,10 +275,10 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS public.launch_view AS
         LEFT JOIN public.pad AS p ON l.id_pad = p.id
         LEFT JOIN public.location AS loc ON p.id_location = loc.id;
 
-CREATE INDEX IDX_GIN_LAUNCH_SLUG_NAME ON public.launch USING GIN (search public.gin_trgm_ops);
-CREATE INDEX IDX_GIN_CONFIGURATION_NAME_FAMILY ON public.configuration USING GIN (search public.gin_trgm_ops);
-CREATE INDEX IDX_GIN_MISSION_NAME ON public.mission USING GIN (search public.gin_trgm_ops);
-CREATE INDEX IDX_GIN_LOCATION_NAME ON public.location USING GIN (search public.gin_trgm_ops);
-CREATE INDEX IDX_GIN_PAD_NAME ON public.pad USING GIN (search public.gin_trgm_ops);
+CREATE INDEX IDX_GIST_LAUNCH_SLUG_NAME ON public.launch USING gist (search public.gist_trgm_ops);
+CREATE INDEX IDX_GIST_CONFIGURATION_NAME_FAMILY ON public.configuration USING gist (search public.gist_trgm_ops);
+CREATE INDEX IDX_GIST_MISSION_NAME ON public.mission USING gist (search public.gist_trgm_ops);
+CREATE INDEX IDX_GIST_LOCATION_NAME ON public.location USING gist (search public.gist_trgm_ops);
+CREATE INDEX IDX_GIST_PAD_NAME ON public.pad USING gist (search public.gist_trgm_ops);
 
 SET search_path TO "$user", public;
