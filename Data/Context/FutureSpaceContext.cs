@@ -1,4 +1,5 @@
-﻿using Data.Materializated.Views;
+﻿using System;
+using Data.Materializated.Views;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +9,7 @@ namespace Data.Context
 {
     public class FutureSpaceContext : DbContext
     {
-        public FutureSpaceContext()
+        public FutureSpaceContext(DbContextOptions<FutureSpaceContext> options):base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
