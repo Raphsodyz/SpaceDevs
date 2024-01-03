@@ -1,38 +1,40 @@
-using AutoMapper;
+
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
+using Data.Materializated.Views;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
-using Tests.Database;
+using Tests.Test.Objects;
 
 namespace Tests.ControllersTest
 {
-    [Collection("Database Launch")]
     public class LaunchControllerTest
     {
-        private readonly TestDatabaseFixture _context;
-        public LaunchControllerTest(TestDatabaseFixture context)
-        {
-            _context = context;
-        }
 
         [Fact]
         public void LaunchersController_GetById_FoundObject()
         {
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-            var launchBusiness = new Mock<ILaunchViewBusiness>();
 
-            launchBusiness.Setup(l => l.ViewExists()).ReturnsAsync(true);
-
+            Guid id = new(TestLaunchViewObjects.Test1().Id.ToString());
+            launchApiBusiness.Setup(a => a.GetOneLaunch(id)).ReturnsAsync(TestLaunchViewObjects.Test1());
             var controller = new LaunchController(launchApiBusiness.Object);
 
-            launchApiBusiness.Setup(l => l.GetOneLaunch(new Guid("000ebc80-d782-4dee-8606-1199d9074039")));
-
             //Act
-            
+            var result = controller.GetById(id).Result as OkObjectResult;
 
             //Assert
+            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<LaunchView>(result.Value);
+        }
 
-
+        private static IList<ValidationResult> ValidateObject(LaunchView view)
+        {
+            var validate = new List<ValidationResult>();
+            var context = new ValidationContext(view, null, null);
+            Validator.TryValidateObject(view, context, validate, true);
+            return validate;
         }
     }
 }
