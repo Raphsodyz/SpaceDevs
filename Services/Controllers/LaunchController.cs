@@ -50,8 +50,8 @@ namespace Services.Controllers
         {
             try
             {
-                var launchDTO = await _launchApiBusiness.GetOneLaunch(launchId);
-                return Ok(launchDTO);
+                var launchView = await _launchApiBusiness.GetOneLaunch(launchId);
+                return Ok(launchView);
             }
             catch (ArgumentNullException ex)
             {
