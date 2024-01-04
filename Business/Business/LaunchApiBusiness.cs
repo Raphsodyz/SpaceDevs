@@ -88,7 +88,7 @@ namespace Business.Business
             }
         }
 
-        public async Task<LaunchDTO> UpdateLaunch(Guid? launchId)
+        public async Task<LaunchView> UpdateLaunch(Guid? launchId)
         {
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
 
@@ -112,7 +112,12 @@ namespace Business.Business
                 launch.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
                 await trans.CommitAsync();
-                return updatedLaunch;
+
+                ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+                await _launchViewBusiness.RefreshView();
+
+                var result = await _launchViewBusiness.GetById(l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());                
+                return result;
             }
             catch (HttpRequestException ex)
             {
@@ -149,7 +154,7 @@ namespace Business.Business
 
                     RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError);
                     if ((bool)!dataList.Results?.Any())
-                        throw new InvalidOperationException(ErrorMessages.NoDataFromSpaceDevApi);
+                        throw new KeyNotFoundException(ErrorMessages.NoDataFromSpaceDevApi);
 
                     foreach(var data in dataList.Results)
                     {

@@ -127,7 +127,7 @@ namespace Services.Controllers
         {
             try
             {
-                LaunchDTO updatedLaunch = await _launchApiBusiness.UpdateLaunch(launchId);
+                LaunchView updatedLaunch = await _launchApiBusiness.UpdateLaunch(launchId);
                 return Ok(updatedLaunch);
             }
             catch (ArgumentNullException ex)
@@ -140,7 +140,7 @@ namespace Services.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status429TooManyRequests, ex.Message);
             }
             catch (Exception ex) 
             {
@@ -151,7 +151,7 @@ namespace Services.Controllers
         [HttpPost]
         [Route("launchers")]
         [SwaggerOperation(Summary = "Method to synchronize data with ll.thespacedevs API.", Description = "The offset query string is launch count starting point. It will bring 1500 to 1500 new launches.")]
-        public async Task<IActionResult> UpdateData([FromQuery]int? offset)
+        public async Task<IActionResult> BulkUpdateData([FromQuery]int? offset)
         {
             try
             {
@@ -163,11 +163,11 @@ namespace Services.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status429TooManyRequests, ex.Message);
             }
-            catch (InvalidOperationException ex)
+            catch (KeyNotFoundException ex)
             {
-                return BadRequest(ex.Message);
+                return NotFound(ex.Message);
             }
             catch (Exception ex)
             {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
 using Tests.Test.Objects;
+using Xunit.Sdk;
 
 namespace Tests.ControllersTest
 {
@@ -352,13 +353,198 @@ namespace Tests.ControllersTest
         public void LaunchersController_Update_OkUpdated()
         {
             //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ReturnsAsync(TestLaunchViewObjects.Test1());
+            var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-
+            var result = controller.Update(It.IsAny<Guid>()).Result as OkObjectResult;
 
             //Assert
-            
+            Assert.NotNull(result);
+            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<LaunchView>(result.Value);
+            Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_Update_NullArgument()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateLaunch(null)).ThrowsAsync(new ArgumentNullException());
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.Update(null).Result as BadRequestObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, "Value cannot be null."); //Automatic message.
+            Assert.Equal(StatusCodes.Status400BadRequest, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_Update_LaunchNotFound()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ThrowsAsync(new KeyNotFoundException());
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.Update(It.IsAny<Guid>()).Result as NotFoundObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, "The given key was not present in the dictionary."); //Automatic message.
+            Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_Update_HttpErrorTooManyRequests()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ThrowsAsync(new HttpRequestException());
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.Update(It.IsAny<Guid>()).Result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, "Exception of type 'System.Net.Http.HttpRequestException' was thrown."); //Automatic message.
+            Assert.Equal(StatusCodes.Status429TooManyRequests, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_Update_InternalError()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ThrowsAsync(new Exception());
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.Update(It.IsAny<Guid>()).Result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, "Attention! The Service is unavailable.\nException of type 'System.Exception' was thrown."); //Automatic message.
+            Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_UpdateData_UpdateOk()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ReturnsAsync(true);
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as OkObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<OkObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_UpdateData_UpdateFailed()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ReturnsAsync(false);
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, ErrorMessages.InternalServerError); //Automatic message.
+            Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_UpdateData_TooManyRequests()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new HttpRequestException());
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, "Exception of type 'System.Net.Http.HttpRequestException' was thrown."); //Automatic message.
+            Assert.Equal(StatusCodes.Status429TooManyRequests, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_UpdateData_NoData()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new KeyNotFoundException());
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as NotFoundObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<NotFoundObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, "The given key was not present in the dictionary."); //Automatic message.
+            Assert.Equal(StatusCodes.Status404NotFound, result.StatusCode);
+        }
+
+        [Fact]
+        public void LaunchersController_UpdateData_InternalError()
+        {
+            //Arrange
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new Exception());
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            Assert.IsType<string>(result.Value);
+            Assert.Equal(result.Value, "Attention! The Service is unavailable.\nException of type 'System.Exception' was thrown."); //Automatic message.
+            Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
         }
 
         private static IList<ValidationResult> ValidateObject<T>(ref T obj)

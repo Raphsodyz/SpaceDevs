@@ -11,7 +11,7 @@ namespace Business.Interface
         Task<LaunchView> GetOneLaunch(Guid? launchId);
         Task<Pagination<LaunchView>> GetAllLaunchPaged(int? page);
         Task SoftDeleteLaunch(Guid? launchId);
-        Task<LaunchDTO> UpdateLaunch(Guid? launchId);
+        Task<LaunchView> UpdateLaunch(Guid? launchId);
         Task<bool> UpdateDataSet(int? skip);
         Task<Pagination<LaunchView>> SearchByParam(SearchLaunchRequest request);
     }
