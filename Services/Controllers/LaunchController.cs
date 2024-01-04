@@ -1,4 +1,5 @@
-﻿using Business.DTO.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using Business.DTO.Entities;
 using Business.Interface;
 using Cross.Cutting.Helper;
 using Data.Materializated.Views;
@@ -28,6 +29,10 @@ namespace Services.Controllers
                 var data = await _launchApiBusiness.SearchByParam(search);
 
                 return Ok(data);
+            }
+            catch(ValidationException ex)
+            {
+                return BadRequest(ex.Message);
             }
             catch (ArgumentNullException ex)
             {
@@ -118,7 +123,7 @@ namespace Services.Controllers
         [HttpPut]
         [Route("{launchId}")]
         [SwaggerOperation(Summary = "Method to update a launch by synchronize his data with ll.thespacedevs API.")]
-        public async Task<IActionResult> Edit(Guid? launchId)
+        public async Task<IActionResult> Update(Guid? launchId)
         {
             try
             {

@@ -405,8 +405,6 @@ namespace Business.Business
 
         public async Task<Pagination<LaunchView>> SearchByParam(SearchLaunchRequest request)
         {
-            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
-
             List<Expression<Func<LaunchView, bool>>> query = new();
             if(!string.IsNullOrEmpty(request.Mission))
             {
@@ -451,8 +449,12 @@ namespace Business.Business
             if(!query.Any())
                 throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
-            var found = await _launchViewBusiness.GetViewPaged(request.Page ?? 0, 10, query) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+            var found = await _launchViewBusiness.GetViewPaged(request.Page ?? 0, 10, query);
             
+            if(!found.Entities.Any())
+                throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+
             var result = new Pagination<LaunchView>();
             result = _mapper.Map<Pagination<LaunchView>>(found);
             
