@@ -14,6 +14,7 @@ namespace Tests.Business.Layer
             var launchViewBusiness  = new Mock<ILaunchViewBusiness>();
 
             launchViewBusiness.Setup(l => l.ViewExists()).ReturnsAsync(true);
+            //launchViewBusiness.Setup(l => l.)
 
             //Act
 
