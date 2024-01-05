@@ -7,7 +7,7 @@ using Services.Controllers;
 using Tests.Test.Objects;
 using Xunit.Sdk;
 
-namespace Tests.ControllersTest
+namespace Tests.Services.Layer
 {
     public class LaunchControllerTest
     {
