@@ -40,8 +40,7 @@ CREATE TABLE IF NOT EXISTS public.mission(
         LOWER(name)
     ) STORED NULL,
 
-    CONSTRAINT fk_mission_orbit FOREIGN KEY (id_orbit) REFERENCES public.orbit(id),
-    CREATE INDEX idx_mission_id_orbit ON public.mission USING btree(id_orbit)
+    CONSTRAINT fk_mission_orbit FOREIGN KEY (id_orbit) REFERENCES public.orbit(id)
 );
 
 CREATE TABLE IF NOT EXISTS public.configuration(
@@ -121,8 +120,7 @@ CREATE TABLE IF NOT EXISTS public.pad(
         LOWER(name)
     ) STORED NULL,
 
-    CONSTRAINT fk_pad_location FOREIGN KEY (id_location) REFERENCES public.location(id),
-    CREATE INDEX idx_pad_id_location ON public.pad USING btree(id_location)
+    CONSTRAINT fk_pad_location FOREIGN KEY (id_location) REFERENCES public.location(id)
 );
 
 CREATE TABLE IF NOT EXISTS public.rocket(
@@ -133,8 +131,7 @@ CREATE TABLE IF NOT EXISTS public.rocket(
     status VARCHAR(15) NOT NULL,
     id_configuration UUID NULL,
 
-    CONSTRAINT fk_rocket_configuration FOREIGN KEY(id_configuration) REFERENCES public.configuration(id),
-    CREATE INDEX idx_rocket_id_configuration ON public.rocket USING btree(id_configuration)
+    CONSTRAINT fk_rocket_configuration FOREIGN KEY(id_configuration) REFERENCES public.configuration(id)
 );
 
 CREATE TABLE IF NOT EXISTS public.launch(
@@ -175,12 +172,7 @@ CREATE TABLE IF NOT EXISTS public.launch(
     CONSTRAINT fk_launch_launch_service_provider FOREIGN KEY (id_launch_service_provider) REFERENCES public.launch_service_provider(id),
     CONSTRAINT fk_launch_rocket FOREIGN KEY (id_rocket) REFERENCES public.rocket(id),
     CONSTRAINT fk_launch_mission FOREIGN KEY (id_mission) REFERENCES public.mission(id),
-    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES public.pad(id),
-    CREATE INDEX idx_launch_id_status ON public.launch USING btree(id_status),
-    CREATE INDEX idx_launch_id_launch_service_provider ON public.launch USING btree(id_launch_service_provider),
-    CREATE INDEX idx_launch_id_rocket ON public.launch USING btree(id_rocket),
-    CREATE INDEX idx_launch_id_mission ON public.launch USING btree(id_mission),
-    CREATE INDEX idx_launch_id_pad ON public.launch USING btree(id_pad)
+    CONSTRAINT fk_launch_pad FOREIGN KEY (id_pad) REFERENCES public.pad(id)
 );
 
 CREATE TABLE IF NOT EXISTS public.update_log_routine(
@@ -280,5 +272,14 @@ CREATE INDEX IDX_GIST_CONFIGURATION_NAME_FAMILY ON public.configuration USING gi
 CREATE INDEX IDX_GIST_MISSION_NAME ON public.mission USING gist (search public.gist_trgm_ops);
 CREATE INDEX IDX_GIST_LOCATION_NAME ON public.location USING gist (search public.gist_trgm_ops);
 CREATE INDEX IDX_GIST_PAD_NAME ON public.pad USING gist (search public.gist_trgm_ops);
+
+CREATE INDEX idx_mission_id_orbit ON public.mission USING btree(id_orbit);
+CREATE INDEX idx_pad_id_location ON public.pad USING btree(id_location);
+CREATE INDEX idx_rocket_id_configuration ON public.rocket USING btree(id_configuration);
+CREATE INDEX idx_launch_id_status ON public.launch USING btree(id_status);
+CREATE INDEX idx_launch_id_launch_service_provider ON public.launch USING btree(id_launch_service_provider);
+CREATE INDEX idx_launch_id_rocket ON public.launch USING btree(id_rocket);
+CREATE INDEX idx_launch_id_mission ON public.launch USING btree(id_mission);
+CREATE INDEX idx_launch_id_pad ON public.launch USING btree(id_pad);
 
 SET search_path TO "$user", public;
