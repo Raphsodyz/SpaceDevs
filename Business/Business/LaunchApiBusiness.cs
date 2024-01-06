@@ -4,7 +4,6 @@ using Data.Interface;
 using Domain.Entities;
 using Cross.Cutting.Enum;
 using Cross.Cutting.Helper;
-using Microsoft.Extensions.Configuration;
 using System.Linq.Expressions;
 using System.Net.Http.Json;
 using Data.Materializated.Views;
@@ -14,13 +13,13 @@ namespace Business.Business
 {
     public class LaunchApiBusiness : BusinessBase<Launch, ILaunchRepository>, ILaunchApiBusiness, IBusiness
     {
-        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _client;
         private readonly IMapper _mapper;
         public LaunchApiBusiness(IUnitOfWork uow,
-            IConfiguration configuration,
+            IHttpClientFactory client,
             IMapper mapper):base(uow)
         {
-            _configuration = configuration;
+            _client = client;
             _mapper = mapper;
         }
 
@@ -36,7 +35,7 @@ namespace Business.Business
             if (!launchExist)
                 throw new Exception(ErrorMessages.ViewNotExists);
 
-            LaunchView launch = await _launchViewBusiness.GetById(filter: launchQuery);
+            var launch = await _launchViewBusiness.GetById(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
             return launch;
         }
 
@@ -57,11 +56,8 @@ namespace Business.Business
 
             if (selectedPageLaunchList.Entities?.Count == 0)
                 throw new KeyNotFoundException(ErrorMessages.NoData);
-
-            var result = new Pagination<LaunchView>();
-            result = _mapper.Map<Pagination<LaunchView>>(selectedPageLaunchList);
             
-            return result;
+            return selectedPageLaunchList;
         }
 
         public async Task SoftDeleteLaunch(Guid? launchId)
@@ -71,20 +67,33 @@ namespace Business.Business
             if (launchId == null)
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
-            Expression<Func<Launch, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            var launch = await _launchBusiness.Get(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+            List<Expression<Func<Launch, bool>>> launchQuery = new()
+            { l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
+            var launchExists = await _launchBusiness.EntityExist(filter: launchQuery.FirstOrDefault());
+            
+            if(!launchExists)
+                throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
             using var trans = await _repository.GetTransaction();
             try
             {
-                launch.EntityStatus = EStatus.TRASH.GetDisplayName();
-                await _launchBusiness.SaveTransaction(launch);
+                Expression<Func<Launch, Launch>> updateColumns = l => new Launch()
+                { EntityStatus = EStatus.TRASH.GetDisplayName() };
+                await _launchBusiness.UpdateOnQuery(launchQuery, updateColumns );
+
                 await trans.CommitAsync();
+
+                ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+                await _launchViewBusiness.RefreshView();
             }
             catch (Exception ex)
             {
                 await trans.RollbackAsync();
                 throw ex;
+            }
+            finally
+            {
+                await trans.DisposeAsync();
             }
         }
 
@@ -99,10 +108,10 @@ namespace Business.Business
             var launch = await _launchBusiness.Get(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
             using var trans = await _repository.GetTransaction();
-            using HttpClient client = new();
+            var client = _client.CreateClient();
             try
             {
-                string url = $"{_configuration.GetSection(EndPoints.TheSpaceDevsLaunchEndPoint).Value}{launch.ApiGuId}";
+                string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}{launch.ApiGuId}";
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
@@ -134,7 +143,6 @@ namespace Business.Business
             }
             finally
             {
-                await RefreshView();
                 await trans.DisposeAsync();
             }
         }
@@ -147,7 +155,7 @@ namespace Business.Business
                 using HttpClient client = new();
                 try
                 {
-                    string url = $"{_configuration.GetSection(EndPoints.TheSpaceDevsLaunchEndPoint).Value}?limit={limit}&offset={offset}";
+                    string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={limit}&offset={offset}";
                     HttpResponseMessage response = await client.GetAsync(url);
                     if (!response.IsSuccessStatusCode)
                         throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");

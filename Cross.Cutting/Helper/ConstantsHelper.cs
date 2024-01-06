@@ -36,6 +36,6 @@ namespace Cross.Cutting.Helper
 
     public static class EndPoints
     {
-        public static readonly string TheSpaceDevsLaunchEndPoint = "TheSpaceDevsLaunchEndPoint";
+        public static readonly string TheSpaceDevsLaunchEndPoint = "https://ll.thespacedevs.com/2.2.0/launch/";
     }
 }
