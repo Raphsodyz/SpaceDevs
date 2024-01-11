@@ -1,6 +1,7 @@
 using System.Data;
 using System.Linq.Expressions;
 using System.Net;
+using System.Net.Http.Json;
 using AutoMapper;
 using Business.Business;
 using Business.DTO.Entities;
@@ -8,6 +9,7 @@ using Data.Interface;
 using Data.Materializated.Views;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
+using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
 
 namespace Tests.Business.Layer
@@ -293,33 +295,34 @@ namespace Tests.Business.Layer
         }
 
         [Fact]
-        public void LaunchApiBusiness_UpdateLaunch_ReturnUpdatedLaunch()
+        public async void LaunchApiBusiness_UpdateLaunch_ReturnUpdatedLaunch()
         {
             //Arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When($"{EndPoints.TheSpaceDevsLaunchEndPoint}*")
+                .Respond("application/json", TestLaunchRequestObjects.Test1);
+
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
             var launchRepository = new Mock<ILaunchRepository>();
             var launchViewRepository = new Mock<ILaunchViewRepository>();
-            var client = new Mock<HttpClient>();
-            var response = new Mock<HttpResponseMessage>();
+            var client = mockHttp.ToHttpClient();
 
             var uow = new Mock<IUnitOfWork>();
             var factoryClient = new Mock<IHttpClientFactory>();
             var mapper = new Mock<IMapper>();
 
             uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
-            mapper.Setup(m => m.Map<LaunchDTO, Launch>(It.IsAny<LaunchDTO>())).Returns(TestLaunchObjects.Test1());
+            mapper.Setup(m => m.Map<Launch>(It.IsAny<LaunchDTO>())).Returns(TestLaunchObjects.Test1());
 
-            factoryClient.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client.Object);
-            launchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), null)).ReturnsAsync(TestLaunchObjects.Test1());
+            factoryClient.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client);
+            launchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ReturnsAsync(TestLaunchObjects.Test1());
             launchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
 
-            client.Setup(c => c.GetAsync(It.IsAny<string>())).ReturnsAsync(() => response.Object);
-            response.Setup(r => r.IsSuccessStatusCode).Returns(true);
-            response.SetupProperty(r => r.Content, new StringContent(JsonConvert.SerializeObject(TestLaunchObjects.Test1())));
-            
+            var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchDTOObjects.Test1().Id}");
+            var json = await response.Content.ReadFromJsonAsync<LaunchDTO>();
             uow.Setup(u =>u.Repository(typeof(ILaunchViewRepository))).Returns(launchViewRepository.Object);
-            launchViewRepository.Setup(l => l.RefreshView());
-            launchViewRepository.Setup(l => l.GetById(It.IsAny<Expression<Func<LaunchView, bool>>>())).ReturnsAsync(TestLaunchViewObjects.Test1());
+            launchViewRepository.Setup(lv => lv.RefreshView());
+            launchViewRepository.Setup(lv => lv.GetById(It.IsAny<Expression<Func<LaunchView, bool>>>())).ReturnsAsync(TestLaunchViewObjects.Test1());
             
             var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
 
