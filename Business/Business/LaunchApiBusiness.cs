@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Net.Http.Json;
 using Data.Materializated.Views;
 using Business.DTO.Entities;
+using System.Text.Json;
 
 namespace Business.Business
 {
@@ -115,8 +116,11 @@ namespace Business.Business
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
+                
+                var updatedLaunch = await response.Content.ReadFromJsonAsync<LaunchDTO>();
+                if(ObjectHelper.IsObjectEmpty(updatedLaunch))
+                    throw new JsonException(ErrorMessages.DeserializingContentError);
 
-                var updatedLaunch = (await response.Content.ReadFromJsonAsync<LaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError)) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
                 launch = _mapper.Map<Launch>(updatedLaunch);
                 launch.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
@@ -129,6 +133,10 @@ namespace Business.Business
                 return result;
             }
             catch (HttpRequestException ex)
+            {
+                throw ex;
+            }
+            catch (JsonException ex)
             {
                 throw ex;
             }
@@ -152,7 +160,7 @@ namespace Business.Business
             int limit = 100, offset = skip ?? 0, max = offset + 1500, entityCounter = 0;
             for (int i = offset; i < max; i += limit)
             {
-                using HttpClient client = new();
+                var client = _client.CreateClient();
                 try
                 {
                     string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={limit}&offset={offset}";
@@ -160,7 +168,7 @@ namespace Business.Business
                     if (!response.IsSuccessStatusCode)
                         throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
 
-                    RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError);
+                    RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingContentError);
                     if ((bool)!dataList.Results?.Any())
                         throw new KeyNotFoundException(ErrorMessages.NoDataFromSpaceDevApi);
 
