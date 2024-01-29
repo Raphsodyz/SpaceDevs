@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Data;
 using System.Linq.Expressions;
 using System.Net;
@@ -7,10 +8,13 @@ using Business.Business;
 using Business.DTO.Entities;
 using Data.Interface;
 using Data.Materializated.Views;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
+using System.Text;
+using Moq.Protected;
 
 namespace Tests.Business.Layer
 {
@@ -295,7 +299,7 @@ namespace Tests.Business.Layer
         }
 
         [Fact]
-        public async void LaunchApiBusiness_UpdateLaunch_ReturnUpdatedLaunch()
+        public async Task LaunchApiBusiness_UpdateLaunch_ReturnUpdatedLaunch()
         {
             //Arrange
             var mockHttp = new MockHttpMessageHandler();
@@ -334,5 +338,113 @@ namespace Tests.Business.Layer
             Assert.IsType<LaunchView>(result);
             Assert.Equal(result.Id, TestLaunchViewObjects.Test1().Id);
         }
+
+        [Fact]
+        public void LaunchApiBusiness_UpdateLaunch_NullArgument()
+        {
+            //Arrange
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+            
+            //Act
+            var result = business.UpdateLaunch(null);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<AggregateException>(result.Exception);
+            Assert.Equal(result.Exception.Message, $"One or more errors occurred. (Value cannot be null. (Parameter '{ErrorMessages.NullArgument}'))");
+        }
+
+        [Fact]
+        public void LaunchApiBusiness_UpdateLaunch_NotFoundLaunch()
+        {
+            //Arrange
+            var launchRepository = new Mock<ILaunchRepository>();
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+
+            uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
+            launchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ThrowsAsync(new KeyNotFoundException(ErrorMessages.KeyNotFound));
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+
+            //Act
+            var result = business.UpdateLaunch(TestLaunchObjects.Test1().Id);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<AggregateException>(result.Exception);
+            Assert.Equal(result.Exception.Message, $"One or more errors occurred. ({ErrorMessages.KeyNotFound})");        
+        }
+
+        [Fact]
+        public async Task LaunchApiBusiness_UpdateLaunch_NotSuccessStatusCode()
+        {
+            //Arrange
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchObjects.Test1().ApiGuId}")
+                .Respond(_ => { return new HttpResponseMessage(HttpStatusCode.TooManyRequests); 
+            });
+            
+            var launchRepository = new Mock<ILaunchRepository>();
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+            var client = mockHttp.ToHttpClient();
+            
+            uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
+            factoryClient.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
+            launchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ReturnsAsync(TestLaunchObjects.Test1());
+            launchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
+            var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchObjects.Test1().ApiGuId}");
+
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+
+            //Bcoz the async nature of the business method, this is will be catch awaiting the UpdateLaunch method.
+            //Act & Assert
+            await Assert.ThrowsAsync<HttpRequestException>(async () => await business.UpdateLaunch(TestLaunchObjects.Test1().Id));
+        }
+
+        [Fact]
+        public async Task LaunchApiBusiness_UpdateLaunch_DeserializationFailed()
+        {
+            //Arrange
+            const string strangeObject = """{ "Sku": "Strange Object" }""";
+
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When($"{EndPoints.TheSpaceDevsLaunchEndPoint}*")
+                .Respond("application/json", strangeObject);
+
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            var launchRepository = new Mock<ILaunchRepository>();
+            var launchViewRepository = new Mock<ILaunchViewRepository>();
+            var client = mockHttp.ToHttpClient();
+
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+
+            uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
+            mapper.Setup(m => m.Map<Launch>(It.IsAny<LaunchDTO>())).Returns(TestLaunchObjects.Test1());
+
+            factoryClient.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client);
+            launchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ReturnsAsync(TestLaunchObjects.Test1());
+            launchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
+
+            var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchDTOObjects.Test1().Id}");
+            var json = await response.Content.ReadFromJsonAsync<LaunchDTO>();
+            
+            //Act
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+
+            //Assert
+            await Assert.ThrowsAsync<System.Text.Json.JsonException>(async () => await business.UpdateLaunch(TestLaunchObjects.Test1().Id));
+        }
+
+        [Fact]
+        public async Task 
     }
 }
