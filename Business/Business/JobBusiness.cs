@@ -37,7 +37,7 @@ namespace Business.Business
                     if (!response.IsSuccessStatusCode)
                         throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
 
-                    RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError);
+                    RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingContentError);
                     if ((bool)!dataList.Results?.Any())
                         throw new InvalidOperationException(ErrorMessages.NoDataFromSpaceDevApi);
 
