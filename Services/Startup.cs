@@ -25,11 +25,12 @@ namespace Services
             });
             services.AddDbContext<FutureSpaceContext>();
 
+            services.AddHttpClient();
             services.AddCors();
 
             services.AddTransient<ILaunchApiBusiness, LaunchApiBusiness>();
             services.AddTransient<IJobBusiness, JobBusiness>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddQuartz(cfg =>
