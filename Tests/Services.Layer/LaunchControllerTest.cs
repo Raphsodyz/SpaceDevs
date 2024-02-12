@@ -5,6 +5,7 @@ using Data.Materializated.Views;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
+using Tests.Helper;
 using Tests.Test.Objects;
 using Xunit.Sdk;
 
@@ -62,7 +63,7 @@ namespace Tests.Services.Layer
             SearchLaunchRequest request = new(){ Mission = "sdmfiosadffdsafdfasffafdisadfjoasidfjiosadjfioasdjfioasjdiksdjmfioasjkmdfasjf9noadfhjoiasudjfioadfjioadskaiofdjopisjwif2wj3490f2j390fn2jm390fn29i3nf90i21jnm3f0i12nm30i2fnm230fnm20i3nm210o3fnm12i3ofm1203fm1203fm1203fm201m3f12903mf9012m3f9021mf39okm,0eiowsqmfepdqwmfopw,edopfqwesnmfidfmsdfjwqiefjnmwqi0fj09inm203mi120o3jkmfi23nmf9inerw9iofnmwqiefm0qwiefjmkoqwiefmqwioefm,qwoefd" };
 
             //Act
-            var errorCount = ValidateObject(ref request);
+            var errorCount = ValidationHelper.ValidateObject(ref request);
 
             //Assert
             Assert.True(errorCount.Count == 1);
@@ -546,14 +547,6 @@ namespace Tests.Services.Layer
             Assert.IsType<string>(result.Value);
             Assert.Equal(result.Value, "Attention! The Service is unavailable.\nException of type 'System.Exception' was thrown."); //Automatic message.
             Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
-        }
-
-        private static IList<ValidationResult> ValidateObject<T>(ref T obj)
-        {
-            var validate = new List<ValidationResult>();
-            var context = new ValidationContext(obj, null, null);
-            Validator.TryValidateObject(obj, context, validate, true);
-            return validate;
         }
     }
 }
