@@ -163,6 +163,10 @@ namespace Services.Controllers
                 else
                     return StatusCode(StatusCodes.Status500InternalServerError, $"{ErrorMessages.InternalServerError}");
             }
+            catch(ValidationException ex)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
+            }
             catch (HttpRequestException ex)
             {
                 return StatusCode(StatusCodes.Status429TooManyRequests, ex.Message);
