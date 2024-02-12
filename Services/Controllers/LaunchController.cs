@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Business.DTO.Entities;
+using Business.DTO.Request;
 using Business.Interface;
 using Cross.Cutting.Helper;
 using Data.Materializated.Views;
@@ -150,12 +151,12 @@ namespace Services.Controllers
 
         [HttpPost]
         [Route("launchers")]
-        [SwaggerOperation(Summary = "Method to synchronize data with ll.thespacedevs API.", Description = "The offset query string is launch count starting point. It will bring 1500 to 1500 new launches.")]
-        public async Task<IActionResult> BulkUpdateData([FromQuery]int? offset)
+        [SwaggerOperation(Summary = "Method to synchronize data with ll.thespacedevs API.", Description = "The offset query string is launch count starting point. It will bring up 100 to 100 max of 1500 new launches per request.")]
+        public async Task<IActionResult> BulkUpdateData([FromQuery]UpdateLaunchRequest request)
         {
             try
             {
-                bool updated = await _launchApiBusiness.UpdateDataSet(offset);
+                bool updated = await _launchApiBusiness.UpdateDataSet(request);
                 if (updated)
                     return Ok(SuccessMessages.ImportedDataSuccess);
                 else
