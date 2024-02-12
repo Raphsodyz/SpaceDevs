@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
 using Business.DTO.Entities;
 using Business.DTO.Request;
 using Business.Interface;
@@ -33,7 +34,7 @@ namespace Services.Controllers
             }
             catch(ValidationException ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, ex.Message);
             }
             catch (ArgumentNullException ex)
             {
