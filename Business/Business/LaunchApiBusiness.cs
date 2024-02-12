@@ -9,6 +9,7 @@ using System.Net.Http.Json;
 using Data.Materializated.Views;
 using Business.DTO.Entities;
 using System.Text.Json;
+using Business.DTO.Request;
 
 namespace Business.Business
 {
@@ -155,15 +156,18 @@ namespace Business.Business
             }
         }
 
-        public async Task<bool> UpdateDataSet(int? skip)
+        public async Task<bool> UpdateDataSet(UpdateLaunchRequest request)
         {
-            int limit = 100, offset = skip ?? 0, max = offset + 1500, entityCounter = 0;
-            for (int i = offset; i < max; i += limit)
+            request.Limit ??= 100;
+            request.Iterations ??= 15;
+            int offset = request.Skip ??= 0, entityCounter = 0, max = offset + ((int)request.Iterations * (int)request.Limit);
+            
+            for (int i = offset; i < max; i += (int)request.Limit)
             {
                 var client = _client.CreateClient();
                 try
                 {
-                    string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={limit}&offset={offset}";
+                    string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={request.Limit}&offset={offset}";
                     HttpResponseMessage response = await client.GetAsync(url);
                     if (!response.IsSuccessStatusCode)
                         throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
@@ -181,7 +185,7 @@ namespace Business.Business
 
                     await GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
                     entityCounter = 0;
-                    offset += limit;
+                    offset += (int)request.Limit;
                 }
                 catch (HttpRequestException ex)
                 {
