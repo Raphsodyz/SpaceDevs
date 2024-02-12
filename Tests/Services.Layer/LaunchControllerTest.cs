@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Business.DTO.Entities;
+using Business.DTO.Request;
 using Data.Materializated.Views;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -454,11 +455,11 @@ namespace Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ReturnsAsync(true);
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ReturnsAsync(true);
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as OkObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -473,11 +474,11 @@ namespace Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ReturnsAsync(false);
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ReturnsAsync(false);
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -493,11 +494,11 @@ namespace Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new HttpRequestException());
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new HttpRequestException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -513,11 +514,11 @@ namespace Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new KeyNotFoundException());
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new KeyNotFoundException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as NotFoundObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -533,11 +534,11 @@ namespace Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new Exception());
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new Exception());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
