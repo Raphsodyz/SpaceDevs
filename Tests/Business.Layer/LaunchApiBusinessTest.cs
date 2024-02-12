@@ -16,6 +16,8 @@ using Tests.Test.Objects;
 using System.Text;
 using Moq.Protected;
 using Business.DTO.Request;
+using Tests.Helper;
+using System.ComponentModel.DataAnnotations;
 
 namespace Tests.Business.Layer
 {
@@ -555,5 +557,22 @@ namespace Tests.Business.Layer
             Assert.IsType<bool>(result);
             Assert.Equal(result, true);
         }
+    
+        [Fact]
+        public void LaunchApiBusiness_UpdateDataSet_ValidationRequestObj()
+        {
+            //Arrange
+            var request = new UpdateLaunchRequest(){ Limit = 500, Iterations = 20, Skip = 0 };
+
+            //Act
+            var errorCount = ValidationHelper.ValidateObject(ref request);
+
+            //Assert
+            Assert.True(errorCount.Count == 2);
+            Assert.Equal(errorCount[0].ErrorMessage, "The value on the field Limit must be greater than 0 and less 100.");
+            Assert.Equal(errorCount[1].ErrorMessage, "The value on the field Iterations must be greater than 0 and less 15.");
+        }
+
+        
     }
 }
