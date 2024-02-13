@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace Business.Business
             
         }
 
-        public async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Func<Mission, TResult> selectColumns, string includedProperties = null)
+        public async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Expression<Func<Mission, TResult>> selectColumns, string includedProperties = null)
         {
             return await _repository.ILikeSearch(searchTerm, selectColumns, includedProperties);
         }

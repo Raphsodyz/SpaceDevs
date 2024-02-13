@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace Data.Repository
             
         }
 
-        public virtual async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Func<Configuration, TResult> selectColumns, string includedProperties = null)
+        public virtual async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Expression<Func<Configuration, TResult>> selectColumns, string includedProperties = null)
         {
             IQueryable<Configuration> query = _dbSet;
 
@@ -28,8 +29,10 @@ namespace Data.Repository
                 foreach (var includeProperty in includedProperties.Split (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                     query = query.Include(includeProperty.TrimStart());
 
-            var result = await query.ToListAsync();
-            return result.Select(selectColumns);
+            var selectedQuery = query.Select(selectColumns);
+            var result = await selectedQuery.ToListAsync();
+
+            return result;
         }
     }
 }

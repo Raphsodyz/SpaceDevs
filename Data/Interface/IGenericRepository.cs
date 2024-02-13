@@ -18,7 +18,7 @@ namespace Data.Interface
             int? howMany = null);
 
         Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
-            Func<T, TResult> selectColumns,
+            Expression<Func<T, TResult>> selectColumns,
             IEnumerable<Expression<Func<T, bool>>> filters,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             string includedProperties = "",
