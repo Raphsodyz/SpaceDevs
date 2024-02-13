@@ -187,16 +187,6 @@ namespace Business.Business
                     entityCounter = 0;
                     offset += (int)request.Limit;
                 }
-                catch (HttpRequestException ex)
-                {
-                    await GenerateLog(offset, ex.Message, entityCounter, false);
-                    throw ex;
-                }
-                catch (InvalidOperationException ex)
-                {
-                    await GenerateLog(offset, ex.Message, entityCounter, false);
-                    throw ex;
-                }
                 catch (Exception ex)
                 {
                     await GenerateLog(offset, ex.Message, entityCounter, false);
