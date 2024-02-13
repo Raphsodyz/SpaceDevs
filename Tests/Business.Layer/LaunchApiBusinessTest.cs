@@ -573,6 +573,82 @@ namespace Tests.Business.Layer
             Assert.Equal(errorCount[1].ErrorMessage, "The value on the field Iterations must be greater than 0 and less 15.");
         }
 
-        
+        [Fact]
+        public async Task LaunchApiBusiness_UpdateDataSet_HttpError()
+        {
+            //Arrange
+            var request = new UpdateLaunchRequest(){ Limit = 3, Iterations = 1, Skip = 0 };
+            int offset = 0;
+            string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={request.Limit}&offset={offset}";
+
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(url).Respond(_ => { return new HttpResponseMessage(HttpStatusCode.TooManyRequests); });
+
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+            var updateLogRepository = new Mock<IUpdateLogRepository>();
+            var launchViewRepository = new Mock<ILaunchViewRepository>();
+
+            var client = mockHttp.ToHttpClient();
+
+            uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(updateLogRepository.Object);
+            uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(launchViewRepository.Object);
+            factoryClient.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
+            var response = await client.GetAsync(url);
+
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+            
+            //Act & Assert
+            await Assert.ThrowsAsync<HttpRequestException>(async () => await business.UpdateDataSet(request));
+        }
+
+        [Fact]
+        public async Task LaunchApiBusiness_UpdateDataSet_EmptyEntities()
+        {
+            //Arrange
+            var request = new UpdateLaunchRequest(){ Limit = 3, Iterations = 1, Skip = 0 };
+            int offset = 0;
+            string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={request.Limit}&offset={offset}";
+            string results = TestLaunchRequestObjects.EmptyDataListResults;
+
+            var mockHttp = new MockHttpMessageHandler();
+            mockHttp.When(url).Respond("application/json", results);
+
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+            var updateLogRepository = new Mock<IUpdateLogRepository>();
+            var launchViewRepository = new Mock<ILaunchViewRepository>();
+
+            var client = mockHttp.ToHttpClient();
+
+            uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(updateLogRepository.Object);
+            uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(launchViewRepository.Object);
+            factoryClient.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
+            mapper.Setup(m => m.Map<RequestLaunchDTO>(It.IsAny<LaunchDTO>()))
+                .Returns(new RequestLaunchDTO() { Count = 0, Next = null, Previous = null, Results = new List<LaunchDTO>() });
+            
+            var response = await client.GetAsync(url);
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+
+            //Act & Assert
+            await Assert.ThrowsAsync<KeyNotFoundException>(async () => await business.UpdateDataSet(request));
+        }
+
+        [Fact]
+        public async Task LaunchApiBusiness_UpdateDataSet_UowException()
+        {
+            //Arrange
+
+
+            //Act
+
+
+            //Assert
+
+
+            
+        }
     }
 }
