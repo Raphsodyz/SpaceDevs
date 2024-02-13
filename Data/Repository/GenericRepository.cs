@@ -51,18 +51,16 @@ namespace Data.Repository
         }
 
         public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
-            Func<T, TResult> selectColumns,
+            Expression<Func<T, TResult>> selectColumns,
             IEnumerable<Expression<Func<T, bool>>> filters,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             string includedProperties = "",
             int? howMany = null)
         {
             IQueryable<T> query = _dbSet;
-            
+                    
             foreach (var filter in filters)
                 query = query.Where(filter);
-
-            query = query.Take(howMany ?? maxEntityReturn);
 
             if (orderBy != null)
                 query = orderBy(query);
@@ -71,8 +69,12 @@ namespace Data.Repository
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
                 query = query.Include(includeProperty.TrimStart());
 
-            var result = await query.ToListAsync();
-            return result.Select(selectColumns);
+            var selectedQuery = query.Select(selectColumns);
+
+            selectedQuery = selectedQuery.Take(howMany ?? maxEntityReturn);
+
+            var result = await selectedQuery.ToListAsync();
+            return result;
         }
 
         public async Task<Pagination<T>> GetAllPaged(int page, int pageSize,
@@ -152,7 +154,9 @@ namespace Data.Repository
                     query = query.Include(includeProperty.TrimStart());
             }
 
-            return await query.Select(selectColumns).FirstOrDefaultAsync();
+            var selectedQuery = query.Select(selectColumns);
+
+            return await selectedQuery.FirstOrDefaultAsync();
         }
 
         public async Task UpdateOnQuery(
