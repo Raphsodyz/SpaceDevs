@@ -470,10 +470,7 @@ namespace Business.Business
             if(!found.Entities.Any())
                 throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
-            var result = new Pagination<LaunchView>();
-            result = _mapper.Map<Pagination<LaunchView>>(found);
-            
-            return result;
+            return found;
         }
     }
 }
