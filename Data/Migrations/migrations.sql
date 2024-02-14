@@ -265,7 +265,9 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS public.launch_view AS
         LEFT JOIN public.mission AS m ON l.id_mission = m.id
         LEFT JOIN public.orbit AS o ON m.id_orbit = o.id
         LEFT JOIN public.pad AS p ON l.id_pad = p.id
-        LEFT JOIN public.location AS loc ON p.id_location = loc.id;
+        LEFT JOIN public.location AS loc ON p.id_location = loc.id
+    WHERE
+        launch_status = 'PUBLISHED';
 
 CREATE INDEX IDX_GIST_LAUNCH_SLUG_NAME ON public.launch USING gist (search public.gist_trgm_ops);
 CREATE INDEX IDX_GIST_CONFIGURATION_NAME_FAMILY ON public.configuration USING gist (search public.gist_trgm_ops);

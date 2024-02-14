@@ -68,7 +68,7 @@ namespace Business.Business
             return await _repository.GetAllPaged(page, pageSize, filters, orderBy, includedProperties);
         }
 
-        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(Func<T, TResult> selectColumns, IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includedProperties = "", int? howMany = null)
+        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(Expression<Func<T, TResult>> selectColumns, IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includedProperties = "", int? howMany = null)
         {
             return await _repository.GetAllSelectedColumns(selectColumns, filters, orderBy, includedProperties, howMany);
         }

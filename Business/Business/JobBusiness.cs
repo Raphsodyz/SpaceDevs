@@ -12,13 +12,13 @@ namespace Business.Business
 {
     public class JobBusiness : BusinessBase<Launch, ILaunchRepository>, IJobBusiness, IBusiness
     {
-        private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _client;
         private readonly IMapper _mapper;
         public JobBusiness(IUnitOfWork uow,
-            IConfiguration configuration,
+            IHttpClientFactory client,
             IMapper mapper):base(uow)
         {
-            _configuration = configuration;
+            _client = client;
             _mapper = mapper;
         }
 
@@ -29,15 +29,15 @@ namespace Business.Business
             int limit = 100, offset = await _updateLogBusiness.LastOffSet(), max = 1500, entityCounter = 0;
             for (int i = offset; i < max; i += limit)
             {
-                using HttpClient client = new();
+                var client = _client.CreateClient();
                 try
                 {
-                    string url = $"{_configuration.GetSection(EndPoints.TheSpaceDevsLaunchEndPoint).Value}?limit={limit}&offset={offset}";
+                    string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={limit}&offset={offset}";
                     HttpResponseMessage response = await client.GetAsync(url);
                     if (!response.IsSuccessStatusCode)
                         throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
 
-                    RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingEndPointContentError);
+                    RequestLaunchDTO dataList = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>() ?? throw new HttpRequestException(ErrorMessages.DeserializingContentError);
                     if ((bool)!dataList.Results?.Any())
                         throw new InvalidOperationException(ErrorMessages.NoDataFromSpaceDevApi);
 

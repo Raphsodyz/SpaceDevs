@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using Business.DTO.Entities;
+using Business.DTO.Request;
 using Data.Materializated.Views;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
+using Tests.Helper;
 using Tests.Test.Objects;
 using Xunit.Sdk;
 
@@ -55,13 +57,36 @@ namespace Tests.Services.Layer
         }
 
         [Fact]
+        public void LaunchersController_SearchByParams_ValidationRequestObj422Exception()
+        {
+            //Arrange
+            SearchLaunchRequest request = new(){ Mission = "sdmfiosadffdsafdfasffafdisadfjoasidfjiosadjfioasdjfioasjdiksdjmfioasjkmdfasjf9noadfhjoiasudjfioadfjioadskaiofdjopisjwif2wj3490f2j390fn2jm390fn29i3nf90i21jnm3f0i12nm30i2fnm230fnm20i3nm210o3fnm12i3ofm1203fm1203fm1203fm201m3f12903mf9012m3f9021mf39okm,0eiowsqmfepdqwmfopw,edopfqwesnmfidfmsdfjwqiefjnmwqi0fj09inm203mi120o3jkmfi23nmf9inerw9iofnmwqiefm0qwiefjmkoqwiefmqwioefm,qwoefd" };
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(l => l.SearchByParam(request))
+                .ThrowsAsync(new ValidationException(It.IsAny<string>()));
+
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.SearchByParams(request).Result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            Assert.IsType<int>(result.StatusCode);
+            Assert.Equal(result.Value, "Exception of type 'System.ComponentModel.DataAnnotations.ValidationException' was thrown."); //Automatic message.
+            Assert.Equal(StatusCodes.Status422UnprocessableEntity, result.StatusCode);
+        }
+
+        [Fact]
         public void LaunchersController_SearchByParams_InvalidRequest()
         {
             //Arrange
             SearchLaunchRequest request = new(){ Mission = "sdmfiosadffdsafdfasffafdisadfjoasidfjiosadjfioasdjfioasjdiksdjmfioasjkmdfasjf9noadfhjoiasudjfioadfjioadskaiofdjopisjwif2wj3490f2j390fn2jm390fn29i3nf90i21jnm3f0i12nm30i2fnm230fnm20i3nm210o3fnm12i3ofm1203fm1203fm1203fm201m3f12903mf9012m3f9021mf39okm,0eiowsqmfepdqwmfopw,edopfqwesnmfidfmsdfjwqiefjnmwqi0fj09inm203mi120o3jkmfi23nmf9inerw9iofnmwqiefm0qwiefjmkoqwiefmqwioefm,qwoefd" };
 
             //Act
-            var errorCount = ValidateObject(ref request);
+            var errorCount = ValidationHelper.ValidateObject(ref request);
 
             //Assert
             Assert.True(errorCount.Count == 1);
@@ -449,16 +474,16 @@ namespace Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_UpdateData_UpdateOk()
+        public void LaunchersController_BulkUpdateData_UpdateOk()
         {
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ReturnsAsync(true);
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ReturnsAsync(true);
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as OkObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -468,16 +493,16 @@ namespace Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_UpdateData_UpdateFailed()
+        public void LaunchersController_BulkUpdateData_UpdateFailed()
         {
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ReturnsAsync(false);
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ReturnsAsync(false);
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -488,16 +513,16 @@ namespace Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_UpdateData_TooManyRequests()
+        public void LaunchersController_BulkUpdateData_TooManyRequests()
         {
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new HttpRequestException());
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new HttpRequestException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -508,16 +533,16 @@ namespace Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_UpdateData_NoData()
+        public void LaunchersController_BulkUpdateData_NoData()
         {
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new KeyNotFoundException());
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new KeyNotFoundException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as NotFoundObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -528,16 +553,16 @@ namespace Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_UpdateData_InternalError()
+        public void LaunchersController_BulkUpdateData_InternalError()
         {
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<int>())).ThrowsAsync(new Exception());
+            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new Exception());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<int>()).Result as ObjectResult;
+            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -546,13 +571,28 @@ namespace Tests.Services.Layer
             Assert.Equal(result.Value, "Attention! The Service is unavailable.\nException of type 'System.Exception' was thrown."); //Automatic message.
             Assert.Equal(StatusCodes.Status500InternalServerError, result.StatusCode);
         }
-
-        private static IList<ValidationResult> ValidateObject<T>(ref T obj)
+        
+        [Fact]
+        public void LaunchApiBusiness_BulkUpdateData_ValidationRequestObj422Exception()
         {
-            var validate = new List<ValidationResult>();
-            var context = new ValidationContext(obj, null, null);
-            Validator.TryValidateObject(obj, context, validate, true);
-            return validate;
+            //Arrange
+            var request = new UpdateLaunchRequest(){ Limit = 500, Iterations = 20, Skip = 0 };
+            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+
+            launchApiBusiness.Setup(l => l.UpdateDataSet(request))
+                .Throws(new ValidationException(It.IsAny<string>()));
+
+            var controller = new LaunchController(launchApiBusiness.Object);
+
+            //Act
+            var result = controller.BulkUpdateData(request).Result as ObjectResult;
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<ObjectResult>(result);
+            Assert.IsType<int>(result.StatusCode);
+            Assert.Equal(result.Value, "Exception of type 'System.ComponentModel.DataAnnotations.ValidationException' was thrown."); //Automatic message.
+            Assert.Equal(StatusCodes.Status422UnprocessableEntity, result.StatusCode);
         }
     }
 }
