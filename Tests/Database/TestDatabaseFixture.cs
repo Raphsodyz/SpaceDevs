@@ -8,8 +8,8 @@ namespace Tests.Database
 {
     public class TestDatabaseFixture : IDisposable
     {
-        public readonly FutureSpaceContext _context;
-        public readonly ILaunchRepository _launchRepository;
+        public readonly FutureSpaceContext Context;
+        public readonly ILaunchRepository Launch;
 
         public TestDatabaseFixture()
         {
@@ -17,18 +17,18 @@ namespace Tests.Database
                 .UseInMemoryDatabase("futurespacedbtest")
                 .Options;
 
-            _context = new FutureSpaceContext(options);
-            _launchRepository = new LaunchRepository(_context);
+            Context = new FutureSpaceContext(options);
+            Launch = new LaunchRepository(Context);
 
             SeedDatabase();
         }
 
-        public void SeedDatabase()
+        private void SeedDatabase()
         {
-            if(!_context.Launch.Any())
+            if(!Context.Launch.Any())
             {
-                _context.Launch.AddRange(TestLaunchObjects.Test1(), TestLaunchObjects.Test2(), TestLaunchObjects.Test3());
-                _context.SaveChanges();
+                Context.Launch.AddRange(TestLaunchInMemoryObjects.Test1(), TestLaunchInMemoryObjects.Test2(), TestLaunchInMemoryObjects.Test3());
+                Context.SaveChanges();
             }
         }
 
@@ -39,10 +39,10 @@ namespace Tests.Database
             {
                 if (disposing)
                 {
-                    _context.Database.EnsureDeleted();
-                    _context.Database.EnsureCreated();
+                    Context.Database.EnsureDeleted();
+                    Context.Database.EnsureCreated();
 
-                    _context.Dispose();
+                    Context.Dispose();
                 }
             }
             this.disposed = true;
@@ -53,11 +53,5 @@ namespace Tests.Database
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-    }
-
-    [CollectionDefinition("Database Launch")]
-    public class DatabaseCollection : ICollectionFixture<TestDatabaseFixture>
-    {
-
     }
 }
