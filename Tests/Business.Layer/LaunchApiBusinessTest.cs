@@ -1,5 +1,3 @@
-using System.Net.Http.Headers;
-using System.Data;
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http.Json;
@@ -10,14 +8,10 @@ using Data.Interface;
 using Data.Materializated.Views;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Storage;
-using Newtonsoft.Json;
 using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
-using System.Text;
-using Moq.Protected;
 using Business.DTO.Request;
 using Tests.Helper;
-using System.ComponentModel.DataAnnotations;
 
 namespace Tests.Business.Layer
 {
