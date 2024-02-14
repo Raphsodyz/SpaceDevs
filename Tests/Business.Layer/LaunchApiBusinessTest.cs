@@ -637,18 +637,90 @@ namespace Tests.Business.Layer
         }
 
         [Fact]
-        public async Task LaunchApiBusiness_UpdateDataSet_UowException()
+        public async Task LaunchApiBusiness_SearchByParam_FoundByParam()
         {
             //Arrange
+            var request = new SearchLaunchRequest(){ Mission = "Pioneer" };
+            var pagination = new Pagination<LaunchView>(){ NumberOfEntities = 1, CurrentPage = 0, NumberOfPages = 1, Entities = new List<LaunchView>() { TestLaunchViewObjects.Test2() } };
 
+            var missionRepository = new Mock<IMissionRepository>();
+            var launchViewRepository = new Mock<ILaunchViewRepository>();
+
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+
+            uow.Setup(u => u.Repository(typeof(IMissionRepository))).Returns(missionRepository.Object);
+            uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(launchViewRepository.Object);
+            
+            launchViewRepository.Setup(l => l.GetViewPaged(0, 10, It.IsAny<List<Expression<Func<LaunchView, bool>>>>(), null))
+                .ReturnsAsync(pagination);
+            missionRepository.Setup(m => m.ILikeSearch(request.Mission, It.IsAny<Expression<Func<Mission, Guid>>>(), null))
+                .ReturnsAsync(new List<Guid>(){ (Guid)TestLaunchObjects.Test2().IdMission });
+
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
 
             //Act
-
+            var result = business.SearchByParam(request).Result;
 
             //Assert
+            Assert.NotNull(result);
+            Assert.IsType<Pagination<LaunchView>>(result);
+            Assert.Equal(result, pagination);
+        }
 
+        [Fact]
+        public async Task LaunchApiBusiness_SearchByParam_EmptyRequest()
+        {
+            //Arrange
+            var request = new SearchLaunchRequest();
 
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+
+            //Act
+            var result = business.SearchByParam(request);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<AggregateException>(result.Exception);
+            Assert.Equal(result.Exception.Message, "One or more errors occurred. (Attention! The requested data was not found.)");
+        }
+
+        [Fact]
+        public async Task LaunchApiBusiness_SearchByParam_NotFoundEntry()
+        {
+            //Arrange
+            var request = new SearchLaunchRequest(){ Mission = "Mission that not exists" };
+            var pagination = new Pagination<LaunchView>(){ NumberOfEntities = 0, CurrentPage = 0, NumberOfPages = 1, Entities = new List<LaunchView>() };
+
+            var missionRepository = new Mock<IMissionRepository>();
+            var launchViewRepository = new Mock<ILaunchViewRepository>();
+
+            var uow = new Mock<IUnitOfWork>();
+            var factoryClient = new Mock<IHttpClientFactory>();
+            var mapper = new Mock<IMapper>();
+
+            uow.Setup(u => u.Repository(typeof(IMissionRepository))).Returns(missionRepository.Object);
+            uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(launchViewRepository.Object);
             
+            launchViewRepository.Setup(l => l.GetViewPaged(0, 10, It.IsAny<List<Expression<Func<LaunchView, bool>>>>(), null))
+                .ReturnsAsync(pagination);
+            missionRepository.Setup(m => m.ILikeSearch(request.Mission, It.IsAny<Expression<Func<Mission, Guid>>>(), null))
+                .ReturnsAsync(new List<Guid>(){ (Guid)TestLaunchObjects.Test2().IdMission });
+
+            var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
+
+            //Act
+            var result = business.SearchByParam(request);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<AggregateException>(result.Exception);
+            Assert.Equal(result.Exception.Message, "One or more errors occurred. (Attention! The requested data was not found.)");
         }
     }
 }
