@@ -68,7 +68,7 @@ namespace Tests.Repository.Layer
         }
 
         [Fact]
-        public async Task GenericRepository_GetAll_WithInnerJoinClause()
+        public async Task GenericRepository_GetAll_WithJoinClause()
         {
             //Arrange & Act
             var result = await _fixture.Launch.GetAll(includedProperties: "Status");
@@ -119,6 +119,61 @@ namespace Tests.Repository.Layer
             Assert.Equal(2, result.Count());
             Assert.Equal("Kosmos 11K63 | DS-U2-M 2", result.ElementAt(1));
             Assert.Equal("Soyuz U | Zenit-4MKM 36", result.ElementAt(0));
+        }
+
+        [Fact]
+        public async Task GenericRepository_GetAllSelectedColumns_WithSelectWhereAndJoinClause()
+        {
+            //Arrange
+            List<Expression<Func<Launch, bool>>> qryByStatus = new ()
+            { l => l.IdStatus == TestLaunchInMemoryObjects.Test1().IdStatus };
+
+            //Act
+            var result = await _fixture.Launch.GetAllSelectedColumns(
+                filters: qryByStatus,
+                selectColumns: l => new { l.Name, l.Status },
+                includedProperties: "Status");
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.NotNull(result.ElementAt(0).Status);
+            Assert.NotNull(result.ElementAt(1).Status);
+        }
+
+        [Fact]
+        public async Task GenericRepository_GetAllSelectedColumns_WithSelectWhereAndLimitClause()
+        {
+            //Arrange
+            List<Expression<Func<Launch, bool>>> qryByStatus = new ()
+            { l => l.IdStatus == TestLaunchInMemoryObjects.Test1().IdStatus };
+
+            //Act
+            var result = await _fixture.Launch.GetAllSelectedColumns(
+                filters: qryByStatus,
+                selectColumns: l => l.Name,
+                howMany: 1);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<List<string>>(result);
+            Assert.Equal(1, result.Count());
+        }
+
+        [Fact]
+        public async Task GenericRepository_GetAllPaged_GetAllEntitiesPaged()
+        {
+            //Arrange & Act
+            var result = await _fixture.Launch.GetAllPaged(page: 0, pageSize: 3);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<Pagination<Launch>>(result);
+            Assert.Equal(3, result.NumberOfEntities);
+            Assert.Equal(1, result.NumberOfPages);
+            Assert.Equal(0, result.CurrentPage);
+            Assert.IsType<List<Launch>>(result.Entities);
+            Assert.Equal(3, result.Entities.Count);
         }
     }
 }
