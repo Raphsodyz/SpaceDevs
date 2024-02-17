@@ -24,9 +24,9 @@ namespace Business.Business
             return await _repository.GetAll(filters, orderBy, howMany);
         }
 
-        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(Func<T, TResult> selectColumns, IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, int? howMany = null)
+        public async Task<IEnumerable<TObject>> GetAllSelectedColumns<TResult, TObject>(Expression<Func<T, TResult>> selectColumns, IEnumerable<Expression<Func<T, bool>>> filters, Func<TResult, TObject> buildObject, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, int? howMany = null)
         {
-            return await _repository.GetAllSelectedColumns(selectColumns, filters, orderBy, howMany);
+            return await _repository.GetAllSelectedColumns(selectColumns, filters, buildObject, orderBy, howMany);
         }
 
         public async Task<T> GetById(Expression<Func<T, bool>> filter)
@@ -34,9 +34,9 @@ namespace Business.Business
             return await _repository.GetById(filter);
         }
 
-        public async Task<TResult> GetSelected<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selectColumns)
+        public async Task<TObject> GetSelected<TResult, TObject>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selectColumns, Func<TResult, TObject> buildObject)
         {
-            return await _repository.GetSelected(filter, selectColumns);
+            return await _repository.GetSelected(filter, selectColumns, buildObject);
         }
 
         public async Task<Pagination<T>> GetViewPaged(int page, int pageSize, IEnumerable<Expression<Func<T, bool>>> filters = null, Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null)

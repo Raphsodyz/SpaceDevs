@@ -20,13 +20,15 @@ namespace Business.Interface
             IEnumerable<Expression<Func<T, bool>>> filters = null,
             Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null);
 
-        Task<TResult> GetSelected<TResult>(
+        Task<TObject> GetSelected<TResult, TObject>(
             Expression<Func<T, bool>> filter,
-            Expression<Func<T, TResult>> selectColumns);
+            Expression<Func<T, TResult>> selectColumns,
+            Func<TResult, TObject> buildObject);
 
-        Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
-            Func<T, TResult> selectColumns,
+        Task<IEnumerable<TObject>> GetAllSelectedColumns<TResult, TObject>(
+            Expression<Func<T, TResult>> selectColumns,
             IEnumerable<Expression<Func<T, bool>>> filters,
+            Func<TResult, TObject> buildObject,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             int? howMany = null);
 

@@ -50,9 +50,10 @@ namespace Data.Repository
                 return await query.ToListAsync();
         }
 
-        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
+        public async Task<IEnumerable<TObject>> GetAllSelectedColumns<TResult, TObject>(
             Expression<Func<T, TResult>> selectColumns,
             IEnumerable<Expression<Func<T, bool>>> filters,
+            Func<TResult, TObject> buildObject,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             string includedProperties = "",
             int? howMany = null)
@@ -74,7 +75,7 @@ namespace Data.Repository
             selectedQuery = selectedQuery.Take(howMany ?? maxEntityReturn);
 
             var result = await selectedQuery.ToListAsync();
-            return result;
+            return result.Select(buildObject);
         }
 
         public async Task<Pagination<T>> GetAllPaged(int page, int pageSize,
@@ -138,9 +139,10 @@ namespace Data.Repository
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<TResult> GetSelected<TResult>(
+        public async Task<TObject> GetSelected<TResult, TObject>(
             Expression<Func<T, bool>> filter,
             Expression<Func<T, TResult>> selectColumns,
+            Func<TResult, TObject> buildObject,
             string includedProperties = "")
         {
             IQueryable<T> query = _dbSet;
@@ -155,8 +157,9 @@ namespace Data.Repository
             }
 
             var selectedQuery = query.Select(selectColumns);
-
-            return await selectedQuery.FirstOrDefaultAsync();
+            var result = await selectedQuery.FirstOrDefaultAsync();
+            
+            return result != null ? buildObject(result) : default;
         }
 
         public async Task UpdateOnQuery(

@@ -68,14 +68,14 @@ namespace Business.Business
             return await _repository.GetAllPaged(page, pageSize, filters, orderBy, includedProperties);
         }
 
-        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(Expression<Func<T, TResult>> selectColumns, IEnumerable<Expression<Func<T, bool>>> filters, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includedProperties = "", int? howMany = null)
+        public async Task<IEnumerable<TObject>> GetAllSelectedColumns<TResult, TObject>(Expression<Func<T, TResult>> selectColumns, IEnumerable<Expression<Func<T, bool>>> filters, Func<TResult, TObject> buildObject, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, string includedProperties = "", int? howMany = null)
         {
-            return await _repository.GetAllSelectedColumns(selectColumns, filters, orderBy, includedProperties, howMany);
+            return await _repository.GetAllSelectedColumns(selectColumns, filters, buildObject, orderBy, includedProperties, howMany);
         }
 
-        public async Task<TResult> GetSelected<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selectColumns, string includedProperties = "")
+        public async Task<TObject> GetSelected<TResult, TObject>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selectColumns, Func<TResult, TObject> buildObject, string includedProperties = "")
         {
-            return await _repository.GetSelected(filter, selectColumns, includedProperties);
+            return await _repository.GetSelected(filter, selectColumns, buildObject, includedProperties);
         }
 
         public async Task UpdateOnQuery(List<Expression<Func<T, bool>>> filters, Expression<Func<T, T>> updateColumns, string includedProperties = null)

@@ -17,9 +17,10 @@ namespace Data.Interface
             string includedProperties = "",
             int? howMany = null);
 
-        Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
+        Task<IEnumerable<TObject>> GetAllSelectedColumns<TResult, TObject>(
             Expression<Func<T, TResult>> selectColumns,
             IEnumerable<Expression<Func<T, bool>>> filters,
+            Func<TResult, TObject> buildObject,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             string includedProperties = "",
             int? howMany = null);
@@ -35,9 +36,10 @@ namespace Data.Interface
 
         Task<T> Get(Expression<Func<T, bool>> filter, string includedProperties = "");
 
-        Task<TResult> GetSelected<TResult>(
+        Task<TObject> GetSelected<TResult, TObject>(
             Expression<Func<T, bool>> filter,
             Expression<Func<T, TResult>> selectColumns,
+            Func<TResult, TObject> buildObject,
             string includedProperties = "");
 
         Task UpdateOnQuery(

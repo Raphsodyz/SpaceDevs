@@ -84,19 +84,24 @@ namespace Data.Repository
             return result;
         }
 
-        public async Task<TResult> GetSelected<TResult>(
+        public async Task<TObject> GetSelected<TResult, TObject>(
             Expression<Func<T, bool>> filter,
-            Expression<Func<T, TResult>> selectColumns)
+            Expression<Func<T, TResult>> selectColumns,
+            Func<TResult, TObject> buildObject)
         {
             IQueryable<T> query = _dbSet;
 
             query = query.Where(filter);
-            return await query.Select(selectColumns).FirstOrDefaultAsync();
+            var selectedQuery = query.Select(selectColumns);
+            var result = await selectedQuery.FirstOrDefaultAsync();
+
+            return result != null ? buildObject(result) : default;
         }
 
-        public async Task<IEnumerable<TResult>> GetAllSelectedColumns<TResult>(
-            Func<T, TResult> selectColumns,
+        public async Task<IEnumerable<TObject>> GetAllSelectedColumns<TResult, TObject>(
+            Expression<Func<T, TResult>> selectColumns,
             IEnumerable<Expression<Func<T, bool>>> filters,
+            Func<TResult, TObject> buildObject,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             int? howMany = null)
         {
@@ -105,13 +110,15 @@ namespace Data.Repository
             foreach (var filter in filters)
                 query = query.Where(filter);
 
-            query = query.Take(howMany ?? maxEntityReturn);
-
             if (orderBy != null)
                 query = orderBy(query);
 
-            var result = await query.ToListAsync();
-            return result.Select(selectColumns);
+            var selectedQuery = query.Select(selectColumns);
+
+            selectedQuery = selectedQuery.Take(howMany ?? maxEntityReturn);
+
+            var result = await selectedQuery.ToListAsync();
+            return result.Select(buildObject);
         }
 
         public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
