@@ -91,7 +91,10 @@ namespace Business.Business
                 Status status = new();
                 if (launch.Status != null)
                 {
-                    Guid id = await _statusBusiness.GetSelected(filter: s => s.IdFromApi == launch.Status.IdFromApi, selectColumns: s => s.Id);
+                    Guid id = await _statusBusiness.GetSelected(
+                        filter: s => s.IdFromApi == launch.Status.IdFromApi,
+                        selectColumns: s => s.Id,
+                        buildObject: s => s);
 
                     status.Id = id != Guid.Empty ? id : Guid.Empty;
                     status.Name = launch.Status.Name;
@@ -104,7 +107,10 @@ namespace Business.Business
                 LaunchServiceProvider launchServiceProvider = new();
                 if (launch.LaunchServiceProvider != null)
                 {
-                    Guid id = await _launchServiceProviderBusiness.GetSelected(filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi, selectColumns: s => s.Id);
+                    Guid id = await _launchServiceProviderBusiness.GetSelected(
+                        filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi,
+                        selectColumns: s => s.Id,
+                        buildObject: s => s);
 
                     launchServiceProvider.Id = id != Guid.Empty ? id : Guid.Empty;
                     launchServiceProvider.Name = launch.LaunchServiceProvider.Name;
@@ -122,7 +128,10 @@ namespace Business.Business
                     Configuration configuration = new();
                     if (launch.Rocket.Configuration != null)
                     {
-                        Guid idConfiguration = await _configurationBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi, selectColumns: s => s.Id);
+                        Guid idConfiguration = await _configurationBusiness.GetSelected(
+                            filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi,
+                            selectColumns: s => s.Id,
+                            buildObject: s => s);
 
                         configuration.Id = idConfiguration != Guid.Empty ? idConfiguration : Guid.Empty;
                         configuration.LaunchLibraryId = launch.Rocket.Configuration.LaunchLibraryId;
@@ -137,7 +146,10 @@ namespace Business.Business
                         await _configurationBusiness.SaveTransaction(configuration);
                     }
 
-                    Guid idRocket = await _rocketBusiness.GetSelected(filter: s => s.IdFromApi == launch.Rocket.IdFromApi, selectColumns: s => s.Id);
+                    Guid idRocket = await _rocketBusiness.GetSelected(
+                        filter: s => s.IdFromApi == launch.Rocket.IdFromApi,
+                        selectColumns: s => s.Id,
+                        buildObject: s => s);
 
                     rocket.Id = idRocket != Guid.Empty ? idRocket : Guid.Empty;
                     rocket.IdConfiguration = configuration.Id == Guid.Empty ? null : configuration.Id;
@@ -153,7 +165,10 @@ namespace Business.Business
                     Orbit orbit = new();
                     if (launch.Mission.Orbit != null)
                     {
-                        Guid idOrbit = await _orbitBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi, selectColumns: s => s.Id);
+                        Guid idOrbit = await _orbitBusiness.GetSelected(
+                            filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi,
+                            selectColumns: s => s.Id,
+                            buildObject: s => s);
 
                         orbit.Id = idOrbit != Guid.Empty ? idOrbit : Guid.Empty;
                         orbit.Name = launch.Mission.Orbit.Name;
@@ -164,7 +179,10 @@ namespace Business.Business
                         await _orbitBusiness.SaveTransaction(orbit);
                     }
 
-                    Guid idMission = await _missionBusiness.GetSelected(filter: s => s.IdFromApi == launch.Mission.IdFromApi, selectColumns: s => s.Id);
+                    Guid idMission = await _missionBusiness.GetSelected(
+                        filter: s => s.IdFromApi == launch.Mission.IdFromApi,
+                        selectColumns: s => s.Id,
+                        buildObject: s => s);
 
                     mission.Id = idMission != Guid.Empty ? idMission : Guid.Empty;
                     mission.Description = launch.Mission.Description;
@@ -183,7 +201,10 @@ namespace Business.Business
                     Location location = new();
                     if (launch.Pad.Location != null)
                     {
-                        Guid idLocation = await _locationBuiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi, selectColumns: s => s.Id);
+                        Guid idLocation = await _locationBuiness.GetSelected(
+                            filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi,
+                            selectColumns: s => s.Id,
+                            buildObject: s => s);
 
                         location.Id = idLocation != Guid.Empty ? idLocation : Guid.Empty;
                         location.Url = launch.Pad.Location.Url;
@@ -198,7 +219,10 @@ namespace Business.Business
                         await _locationBuiness.SaveTransaction(location);
                     }
 
-                    Guid idPad = await _padBusiness.GetSelected(filter: s => s.IdFromApi == launch.Pad.IdFromApi, selectColumns: s => s.Id);
+                    Guid idPad = await _padBusiness.GetSelected(
+                        filter: s => s.IdFromApi == launch.Pad.IdFromApi,
+                        selectColumns: s => s.Id,
+                        buildObject: s => s);
 
                     pad.Id = idPad != Guid.Empty ? idPad : Guid.Empty;
                     pad.Url = launch.Pad.Url;
@@ -218,7 +242,11 @@ namespace Business.Business
                     await _padBusiness.SaveTransaction(pad);
                 }
 
-                Guid idLaunch = await _launchBusiness.GetSelected(filter: s => s.ApiGuId == launch.ApiGuId, selectColumns: s => s.Id);
+                Guid idLaunch = await _launchBusiness.GetSelected(
+                    filter: s => s.ApiGuId == launch.ApiGuId,
+                    selectColumns: s => s.Id,
+                    buildObject: s => s);
+                    
                 Launch saveLaunch = new()
                 {
                     Id = idLaunch != Guid.Empty ? idLaunch : Guid.Empty,
