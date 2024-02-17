@@ -20,6 +20,12 @@ namespace Tests.Database
             Context = new FutureSpaceContext(options);
             Launch = new LaunchRepository(Context);
 
+            if(Context.Launch.Any())
+            {
+                Context.Database.EnsureDeleted();
+                Context.Database.EnsureCreated();
+            }
+            
             SeedDatabase();
         }
 
