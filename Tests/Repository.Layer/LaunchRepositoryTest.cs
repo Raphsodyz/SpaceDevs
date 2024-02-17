@@ -90,11 +90,14 @@ namespace Tests.Repository.Layer
             { l => l.IdStatus == TestLaunchInMemoryObjects.Test1().IdStatus };
 
             //Act
-            var result = await _fixture.Launch.GetAllSelectedColumns(filters: qryByStatus, selectColumns: l => l.Name);
+            var result = await _fixture.Launch.GetAllSelectedColumns(
+                filters: qryByStatus,
+                selectColumns: l => l.Name,
+                buildObject: l => l);
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsType<List<string>>(result);
+            Assert.IsAssignableFrom<IEnumerable<string>>(result);
             Assert.Equal(2, result.Count());
             Assert.Equal("Kosmos 11K63 | DS-U2-M 2", result.ElementAt(0));
             Assert.Equal("Soyuz U | Zenit-4MKM 36", result.ElementAt(1));
@@ -111,11 +114,12 @@ namespace Tests.Repository.Layer
             var result = await _fixture.Launch.GetAllSelectedColumns(
                 filters: qryByStatus,
                 selectColumns: l => l.Name,
+                buildObject: l => l,
                 orderBy: q => q.OrderByDescending(l => l.Name));
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsType<List<string>>(result);
+            Assert.IsAssignableFrom<IEnumerable<string>>(result);
             Assert.Equal(2, result.Count());
             Assert.Equal("Kosmos 11K63 | DS-U2-M 2", result.ElementAt(1));
             Assert.Equal("Soyuz U | Zenit-4MKM 36", result.ElementAt(0));
@@ -132,6 +136,7 @@ namespace Tests.Repository.Layer
             var result = await _fixture.Launch.GetAllSelectedColumns(
                 filters: qryByStatus,
                 selectColumns: l => new { l.Name, l.Status },
+                buildObject: l => new { l.Name, l.Status },
                 includedProperties: "Status");
 
             // Assert
@@ -152,11 +157,12 @@ namespace Tests.Repository.Layer
             var result = await _fixture.Launch.GetAllSelectedColumns(
                 filters: qryByStatus,
                 selectColumns: l => l.Name,
+                buildObject: l => l,
                 howMany: 1);
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsType<List<string>>(result);
+            Assert.IsAssignableFrom<IEnumerable<string>>(result);
             Assert.Equal(1, result.Count());
         }
 

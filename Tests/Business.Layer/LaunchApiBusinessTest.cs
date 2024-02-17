@@ -485,47 +485,83 @@ namespace Tests.Business.Layer
             uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(updateLogRepository.Object);
             uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(launchViewRepository.Object);
 
-            launchRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Launch, bool>>>(), It.IsAny<Expression<Func<Launch, Guid>>>(), string.Empty))
+            launchRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<Launch, bool>>>(),
+                It.IsAny<Expression<Func<Launch, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync(TestLaunchObjects.Test1().Id)
                 .ReturnsAsync(TestLaunchObjects.Test2().Id)
                 .ReturnsAsync(TestLaunchObjects.Test3().Id);
 
-            statusRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Status, bool>>>(), It.IsAny<Expression<Func<Status, Guid>>>(), string.Empty))
+            statusRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<Status, bool>>>(),
+                It.IsAny<Expression<Func<Status, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdStatus)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdStatus)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdStatus);
 
-            launchServiceProviderRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<LaunchServiceProvider, bool>>>(), It.IsAny<Expression<Func<LaunchServiceProvider, Guid>>>(), string.Empty))
+            launchServiceProviderRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<LaunchServiceProvider, bool>>>(),
+                It.IsAny<Expression<Func<LaunchServiceProvider, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdLaunchServiceProvider)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdLaunchServiceProvider)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdLaunchServiceProvider);
 
-            configurationRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Configuration, bool>>>(), It.IsAny<Expression<Func<Configuration, Guid>>>(), string.Empty))
+            configurationRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<Configuration, bool>>>(),
+                It.IsAny<Expression<Func<Configuration, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().Rocket.IdConfiguration)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().Rocket.IdConfiguration)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().Rocket.IdConfiguration);
 
-            rocketRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Rocket, bool>>>(), It.IsAny<Expression<Func<Rocket, Guid>>>(), string.Empty))
+            rocketRepository.SetupSequence(l => l.GetSelected
+            (It.IsAny<Expression<Func<Rocket, bool>>>(),
+            It.IsAny<Expression<Func<Rocket, Guid>>>(),
+            It.IsAny<Func<Guid, Guid>>(),
+            string.Empty))
                 .ReturnsAsync(TestLaunchObjects.Test1().Rocket.Id)
                 .ReturnsAsync(TestLaunchObjects.Test2().Rocket.Id)
                 .ReturnsAsync(TestLaunchObjects.Test3().Rocket.Id);
 
-            missionRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Mission, bool>>>(), It.IsAny<Expression<Func<Mission, Guid>>>(), string.Empty))
+            missionRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<Mission, bool>>>(),
+                It.IsAny<Expression<Func<Mission, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdMission)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdMission)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdMission);
 
-            orbitRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Orbit, bool>>>(), It.IsAny<Expression<Func<Orbit, Guid>>>(), string.Empty))
+            orbitRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<Orbit, bool>>>(),
+                It.IsAny<Expression<Func<Orbit, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().Mission.IdOrbit)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().Mission.IdOrbit)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().Mission.IdOrbit);
 
-            padRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Pad, bool>>>(), It.IsAny<Expression<Func<Pad, Guid>>>(), string.Empty))
+            padRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<Pad, bool>>>(),
+                It.IsAny<Expression<Func<Pad, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync(TestLaunchObjects.Test1().Pad.Id)
                 .ReturnsAsync(TestLaunchObjects.Test2().Pad.Id)
                 .ReturnsAsync(TestLaunchObjects.Test3().Pad.Id);
 
-            locationRepository.SetupSequence(l => l.GetSelected(It.IsAny<Expression<Func<Location, bool>>>(), It.IsAny<Expression<Func<Location, Guid>>>(), string.Empty))
+            locationRepository.SetupSequence(l => l.GetSelected(
+                It.IsAny<Expression<Func<Location, bool>>>(),
+                It.IsAny<Expression<Func<Location, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                string.Empty))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().Pad.IdLocation)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().Pad.IdLocation)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().Pad.IdLocation);
