@@ -1,4 +1,4 @@
-Project initially done as a test for a selection process in which I was participating. Now I'm including a series of features and things that I'm using to test my knowledge, and also to learn new things(for me).
+Project initially made as a test for a selection process in which I was participating. Now I'm including a series of features and things that I'm using to test my knowledge, and also to learn new things(for me).
 
 ## Requirements
 -Docker
