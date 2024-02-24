@@ -167,7 +167,7 @@ namespace Tests.Repository.Layer
         }
 
         [Fact]
-        public async Task GenericRepository_GetAllPaged_GetAllEntitiesPaged()
+        public async Task GenericRepository_GetAllPaged_WithPagesAndSize()
         {
             //Arrange & Act
             var result = await _fixture.Launch.GetAllPaged(page: 0, pageSize: 3);
@@ -180,6 +180,50 @@ namespace Tests.Repository.Layer
             Assert.Equal(0, result.CurrentPage);
             Assert.IsType<List<Launch>>(result.Entities);
             Assert.Equal(3, result.Entities.Count);
+        }
+
+        [Fact]
+        public async Task GenericRepository_GetAllPaged_WithWhereClauseAndPageOverMaxResults()
+        {
+            //Arrange
+            List<Expression<Func<Launch, bool>>> qyrTest = new()
+            { l => l.IdStatus == TestLaunchInMemoryObjects.Test1().IdStatus };
+
+            //Act
+            var result = await _fixture.Launch.GetAllPaged(
+                page: 0,
+                pageSize: 10,
+                filters: qyrTest
+            );
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<Pagination<Launch>>(result);
+            Assert.Equal(2, result.NumberOfEntities);
+            Assert.Equal(1, result.NumberOfPages);
+            Assert.Equal(0, result.CurrentPage);
+            Assert.Equal(2, result.Entities.Count);
+        }
+
+        [Fact]
+        public async Task GenericRepository_GetAllPaged_WithIncludeClause()
+        {
+            //Arrange & Act
+            var result = await _fixture.Launch.GetAllPaged(
+                page: 0,
+                pageSize: 10,
+                includedProperties: "Status");
+
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<Pagination<Launch>>(result);
+            Assert.Equal(3, result.NumberOfEntities);
+            Assert.Equal(1, result.NumberOfPages);
+            Assert.Equal(0, result.CurrentPage);
+            Assert.IsType<List<Launch>>(result.Entities);
+            Assert.Equal(3, result.Entities.Count);
+            Assert.NotNull(result.Entities.Select(e => e.Status));
         }
     }
 }
