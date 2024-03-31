@@ -225,5 +225,71 @@ namespace Tests.Repository.Layer
             Assert.Equal(3, result.Entities.Count);
             Assert.NotNull(result.Entities.Select(e => e.Status));
         }
+
+        [Fact]
+        public async Task GenericRepository_EntityCount_CountAllEntities()
+        {
+            //Arrange & Act
+            var result = await _fixture.Launch.EntityCount();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<int>(result);
+            Assert.Equal(3, result);
+        }
+
+        [Fact]
+        public async Task GenericRepository_EntityCount_CountEntitiesWithFilter()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> qryLaunchFilter = l => l.Id == new Guid("0022751c-b755-4d0c-a23a-294ce9c95c71");
+
+            //Act
+            var result = await _fixture.Launch.EntityCount(qryLaunchFilter);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<int>(result);
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public async Task GenericRepository_Get_GetSpecificPropWithIncludeAndWhere()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> qryLaunchFilter = l => l.Id == new Guid("0022751c-b755-4d0c-a23a-294ce9c95c71");
+
+            //Act
+            var result = await _fixture.Launch.Get(qryLaunchFilter, "Status");
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<Launch>(result);
+            Assert.NotNull(result.Status);
+        }
+
+        [Fact]
+        public async Task GenericRepository_Get_GetAllPropsFirstFromTheClause()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> qryFilter = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
+
+            //Act
+            var result = await _fixture.Launch.Get(
+                filter: qryFilter,
+                includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location");
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<Launch>(result);
+            Assert.Equal(new Guid("000ebc80-d782-4dee-8606-1199d9074039"), result.Id); // first from the test launch object class.
+            Assert.NotNull(result.LaunchServiceProvider);
+            Assert.NotNull(result.Rocket);
+            Assert.NotNull(result.Rocket.Configuration);
+            Assert.NotNull(result.Mission);
+            Assert.NotNull(result.Mission.Orbit);
+            Assert.NotNull(result.Pad);
+            Assert.NotNull(result.Pad.Location);
+        }
     }
 }
