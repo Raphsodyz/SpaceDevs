@@ -119,6 +119,9 @@ namespace Data.Repository
 
         public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
         {
+            if(filter is null)
+                return await _dbSet.CountAsync();
+
             return await _dbSet.CountAsync(filter);
         }
 
