@@ -1,6 +1,5 @@
 ﻿using Business.Interface;
 using Data.Interface;
-using Data.Repository;
 using Domain.Entities;
 using Cross.Cutting.Helper;
 using System.Linq.Expressions;

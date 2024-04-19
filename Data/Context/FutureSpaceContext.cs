@@ -1,10 +1,8 @@
-﻿using System;
-using Data.Context.Builder;
+﻿using Data.Context.Builder;
 using Data.Materializated.Views;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Npgsql;
 
 namespace Data.Context
 {
