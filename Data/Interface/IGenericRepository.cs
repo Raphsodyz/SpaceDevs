@@ -34,6 +34,8 @@ namespace Data.Interface
 
         Task<IDbContextTransaction> GetTransaction();
 
+        IDbContextTransaction GetCurrentlyTransaction();
+
         Task<T> Get(Expression<Func<T, bool>> filter, string includedProperties = "");
 
         Task<TObject> GetSelected<TResult, TObject>(

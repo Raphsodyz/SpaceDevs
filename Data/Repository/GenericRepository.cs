@@ -13,15 +13,23 @@ namespace Data.Repository
         public DbContext _context;
         public DbSet<T> _dbSet;
 
+        public GenericRepository(DbContext context)
+        {
+            _context = context;
+            _dbSet = _context.Set<T>();
+        }
+
         public async Task<IDbContextTransaction> GetTransaction()
         {
             return await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
         }
 
-        public GenericRepository(DbContext context)
+        public IDbContextTransaction GetCurrentlyTransaction()
         {
-            _context = context;
-            _dbSet = _context.Set<T>();
+            if(_context?.Database?.CurrentTransaction == null)
+                return null;
+
+            return _context.Database.CurrentTransaction;
         }
 
         public async Task<IList<T>> GetAll(
