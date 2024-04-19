@@ -1,5 +1,6 @@
 ﻿using Data.Interface;
 using Data.Repository;
+using Domain.Entities;
 
 namespace Data.Context
 {
@@ -11,6 +12,12 @@ namespace Data.Context
         {
             _context = context;
             _repository = new Dictionary<Type, IRepository>();
+        }
+
+        public IRepository Dapper<T>() where T : BaseEntity
+        {
+            IRepository repository = new GenericDapperRepository<T>();
+            return repository;
         }
 
         public IRepository Repository(Type type)
