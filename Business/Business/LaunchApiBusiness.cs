@@ -10,6 +10,7 @@ using Data.Materializated.Views;
 using Business.DTO.Entities;
 using System.Text.Json;
 using Business.DTO.Request;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Business.Business
 {
@@ -113,7 +114,7 @@ namespace Business.Business
             var client = _client.CreateClient();
             try
             {
-                string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}{launch.ApiGuId}";
+                string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}{launch.ApiGuid}";
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
@@ -201,251 +202,6 @@ namespace Business.Business
             return true;
         }
 
-        private async Task SaveLaunch(Launch launch)
-        {
-            if (launch == null)
-                throw new ArgumentNullException(ErrorMessages.NullArgument);
-
-            using var trans = await _repository.GetTransaction();
-            try
-            {
-                IStatusBusiness _statusBusiness = GetBusiness(typeof(IStatusBusiness)) as IStatusBusiness;
-
-                Status status = new();
-                if (launch.Status != null)
-                {
-                    Guid id = await _statusBusiness.GetSelected(
-                        filter: s => s.IdFromApi == launch.Status.IdFromApi,
-                        selectColumns: s => s.Id,
-                        buildObject: s => s);
-
-                    status.Id = id != Guid.Empty ? id : Guid.Empty;
-                    status.Name = launch.Status.Name;
-                    status.Abbrev = launch.Status.Abbrev;
-                    status.Description = launch.Status.Description;
-                    status.IdFromApi = launch.Status.IdFromApi;
-
-                    await _statusBusiness.SaveTransaction(status);
-                }
-
-                LaunchServiceProvider launchServiceProvider = new();
-                if (launch.LaunchServiceProvider != null)
-                {
-                    ILaunchServiceProviderBusiness _launchServiceProviderBusiness = GetBusiness(typeof(ILaunchServiceProviderBusiness)) as ILaunchServiceProviderBusiness;
-
-                    Guid id = await _launchServiceProviderBusiness.GetSelected(
-                        filter: s => s.IdFromApi == launch.LaunchServiceProvider.IdFromApi,
-                        selectColumns: s => s.Id,
-                        buildObject: s => s);
-
-                    launchServiceProvider.Id = id != Guid.Empty ? id : Guid.Empty;
-                    launchServiceProvider.Name = launch.LaunchServiceProvider.Name;
-                    launchServiceProvider.Url = launch.LaunchServiceProvider.Url;
-                    launchServiceProvider.Type = launch.LaunchServiceProvider.Type;
-                    launchServiceProvider.IdFromApi = launch.LaunchServiceProvider.IdFromApi;
-
-                    await _launchServiceProviderBusiness.SaveTransaction(launchServiceProvider);
-                }
-
-                Rocket rocket = new();
-                if (launch.Rocket != null)
-                {
-                    Configuration configuration = new();
-                    if (launch.Rocket.Configuration != null)
-                    {
-                        IConfigurationBusiness _configurationBusiness = GetBusiness(typeof(IConfigurationBusiness)) as IConfigurationBusiness;
-
-                        Guid idConfiguration = await _configurationBusiness.GetSelected(
-                            filter: s => s.IdFromApi == launch.Rocket.Configuration.IdFromApi,
-                            selectColumns: s => s.Id,
-                            buildObject: s => s);
-
-                        configuration.Id = idConfiguration != Guid.Empty ? idConfiguration : Guid.Empty;
-                        configuration.LaunchLibraryId = launch.Rocket.Configuration.LaunchLibraryId;
-                        configuration.Url = launch.Rocket.Configuration.Url;
-                        configuration.Name = launch.Rocket.Configuration.Name;
-                        configuration.Family = launch.Rocket.Configuration.Family;
-                        configuration.FullName = launch.Rocket.Configuration.FullName;
-                        configuration.Variant = launch.Rocket.Configuration.Variant;
-                        configuration.IdFromApi = launch.Rocket.Configuration.IdFromApi;
-
-                        await _configurationBusiness.SaveTransaction(configuration);
-                    }
-
-                    IRocketBusiness _rocketBusiness = GetBusiness(typeof(IRocketBusiness)) as IRocketBusiness;
-
-                    Guid idRocket = await _rocketBusiness.GetSelected(
-                        filter: s => s.IdFromApi == launch.Rocket.IdFromApi,
-                        selectColumns: s => s.Id,
-                        buildObject: s => s);
-
-                    rocket.Id = idRocket != Guid.Empty ? idRocket : Guid.Empty;
-                    rocket.IdConfiguration = configuration.Id == Guid.Empty ? null : configuration.Id;
-                    rocket.IdFromApi = launch.Rocket.IdFromApi;
-
-                    await _rocketBusiness.SaveTransaction(rocket);
-                }
-
-                Mission mission = new();
-                if (launch.Mission != null)
-                {
-                    Orbit orbit = new();
-                    if (launch.Mission.Orbit != null)
-                    {            
-                        IOrbitBusiness _orbitBusiness = GetBusiness(typeof(IOrbitBusiness)) as IOrbitBusiness;
-
-                        Guid idOrbit = await _orbitBusiness.GetSelected(
-                            filter: s => s.IdFromApi == launch.Mission.Orbit.IdFromApi,
-                            selectColumns: s => s.Id,
-                            buildObject: s => s);
-
-                        orbit.Id = idOrbit != Guid.Empty ? idOrbit : Guid.Empty;
-                        orbit.Name = launch.Mission.Orbit.Name;
-                        orbit.Abbrev = launch.Mission.Orbit.Abbrev;
-                        orbit.IdFromApi = launch.Mission.Orbit.IdFromApi;
-
-                        await _orbitBusiness.SaveTransaction(orbit);
-                    }
-                    IMissionBusiness _missionBusiness = GetBusiness(typeof(IMissionBusiness)) as IMissionBusiness;
-
-                    Guid idMission = await _missionBusiness.GetSelected(
-                        filter: s => s.IdFromApi == launch.Mission.IdFromApi,
-                        selectColumns: s => s.Id,
-                        buildObject: s => s);
-
-                    mission.Id = idMission != Guid.Empty ? idMission : Guid.Empty;
-                    mission.Description = launch.Mission.Description;
-                    mission.Name = launch.Mission.Name;
-                    mission.Type = launch.Mission.Type;
-                    mission.IdOrbit = orbit.Id == Guid.Empty ? null : orbit.Id;
-                    mission.IdFromApi = launch.Mission.IdFromApi;
-
-                    await _missionBusiness.SaveTransaction(mission);
-                }
-
-                Pad pad = new();
-                if (launch.Pad != null)
-                {
-                    Location location = new();
-                    if (launch.Pad.Location != null)
-                    {
-
-                        ILocationBusiness _locationBuiness = GetBusiness(typeof(ILocationBusiness)) as ILocationBusiness;
-
-                        Guid idLocation = await _locationBuiness.GetSelected(
-                            filter: s => s.IdFromApi == launch.Pad.Location.IdFromApi,
-                            selectColumns: s => s.Id,
-                            buildObject: s => s);
-                        
-                        location.Id = idLocation != Guid.Empty ? idLocation : Guid.Empty;
-                        location.Url = launch.Pad.Location.Url;
-                        location.Name = launch.Pad.Location.Name;
-                        location.CountryCode = launch.Pad.Location.CountryCode;
-                        location.MapImage = launch.Pad.Location.MapImage;
-                        location.TotalLandingCount = launch.Pad.Location.TotalLandingCount;
-                        location.TotalLaunchCount = launch.Pad.Location.TotalLaunchCount;
-                        location.IdFromApi = launch.Pad.Location.IdFromApi;
-
-                        await _locationBuiness.SaveTransaction(location);
-                    }
-
-                    IPadBusiness _padBusiness = GetBusiness(typeof(IPadBusiness)) as IPadBusiness;
-
-                    Guid idPad = await _padBusiness.GetSelected(
-                        filter: s => s.IdFromApi == launch.Pad.IdFromApi,
-                        selectColumns: s => s.Id,
-                        buildObject: s => s);
-
-                    pad.Id = idPad != Guid.Empty ? idPad : Guid.Empty;
-                    pad.Url = launch.Pad.Url;
-                    pad.AgencyId = launch.Pad.AgencyId;
-                    pad.Name = launch.Pad.Name;
-                    pad.InfoUrl = launch.Pad.InfoUrl;
-                    pad.MapUrl = launch.Pad.MapUrl;
-                    pad.WikiUrl = launch.Pad.WikiUrl;
-                    pad.Latitude = launch.Pad.Latitude;
-                    pad.Longitude = launch.Pad.Longitude;
-                    pad.MapImage = launch.Pad.MapImage;
-                    pad.TotalLaunchCount = launch.Pad.TotalLaunchCount;
-                    pad.IdLocation = location.Id == Guid.Empty ? null : location.Id;
-                    pad.IdFromApi = launch.Pad.IdFromApi;
-
-                    await _padBusiness.SaveTransaction(pad);
-                }
-                
-                ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
-
-                Guid idLaunch = await _launchBusiness.GetSelected(
-                    filter: s => s.ApiGuId == launch.ApiGuId,
-                    selectColumns: s => s.Id,
-                    buildObject: s => s);
-
-                Launch saveLaunch = new()
-                {
-                    Id = idLaunch != Guid.Empty ? idLaunch : Guid.Empty,
-                    ApiGuId = launch.ApiGuId,
-                    Url = launch.Url,
-                    LaunchLibraryId = launch.LaunchLibraryId,
-                    Slug = launch.Slug,
-                    Name = launch.Name,
-                    IdStatus = status.Id == Guid.Empty ? null : status.Id,
-                    Net = launch.Net,
-                    WindowEnd = launch.WindowEnd,
-                    WindowStart = launch.WindowStart,
-                    Inhold = launch.Inhold,
-                    TbdDate = launch.TbdDate,
-                    TbdTime = launch.TbdTime,
-                    Probability = launch.Probability,
-                    HoldReason = launch.HoldReason,
-                    FailReason = launch.FailReason,
-                    Hashtag = launch.Hashtag,
-                    IdLaunchServiceProvider = launchServiceProvider.Id == Guid.Empty ? null : launchServiceProvider.Id,
-                    IdRocket = rocket.Id == Guid.Empty ? null : rocket.Id,
-                    IdMission = mission.Id == Guid.Empty ? null : mission.Id,
-                    IdPad = pad.Id == Guid.Empty ? null : pad.Id,
-                    WebcastLive = launch.WebcastLive,
-                    Image = launch.Image,
-                    Infographic = launch.Infographic,
-                    Programs = launch.Programs,
-                    IdFromApi = launch.IdFromApi
-                };
-                await _launchBusiness.SaveTransaction(saveLaunch);
-                await trans.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                await trans.RollbackAsync();
-                throw ex;
-            }
-            finally
-            {
-                await trans.DisposeAsync();
-            }
-        }
-
-        private async Task GenerateLog(int offset, string message, int entityCount, bool success)
-        {
-            IUpdateLogBusiness _updateLogBusiness = GetBusiness(typeof(IUpdateLogBusiness)) as IUpdateLogBusiness;
-            
-            var log = new UpdateLog()
-            {
-                TransactionDate = DateTime.Now,
-                OffSet = offset,
-                Success = success,
-                Message = message,
-                EntityCount = entityCount,
-                Origin = EOrigin.API_UPDATE.GetDisplayName(),
-                EntityStatus = EStatus.PUBLISHED.GetDisplayName()
-            };
-            await _updateLogBusiness.Save(log);
-        }
-    
-        private async Task RefreshView()
-        {
-            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
-            await _launchViewBusiness.RefreshView();
-        }
-
         public async Task<Pagination<LaunchView>> SearchByParam(SearchLaunchRequest request)
         {
             List<Expression<Func<LaunchView, bool>>> query = new();
@@ -499,6 +255,95 @@ namespace Business.Business
                 throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
             return found;
+        }
+
+        private async Task SaveLaunch(Launch launch)
+        {
+            if (launch == null)
+                throw new ArgumentNullException(ErrorMessages.NullArgument);
+
+            ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+            if(await _launchBusiness.EntityExist(l => l.ApiGuid == launch.ApiGuid))
+                return;
+
+            using var trans = await _repository.GetTransaction();
+            try
+            {
+                Guid? idStatus = await SaveLaunchEntitiesProcess(launch.Status, _repository.GetCurrentlyTransaction());
+                Guid? idLaunchServiceProvider = await SaveLaunchEntitiesProcess(launch.LaunchServiceProvider, _repository.GetCurrentlyTransaction());
+                Guid? idConfiguration = await SaveLaunchEntitiesProcess(launch.Rocket?.Configuration, _repository.GetCurrentlyTransaction());
+                Guid? idRocket = await SaveLaunchEntitiesProcess(new Rocket(launch.Rocket?.IdFromApi, idConfiguration), _repository.GetCurrentlyTransaction());
+                Guid? idOrbit = await SaveLaunchEntitiesProcess(launch.Mission?.Orbit, _repository.GetCurrentlyTransaction());
+                Guid? idMission = await SaveLaunchEntitiesProcess(new Mission(launch.Mission, idOrbit), _repository.GetCurrentlyTransaction());
+                Guid? idLocation = await SaveLaunchEntitiesProcess(launch.Pad?.Location, _repository.GetCurrentlyTransaction());
+                Guid? idPad = await SaveLaunchEntitiesProcess(new Pad(launch.Pad, idLocation), _repository.GetCurrentlyTransaction());
+                
+                await _launchBusiness.SaveTransaction(new Launch(launch, idStatus, idLaunchServiceProvider, idRocket, idMission, idPad));
+                await trans.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await trans.RollbackAsync();
+                throw ex;
+            }
+            finally
+            {
+                await trans.DisposeAsync();
+            }
+        }
+
+        private async Task<Guid?> SaveLaunchEntitiesProcess<T>(T entity, IDbContextTransaction transaction) where T : BaseEntity
+        {
+            if(entity == null)
+                return null;
+
+            Guid? dbGuid = await DatabaseGuid(entity, transaction);
+
+            if(dbGuid == null || dbGuid == Guid.Empty)
+                return await SaveNewLaunchEntity(entity, transaction);
+
+            return dbGuid;
+        }
+
+        private async Task<Guid> SaveNewLaunchEntity<T>(T entity, IDbContextTransaction transaction) where T : BaseEntity
+        {
+            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
+            await _dapper.Save(entity, transaction);
+
+            return entity.Id;
+        }
+
+        private async Task<Guid> DatabaseGuid<T>(T entity, IDbContextTransaction transaction) where T : BaseEntity
+        {
+            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
+            return await _dapper.GetSelected<Guid>(
+                columns: "Id",
+                where: "id_from_api = @IdFromApi",
+                parameters: new { IdFromApi = entity.IdFromApi },
+                transaction: transaction);
+        }
+
+        private async Task GenerateLog(int offset, string message, int entityCount, bool success)
+        {
+            IUpdateLogBusiness _updateLogBusiness = GetBusiness(typeof(IUpdateLogBusiness)) as IUpdateLogBusiness;
+            
+            var log = new UpdateLog()
+            {
+                TransactionDate = DateTime.Now,
+                OffSet = offset,
+                Success = success,
+                Message = message,
+                EntityCount = entityCount,
+                Origin = EOrigin.API_UPDATE.GetDisplayName(),
+                EntityStatus = EStatus.PUBLISHED.GetDisplayName()
+            };
+            await _updateLogBusiness.Save(log);
+        }
+    
+        private async Task RefreshView()
+        {
+            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+            await _launchViewBusiness.RefreshView();
         }
     }
 }

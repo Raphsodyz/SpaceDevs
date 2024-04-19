@@ -12,7 +12,7 @@ namespace Domain.Entities
     public class Launch : BaseEntity
     {
         [Column("api_guid")]
-        public Guid ApiGuId { get; set; }
+        public Guid ApiGuid { get; set; }
         [Column("url")]
         public string? Url { get; set; }
         [Column("launch_library_id")]
@@ -77,5 +77,43 @@ namespace Domain.Entities
         [Column("search")]
         [JsonIgnore]
         public string? Search { get; set; }
+
+        #region Constructors
+
+        public Launch()
+        {
+            
+        }
+
+        public Launch(Launch launch, Guid? idStatus, Guid? idLaunchServiceProvider, Guid? idRocket, Guid? idMission, Guid? idPad)
+        {
+            ApiGuid = launch.ApiGuid;
+            Url = launch.Url;
+            LaunchLibraryId = launch.LaunchLibraryId;
+            Slug = launch.Slug;
+            Name = launch.Name;
+            IdStatus = idStatus;
+            Net = launch.Net;
+            WindowEnd = launch.WindowEnd;
+            WindowStart = launch.WindowStart;
+            Inhold = launch.Inhold;
+            TbdDate = launch.TbdDate;
+            TbdTime = launch.TbdTime;
+            Probability = launch.Probability;
+            HoldReason = launch.HoldReason;
+            FailReason = launch.FailReason;
+            Hashtag = launch.Hashtag;
+            IdLaunchServiceProvider = idLaunchServiceProvider;
+            IdRocket = idRocket;
+            IdMission = idMission;
+            IdPad = idPad;
+            WebcastLive = launch.WebcastLive;
+            Image = launch.Image;
+            Infographic = launch.Infographic;
+            Programs = launch.Programs;
+            IdFromApi = launch.IdFromApi;
+        }
+
+        #endregion
     }
 }

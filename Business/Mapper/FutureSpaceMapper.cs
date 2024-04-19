@@ -21,7 +21,7 @@ namespace Business.Mapper
             CreateMap<Pagination<LaunchView>, Pagination<Launch>>().ReverseMap();
             CreateMap<LaunchDTO, Launch>()
                 .ForMember(
-                    entity => entity.ApiGuId,
+                    entity => entity.ApiGuid,
                     dto => dto.MapFrom(src => src.Id))
                 .ForMember(
                     entity => entity.Id,

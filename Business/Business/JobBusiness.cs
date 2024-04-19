@@ -243,14 +243,14 @@ namespace Business.Business
                 }
 
                 Guid idLaunch = await _launchBusiness.GetSelected(
-                    filter: s => s.ApiGuId == launch.ApiGuId,
+                    filter: s => s.ApiGuid == launch.ApiGuid,
                     selectColumns: s => s.Id,
                     buildObject: s => s);
                     
                 Launch saveLaunch = new()
                 {
                     Id = idLaunch != Guid.Empty ? idLaunch : Guid.Empty,
-                    ApiGuId = launch.ApiGuId,
+                    ApiGuid = launch.ApiGuid,
                     Url = launch.Url,
                     LaunchLibraryId = launch.LaunchLibraryId,
                     Slug = launch.Slug,
