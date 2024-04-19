@@ -283,6 +283,7 @@ namespace Tests.Repository.Layer
             Assert.NotNull(result);
             Assert.IsType<Launch>(result);
             Assert.Equal(new Guid("000ebc80-d782-4dee-8606-1199d9074039"), result.Id); // first from the test launch object class.
+            Assert.NotNull(result.Status);
             Assert.NotNull(result.LaunchServiceProvider);
             Assert.NotNull(result.Rocket);
             Assert.NotNull(result.Rocket.Configuration);
@@ -290,6 +291,20 @@ namespace Tests.Repository.Layer
             Assert.NotNull(result.Mission.Orbit);
             Assert.NotNull(result.Pad);
             Assert.NotNull(result.Pad.Location);
+        }
+
+        [Fact]
+        public async Task GenericRepository_GetSelected_GetFirstEntityWithABuildedObject()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> qryFilter = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
+
+            //Act
+
+
+            //Assert
+
+
         }
     }
 }

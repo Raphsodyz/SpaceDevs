@@ -382,7 +382,7 @@ namespace Tests.Business.Layer
         {
             //Arrange
             var mockHttp = new MockHttpMessageHandler();
-            mockHttp.When($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchObjects.Test1().ApiGuId}")
+            mockHttp.When($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchObjects.Test1().ApiGuid}")
                 .Respond(_ => { return new HttpResponseMessage(HttpStatusCode.TooManyRequests); 
             });
             
@@ -396,7 +396,7 @@ namespace Tests.Business.Layer
             factoryClient.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
             launchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ReturnsAsync(TestLaunchObjects.Test1());
             launchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
-            var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchObjects.Test1().ApiGuId}");
+            var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchObjects.Test1().ApiGuid}");
 
             var business = new LaunchApiBusiness(uow.Object, factoryClient.Object, mapper.Object);
 
@@ -442,7 +442,7 @@ namespace Tests.Business.Layer
         }
 
         [Fact]
-        public async Task LaunchApiBusiness_UpdateDataSet_SuccessFullUpdate()
+        public async Task LaunchApiBusiness_UpdateDataSet_SuccesfullUpdate()
         {
             //Arrange
             var request = new UpdateLaunchRequest(){ Limit = 3, Iterations = 1, Skip = 0 };
@@ -457,14 +457,14 @@ namespace Tests.Business.Layer
 
             var updateLogRepository = new Mock<IUpdateLogRepository>();
             var launchRepository = new Mock<ILaunchRepository>();
-            var statusRepository = new Mock<IStatusRepository>();
-            var launchServiceProviderRepository = new Mock<ILaunchServiceProviderRepository>();
-            var configurationRepository = new Mock<IConfigurationRepository>();
-            var rocketRepository = new Mock<IRocketRepository>();
-            var missionRepository = new Mock<IMissionRepository>();
-            var orbitRepository = new Mock<IOrbitRepository>();
-            var padRepository = new Mock<IPadRepository>();
-            var locationRepository = new Mock<ILocationRepository>();
+            var dapperStatusRepository = new Mock<IGenericDapperRepository<Status>>();
+            var dapperLaunchServiceProviderRepository = new Mock<IGenericDapperRepository<LaunchServiceProvider>>();
+            var dapperConfigurationRepository = new Mock<IGenericDapperRepository<Configuration>>();
+            var dapperRocketRepository = new Mock<IGenericDapperRepository<Rocket>>();
+            var dapperMissionRepository = new Mock<IGenericDapperRepository<Mission>>();
+            var dapperOrbitRepository = new Mock<IGenericDapperRepository<Orbit>>();
+            var dapperPadRepository = new Mock<IGenericDapperRepository<Pad>>();
+            var dapperLocationRepository = new Mock<IGenericDapperRepository<Location>>();
             var launchViewRepository = new Mock<ILaunchViewRepository>();
 
             var client = mockHttp.ToHttpClient();
@@ -474,94 +474,116 @@ namespace Tests.Business.Layer
             var mapper = new Mock<IMapper>();
 
             uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
-            uow.Setup(u => u.Repository(typeof(IStatusRepository))).Returns(statusRepository.Object);
-            uow.Setup(u => u.Repository(typeof(ILaunchServiceProviderRepository))).Returns(launchServiceProviderRepository.Object);
-            uow.Setup(u => u.Repository(typeof(IConfigurationRepository))).Returns(configurationRepository.Object);
-            uow.Setup(u => u.Repository(typeof(IRocketRepository))).Returns(rocketRepository.Object);
-            uow.Setup(u => u.Repository(typeof(IMissionRepository))).Returns(missionRepository.Object);
-            uow.Setup(u => u.Repository(typeof(IOrbitRepository))).Returns(orbitRepository.Object);
-            uow.Setup(u => u.Repository(typeof(IPadRepository))).Returns(padRepository.Object);
-            uow.Setup(u => u.Repository(typeof(ILocationRepository))).Returns(locationRepository.Object);
+            uow.Setup(u => u.Dapper<Status>()).Returns(dapperStatusRepository.Object);
+            uow.Setup(u => u.Dapper<LaunchServiceProvider>()).Returns(dapperLaunchServiceProviderRepository.Object);
+            uow.Setup(u => u.Dapper<Configuration>()).Returns(dapperConfigurationRepository.Object);
+            uow.Setup(u => u.Dapper<Rocket>()).Returns(dapperRocketRepository.Object);
+            uow.Setup(u => u.Dapper<Mission>()).Returns(dapperMissionRepository.Object);
+            uow.Setup(u => u.Dapper<Orbit>()).Returns(dapperOrbitRepository.Object);
+            uow.Setup(u => u.Dapper<Pad>()).Returns(dapperPadRepository.Object);
+            uow.Setup(u => u.Dapper<Location>()).Returns(dapperLocationRepository.Object);
             uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(updateLogRepository.Object);
             uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(launchViewRepository.Object);
 
-            launchRepository.SetupSequence(l => l.GetSelected(
+            launchRepository.SetupSequence(l => l.EntityExist(
                 It.IsAny<Expression<Func<Launch, bool>>>(),
-                It.IsAny<Expression<Func<Launch, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
                 string.Empty))
-                .ReturnsAsync(TestLaunchObjects.Test1().Id)
-                .ReturnsAsync(TestLaunchObjects.Test2().Id)
-                .ReturnsAsync(TestLaunchObjects.Test3().Id);
+                .ReturnsAsync(false)
+                .ReturnsAsync(false)
+                .ReturnsAsync(false);
 
-            statusRepository.SetupSequence(l => l.GetSelected(
-                It.IsAny<Expression<Func<Status, bool>>>(),
-                It.IsAny<Expression<Func<Status, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
-                string.Empty))
+            launchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+                TestLaunchObjects.Test1(),
+                TestLaunchObjects.Test1().IdStatus,
+                TestLaunchObjects.Test1().IdLaunchServiceProvider,
+                TestLaunchObjects.Test1().IdRocket,
+                TestLaunchObjects.Test1().IdMission,
+                TestLaunchObjects.Test1().IdPad)));
+
+            launchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+                TestLaunchObjects.Test2(),
+                TestLaunchObjects.Test2().IdStatus,
+                TestLaunchObjects.Test2().IdLaunchServiceProvider,
+                TestLaunchObjects.Test2().IdRocket,
+                TestLaunchObjects.Test2().IdMission,
+                TestLaunchObjects.Test2().IdPad)));
+
+            launchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+                TestLaunchObjects.Test3(),
+                TestLaunchObjects.Test3().IdStatus,
+                TestLaunchObjects.Test3().IdLaunchServiceProvider,
+                TestLaunchObjects.Test3().IdRocket,
+                TestLaunchObjects.Test3().IdMission,
+                TestLaunchObjects.Test3().IdPad)));
+
+            dapperStatusRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdStatus)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdStatus)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdStatus);
 
-            launchServiceProviderRepository.SetupSequence(l => l.GetSelected(
-                It.IsAny<Expression<Func<LaunchServiceProvider, bool>>>(),
-                It.IsAny<Expression<Func<LaunchServiceProvider, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
-                string.Empty))
+            dapperLaunchServiceProviderRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdLaunchServiceProvider)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdLaunchServiceProvider)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdLaunchServiceProvider);
 
-            configurationRepository.SetupSequence(l => l.GetSelected(
-                It.IsAny<Expression<Func<Configuration, bool>>>(),
-                It.IsAny<Expression<Func<Configuration, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
-                string.Empty))
+            dapperConfigurationRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().Rocket.IdConfiguration)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().Rocket.IdConfiguration)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().Rocket.IdConfiguration);
 
-            rocketRepository.SetupSequence(l => l.GetSelected
-            (It.IsAny<Expression<Func<Rocket, bool>>>(),
-            It.IsAny<Expression<Func<Rocket, Guid>>>(),
-            It.IsAny<Func<Guid, Guid>>(),
-            string.Empty))
+            dapperRocketRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(TestLaunchObjects.Test1().Rocket.Id)
                 .ReturnsAsync(TestLaunchObjects.Test2().Rocket.Id)
                 .ReturnsAsync(TestLaunchObjects.Test3().Rocket.Id);
 
-            missionRepository.SetupSequence(l => l.GetSelected(
-                It.IsAny<Expression<Func<Mission, bool>>>(),
-                It.IsAny<Expression<Func<Mission, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
-                string.Empty))
+            dapperMissionRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdMission)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdMission)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdMission);
 
-            orbitRepository.SetupSequence(l => l.GetSelected(
-                It.IsAny<Expression<Func<Orbit, bool>>>(),
-                It.IsAny<Expression<Func<Orbit, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
-                string.Empty))
+            dapperOrbitRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().Mission.IdOrbit)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().Mission.IdOrbit)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().Mission.IdOrbit);
 
-            padRepository.SetupSequence(l => l.GetSelected(
-                It.IsAny<Expression<Func<Pad, bool>>>(),
-                It.IsAny<Expression<Func<Pad, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
-                string.Empty))
+            dapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(TestLaunchObjects.Test1().Pad.Id)
                 .ReturnsAsync(TestLaunchObjects.Test2().Pad.Id)
                 .ReturnsAsync(TestLaunchObjects.Test3().Pad.Id);
 
-            locationRepository.SetupSequence(l => l.GetSelected(
-                It.IsAny<Expression<Func<Location, bool>>>(),
-                It.IsAny<Expression<Func<Location, Guid>>>(),
-                It.IsAny<Func<Guid, Guid>>(),
-                string.Empty))
+            dapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync((Guid)TestLaunchObjects.Test1().Pad.IdLocation)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test2().Pad.IdLocation)
                 .ReturnsAsync((Guid)TestLaunchObjects.Test3().Pad.IdLocation);
