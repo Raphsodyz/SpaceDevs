@@ -20,8 +20,8 @@ CREATE TABLE IF NOT EXISTS public.orbit(
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     imported_t TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     status VARCHAR(15) NOT NULL,
-    name VARCHAR(255) NULL,
-    abbrev VARCHAR(255) NULL
+    name VARCHAR(360) NULL,
+    abbrev VARCHAR(360) NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.mission(
@@ -31,11 +31,11 @@ CREATE TABLE IF NOT EXISTS public.mission(
     imported_t TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     status VARCHAR(15) NOT NULL,
     launch_library_id INT NULL,
-    name VARCHAR(255) NULL,
+    name VARCHAR(360) NULL,
     description VARCHAR(2500) NULL,
-    type VARCHAR(255) NULL,
+    type VARCHAR(360) NULL,
     id_orbit UUID NULL,
-    launch_designator VARCHAR(255) NULL,
+    launch_designator VARCHAR(360) NULL,
     search VARCHAR(360) GENERATED ALWAYS AS (
         LOWER(name)
     ) STORED NULL,
@@ -51,11 +51,11 @@ CREATE TABLE IF NOT EXISTS public.configuration(
     status VARCHAR(15) NOT NULL,
     launch_library_id INT NULL,
     url VARCHAR(1000) NULL,
-    name VARCHAR(255) NULL,
-    family VARCHAR(255) NULL,
-    full_name VARCHAR(255) NULL,
-    variant VARCHAR(255) NULL,
-    search VARCHAR(360) GENERATED ALWAYS AS (
+    name VARCHAR(360) NULL,
+    family VARCHAR(360) NULL,
+    full_name VARCHAR(360) NULL,
+    variant VARCHAR(360) NULL,
+    search VARCHAR(600) GENERATED ALWAYS AS (
         LOWER(name || ' ' || family)
     ) STORED NULL
 );
@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS public.status(
     atualization_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     imported_t TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     status VARCHAR(15) NOT NULL,
-    name VARCHAR(255) NULL,
-    abbrev VARCHAR(255) NULL,
+    name VARCHAR(360) NULL,
+    abbrev VARCHAR(360) NULL,
     description VARCHAR(2500) NULL
 );
 
@@ -78,8 +78,8 @@ CREATE TABLE IF NOT EXISTS public.launch_service_provider(
     imported_t TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     status VARCHAR(15) NOT NULL,    
     url VARCHAR(1000) NULL,
-    name VARCHAR(255) NULL,
-    type VARCHAR(255) NULL
+    name VARCHAR(360) NULL,
+    type VARCHAR(360) NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.location(
@@ -89,8 +89,8 @@ CREATE TABLE IF NOT EXISTS public.location(
     imported_t TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     status VARCHAR(15) NOT NULL,
     url VARCHAR(1000) NULL,
-    name VARCHAR(255) NULL,
-    country_code VARCHAR(255) NULL,
+    name VARCHAR(360) NULL,
+    country_code VARCHAR(360) NULL,
     map_image VARCHAR(1000) NULL,
     total_launch_count INT NULL,
     total_landing_count INT NULL,
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS public.pad(
     status VARCHAR(15) NOT NULL,
     url VARCHAR(1000) NULL,
     agency_id INT NULL,
-    name VARCHAR(255) NULL,
+    name VARCHAR(360) NULL,
     info_url VARCHAR(1000) NULL,
     wiki_url VARCHAR(1000) NULL,
     map_url VARCHAR(1000) NULL,
@@ -143,8 +143,8 @@ CREATE TABLE IF NOT EXISTS public.launch(
     api_guid UUID NOT NULL,
     url VARCHAR(1000) NOT NULL,
     launch_library_id INT NULL,
-    slug VARCHAR(255) NULL,
-    name VARCHAR(255) NULL,
+    slug VARCHAR(360) NULL,
+    name VARCHAR(360) NULL,
     id_status UUID NULL,
     net TIMESTAMP WITHOUT TIME ZONE NULL,
     window_end TIMESTAMP WITHOUT TIME ZONE NULL,
@@ -153,18 +153,18 @@ CREATE TABLE IF NOT EXISTS public.launch(
     tbd_time BOOLEAN NULL,
     tbd_date BOOLEAN NULL,
     probability INT NULL,
-    hold_reason VARCHAR(255) NULL,
-    fail_reason VARCHAR(255) NULL,
-    hashtag VARCHAR(255) NULL,
+    hold_reason VARCHAR(360) NULL,
+    fail_reason VARCHAR(360) NULL,
+    hashtag VARCHAR(360) NULL,
     id_launch_service_provider UUID NULL,
     id_rocket UUID NULL,
     id_mission UUID NULL,
     id_pad UUID NULL,
     web_cast_live BOOLEAN NULL,
     image VARCHAR(1000) NULL,
-    infographic VARCHAR(255) NULL,
-    programs VARCHAR(255) NULL,
-    search VARCHAR(360) GENERATED ALWAYS AS (
+    infographic VARCHAR(360) NULL,
+    programs VARCHAR(360) NULL,
+    search VARCHAR(600) GENERATED ALWAYS AS (
         LOWER(name || ' ' || slug)
     ) STORED NULL,
 
@@ -184,9 +184,9 @@ CREATE TABLE IF NOT EXISTS public.update_log_routine(
     transaction_date TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     offset_data INT NOT NULL,
     success BOOLEAN NOT NULL,
-    message VARCHAR(255) NOT NULL,
+    message VARCHAR(360) NOT NULL,
     entity_count INT NOT NULL,
-    origin VARCHAR(255) NOT NULL
+    origin VARCHAR(360) NOT NULL
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS public.launch_view AS
