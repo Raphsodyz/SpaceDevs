@@ -29,5 +29,23 @@ namespace Domain.Entities
         [Column("search")]
         [JsonIgnore]
         public string? Search { get; set; }
+
+        #region Constructors
+
+        public Mission()
+        {
+            
+        }
+
+        public Mission(Mission mission, Guid? idOrbit)
+        {
+            Description = mission.Description;
+            Name = mission.Name;
+            Type = mission.Type;
+            IdOrbit = idOrbit;
+            IdFromApi = mission.IdFromApi;
+        }
+
+        #endregion
     }
 }

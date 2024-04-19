@@ -16,5 +16,20 @@ namespace Domain.Entities
         [JsonIgnore]
         [ForeignKey(nameof(IdConfiguration))]
         public Configuration Configuration { get; set; }
+
+        #region Constructors
+
+        public Rocket()
+        {
+            
+        }
+
+        public Rocket(int? idFromApi, Guid? idConfiguration)
+        {
+            IdFromApi = idFromApi;
+            IdConfiguration = idConfiguration;
+        }
+
+        #endregion
     }
 }

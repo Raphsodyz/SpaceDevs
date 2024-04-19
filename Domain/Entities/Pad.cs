@@ -39,5 +39,30 @@ namespace Domain.Entities
         [Column("search")]
         [JsonIgnore]
         public string? Search { get; set; }
+
+        #region Constructors
+
+        public Pad()
+        {
+            
+        }
+
+        public Pad(Pad pad, Guid? idLocation)
+        {
+            Url = pad.Url;
+            AgencyId = pad.AgencyId;
+            Name = pad.Name;
+            InfoUrl = pad.InfoUrl;
+            MapUrl = pad.MapUrl;
+            WikiUrl = pad.WikiUrl;
+            Latitude = pad.Latitude;
+            Longitude = pad.Longitude;
+            MapImage = pad.MapImage;
+            TotalLaunchCount = pad.TotalLaunchCount;
+            IdLocation = idLocation;
+            IdFromApi = pad.IdFromApi;
+        }
+
+        #endregion
     }
 }
