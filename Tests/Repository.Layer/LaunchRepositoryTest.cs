@@ -1,5 +1,5 @@
 using System.Linq.Expressions;
-using Tests.Database;
+using Tests.Fixture;
 using Tests.Test.Objects;
 
 namespace Tests.Repository.Layer

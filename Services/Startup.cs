@@ -1,9 +1,7 @@
-﻿using AutoMapper;
-using Business.Business;
+﻿using Business.Business;
 using Business.Interface;
 using Data.Context;
 using Data.Interface;
-using Data.Repository;
 using Quartz;
 using Services.Jobs;
 

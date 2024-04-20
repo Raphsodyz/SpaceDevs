@@ -4,7 +4,7 @@ using Data.Repository;
 using Microsoft.EntityFrameworkCore;
 using Tests.Test.Objects;
 
-namespace Tests.Database
+namespace Tests.Fixture
 {
     public class TestDatabaseFixture : IDisposable
     {
