@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http.Json;
-using AutoMapper;
 using Business.Business;
 using Business.DTO.Entities;
 using Data.Interface;
@@ -348,7 +347,7 @@ namespace Tests.Business.Layer
         }
 
         [Fact]
-        public async Task LaunchApiBusiness_UpdateDataSet_SuccesfullUpdate()
+        public async Task LaunchApiBusiness_UpdateDataSet_SuccesfullUpdateForExistingNestedObjects()
         {
             //Arrange
             var request = new UpdateLaunchRequest(){ Limit = 3, Iterations = 1, Skip = 0 };
@@ -380,101 +379,8 @@ namespace Tests.Business.Layer
                 .ReturnsAsync(false)
                 .ReturnsAsync(false);
 
-            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
-                TestLaunchObjects.Test1(),
-                TestLaunchObjects.Test1().IdStatus,
-                TestLaunchObjects.Test1().IdLaunchServiceProvider,
-                TestLaunchObjects.Test1().IdRocket,
-                TestLaunchObjects.Test1().IdMission,
-                TestLaunchObjects.Test1().IdPad)));
-
-            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
-                TestLaunchObjects.Test2(),
-                TestLaunchObjects.Test2().IdStatus,
-                TestLaunchObjects.Test2().IdLaunchServiceProvider,
-                TestLaunchObjects.Test2().IdRocket,
-                TestLaunchObjects.Test2().IdMission,
-                TestLaunchObjects.Test2().IdPad)));
-
-            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
-                TestLaunchObjects.Test3(),
-                TestLaunchObjects.Test3().IdStatus,
-                TestLaunchObjects.Test3().IdLaunchServiceProvider,
-                TestLaunchObjects.Test3().IdRocket,
-                TestLaunchObjects.Test3().IdMission,
-                TestLaunchObjects.Test3().IdPad)));
-
-            _fixture.DapperStatusRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdStatus)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdStatus)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdStatus);
-
-            _fixture.DapperLaunchServiceProviderRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdLaunchServiceProvider)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdLaunchServiceProvider)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdLaunchServiceProvider);
-
-            _fixture.DapperConfigurationRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Rocket.IdConfiguration)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Rocket.IdConfiguration)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Rocket.IdConfiguration);
-
-            _fixture.DapperRocketRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync(TestLaunchObjects.Test1().Rocket.Id)
-                .ReturnsAsync(TestLaunchObjects.Test2().Rocket.Id)
-                .ReturnsAsync(TestLaunchObjects.Test3().Rocket.Id);
-
-            _fixture.DapperMissionRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdMission)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdMission)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdMission);
-
-            _fixture.DapperOrbitRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Mission.IdOrbit)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Mission.IdOrbit)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Mission.IdOrbit);
-
-            _fixture.DapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync(TestLaunchObjects.Test1().Pad.Id)
-                .ReturnsAsync(TestLaunchObjects.Test2().Pad.Id)
-                .ReturnsAsync(TestLaunchObjects.Test3().Pad.Id);
-
-            _fixture.DapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Pad.IdLocation)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Pad.IdLocation)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Pad.IdLocation);
+            SetUpSaveSequenceLaunchRepository();
+            SetUpReturnGuidForDapper();
 
             _fixture.Mapper.SetupSequence(m => m.Map<Launch>(It.IsAny<LaunchDTO>()))
                 .Returns(TestLaunchObjects.Test1())
@@ -627,6 +533,108 @@ namespace Tests.Business.Layer
             Assert.NotNull(result);
             Assert.IsType<AggregateException>(result.Exception);
             Assert.Equal(result.Exception.Message, "One or more errors occurred. (Attention! The requested data was not found.)");
+        }
+
+        private void SetUpSaveSequenceLaunchRepository()
+        {
+            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+                TestLaunchObjects.Test1(),
+                TestLaunchObjects.Test1().IdStatus,
+                TestLaunchObjects.Test1().IdLaunchServiceProvider,
+                TestLaunchObjects.Test1().IdRocket,
+                TestLaunchObjects.Test1().IdMission,
+                TestLaunchObjects.Test1().IdPad)));
+
+            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+                TestLaunchObjects.Test2(),
+                TestLaunchObjects.Test2().IdStatus,
+                TestLaunchObjects.Test2().IdLaunchServiceProvider,
+                TestLaunchObjects.Test2().IdRocket,
+                TestLaunchObjects.Test2().IdMission,
+                TestLaunchObjects.Test2().IdPad)));
+
+            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+                TestLaunchObjects.Test3(),
+                TestLaunchObjects.Test3().IdStatus,
+                TestLaunchObjects.Test3().IdLaunchServiceProvider,
+                TestLaunchObjects.Test3().IdRocket,
+                TestLaunchObjects.Test3().IdMission,
+                TestLaunchObjects.Test3().IdPad)));
+        }
+
+        private void SetUpReturnGuidForDapper()
+        {
+            _fixture.DapperStatusRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdStatus)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdStatus)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdStatus);
+
+            _fixture.DapperLaunchServiceProviderRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdLaunchServiceProvider)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdLaunchServiceProvider)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdLaunchServiceProvider);
+
+            _fixture.DapperConfigurationRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Rocket.IdConfiguration)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Rocket.IdConfiguration)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Rocket.IdConfiguration);
+
+            _fixture.DapperRocketRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync(TestLaunchObjects.Test1().Rocket.Id)
+                .ReturnsAsync(TestLaunchObjects.Test2().Rocket.Id)
+                .ReturnsAsync(TestLaunchObjects.Test3().Rocket.Id);
+
+            _fixture.DapperMissionRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdMission)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdMission)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdMission);
+
+            _fixture.DapperOrbitRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Mission.IdOrbit)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Mission.IdOrbit)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Mission.IdOrbit);
+
+            _fixture.DapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync(TestLaunchObjects.Test1().Pad.Id)
+                .ReturnsAsync(TestLaunchObjects.Test2().Pad.Id)
+                .ReturnsAsync(TestLaunchObjects.Test3().Pad.Id);
+
+            _fixture.DapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<object>(),
+                It.IsAny<IDbContextTransaction>()))
+                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Pad.IdLocation)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Pad.IdLocation)
+                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Pad.IdLocation);
         }
     }
 }

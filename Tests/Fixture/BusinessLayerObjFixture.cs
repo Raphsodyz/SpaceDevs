@@ -1,6 +1,5 @@
 using AutoMapper;
 using Data.Interface;
-using RichardSzalay.MockHttp;
 
 namespace Tests.Fixture
 {
