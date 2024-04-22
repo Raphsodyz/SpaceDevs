@@ -37,6 +37,6 @@ jobs:
           context: .
           file: ./dockerfile
           push: true
-          tags:
-            raphsodyz/FutureSpaceTheSpacedevs:${{ github.run_number }}
-            raphsodyz/FutureSpaceTheSpacedevs:latest
+          tags: |
+            raphsodyz/FutureSpace_TheSpacedevs:${{ github.run_number }}
+            raphsodyz/FutureSpace_TheSpacedevs:latest
