@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS public.mission(
     status VARCHAR(15) NOT NULL,
     launch_library_id INT NULL,
     name VARCHAR(360) NULL,
-    description VARCHAR(2500) NULL,
+    description VARCHAR(5000) NULL,
     type VARCHAR(360) NULL,
     id_orbit UUID NULL,
     launch_designator VARCHAR(360) NULL,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS public.status(
     status VARCHAR(15) NOT NULL,
     name VARCHAR(360) NULL,
     abbrev VARCHAR(360) NULL,
-    description VARCHAR(2500) NULL
+    description VARCHAR(5000) NULL
 );
 
 CREATE TABLE IF NOT EXISTS public.launch_service_provider(
@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS public.launch(
     tbd_date BOOLEAN NULL,
     probability INT NULL,
     hold_reason VARCHAR(360) NULL,
-    fail_reason VARCHAR(360) NULL,
+    fail_reason VARCHAR(750) NULL,
     hashtag VARCHAR(360) NULL,
     id_launch_service_provider UUID NULL,
     id_rocket UUID NULL,
