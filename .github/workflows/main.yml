@@ -38,5 +38,5 @@ jobs:
           file: ./dockerfile
           push: true
           tags:
-            FutureSpace_TheSpacedevs:{{ github.run_number }}
-            FutureSpace_TheSpacedevs:lastest
+            FutureSpace_TheSpacedevs:${{ github.run_number }}
+            FutureSpace_TheSpacedevs:latest
