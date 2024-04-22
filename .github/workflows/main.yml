@@ -38,5 +38,5 @@ jobs:
           file: ./dockerfile
           push: true
           tags: |
-            raphsodyz/FutureSpace_TheSpacedevs:${{ github.run_number }}
-            raphsodyz/FutureSpace_TheSpacedevs:latest
+            raphsodyz/future-space_the-spacedevs:${{ github.run_number }}
+            raphsodyz/future-space_the-spacedevs:latest
