@@ -126,12 +126,7 @@ namespace Data.Repository
             try
             {
                 connection.Open();
-
-                entity.Id = Guid.NewGuid();
-                entity.ImportedT = DateTime.Now;
-                entity.AtualizationDate = DateTime.Now;
-                entity.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
-
+                
                 string query = $"INSERT INTO {table}({GetColumnNames()}) VALUES ({GetPropNames()})";
                 await connection.ExecuteAsync(query, entity, transaction?.GetDbTransaction());
             }
