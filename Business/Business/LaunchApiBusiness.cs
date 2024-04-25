@@ -308,6 +308,12 @@ namespace Business.Business
         private async Task<Guid> SaveNewLaunchEntity<T>(T entity, IDbContextTransaction transaction) where T : BaseEntity
         {
             var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
+
+            entity.Id = Guid.NewGuid();
+            entity.ImportedT = DateTime.Now;
+            entity.AtualizationDate = DateTime.Now;
+            entity.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
+
             await _dapper.Save(entity, transaction);
 
             return entity.Id;
