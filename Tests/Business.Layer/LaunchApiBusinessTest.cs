@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore.Storage;
 using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
 using Business.DTO.Request;
-using Tests.Helper;
-using Tests.Fixture;
 
 namespace Tests.Business.Layer
 {
@@ -374,13 +372,14 @@ namespace Tests.Business.Layer
 
             _fixture.LaunchRepository.SetupSequence(l => l.EntityExist(
                 It.IsAny<Expression<Func<Launch, bool>>>(),
-                string.Empty))
+                null))
                 .ReturnsAsync(false)
                 .ReturnsAsync(false)
                 .ReturnsAsync(false);
 
-            SetUpSaveSequenceLaunchRepository();
-            SetUpReturnGuidForDapper();
+            _fixture.ResetMockVerifyClasses();
+            _fixture.SetUpSaveSequenceLaunchRepository();
+            _fixture.SetUpReturnGuidForDapper(emptyGuid: false);
 
             _fixture.Mapper.SetupSequence(m => m.Map<Launch>(It.IsAny<LaunchDTO>()))
                 .Returns(TestLaunchObjects.Test1())
@@ -399,6 +398,99 @@ namespace Tests.Business.Layer
             var result = business.UpdateDataSet(request).Result;
 
             //Assert
+            _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>(), null), Times.Exactly((int)request.Limit));
+            _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
+            _fixture.LaunchRepository.Verify(l => l.SaveTransaction(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            
+            Assert.NotNull(result);
+            Assert.IsType<bool>(result);
+            Assert.Equal(result, true);
+        }
+
+        [Fact]
+        public async Task LaunchApiBusiness_UpdateDataSet_SuccesfullUpdateForNonExistingNestedObjects()
+        {
+            //Arrange
+            var request = new UpdateLaunchRequest(){ Limit = 3, Iterations = 1, Skip = 0 };
+            int offset = 0;
+            string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}?limit={request.Limit}&offset={offset}";
+            string results = TestLaunchRequestObjects.DataListResults;
+            var mockHttp = new MockHttpMessageHandler();
+            
+            mockHttp.When(url).Respond("application/json", results);
+
+            var client = mockHttp.ToHttpClient();
+
+            _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Status>()).Returns(_fixture.DapperStatusRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<LaunchServiceProvider>()).Returns(_fixture.DapperLaunchServiceProviderRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Configuration>()).Returns(_fixture.DapperConfigurationRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Rocket>()).Returns(_fixture.DapperRocketRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Mission>()).Returns(_fixture.DapperMissionRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Orbit>()).Returns(_fixture.DapperOrbitRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Pad>()).Returns(_fixture.DapperPadRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Location>()).Returns(_fixture.DapperLocationRepository.Object);
+            _fixture.Uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(_fixture.UpdateLogRepository.Object);
+            _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
+
+            _fixture.LaunchRepository.Reset(); //Reset the instance.
+            _fixture.LaunchRepository.SetupSequence(l => l.EntityExist(
+                It.IsAny<Expression<Func<Launch, bool>>>(),
+                null))
+                .ReturnsAsync(false)
+                .ReturnsAsync(false)
+                .ReturnsAsync(false);
+
+            _fixture.ResetMockVerifyClasses();
+            _fixture.SetUpSaveSequenceLaunchRepository();
+            _fixture.SetUpReturnGuidForDapper(emptyGuid: true);
+            _fixture.SetupDapperSave();
+
+            _fixture.Mapper.Reset(); //Reset the instance.
+            _fixture.Mapper.SetupSequence(m => m.Map<Launch>(It.IsAny<LaunchDTO>()))
+                .Returns(TestLaunchObjects.Test1())
+                .Returns(TestLaunchObjects.Test2())
+                .Returns(TestLaunchObjects.Test3());
+
+            _fixture.LaunchViewRepository.Setup(lv => lv.RefreshView());
+            _fixture.Client.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client);
+            _fixture.LaunchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
+            var response = await client.GetAsync(url);
+            var json = await response.Content.ReadFromJsonAsync<RequestLaunchDTO>();
+
+            var business = new LaunchApiBusiness(_fixture.Uow.Object, _fixture.Client.Object, _fixture.Mapper.Object);
+
+            //Act
+            var result = business.UpdateDataSet(request).Result;
+
+            //Assert
+            _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>(), null), Times.Exactly((int)request.Limit));
+            _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
+            _fixture.LaunchRepository.Verify(l => l.SaveTransaction(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
+            
+            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            
+            _fixture.DapperStatusRepository.Verify(l => l.Save(It.IsAny<Status>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.Save(It.IsAny<LaunchServiceProvider>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperConfigurationRepository.Verify(l => l.Save(It.IsAny<Configuration>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperRocketRepository.Verify(l => l.Save(It.IsAny<Rocket>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperMissionRepository.Verify(l => l.Save(It.IsAny<Mission>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperOrbitRepository.Verify(l => l.Save(It.IsAny<Orbit>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLocationRepository.Verify(l => l.Save(It.IsAny<Location>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            
             Assert.NotNull(result);
             Assert.IsType<bool>(result);
             Assert.Equal(result, true);
@@ -533,108 +625,6 @@ namespace Tests.Business.Layer
             Assert.NotNull(result);
             Assert.IsType<AggregateException>(result.Exception);
             Assert.Equal(result.Exception.Message, "One or more errors occurred. (Attention! The requested data was not found.)");
-        }
-
-        private void SetUpSaveSequenceLaunchRepository()
-        {
-            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
-                TestLaunchObjects.Test1(),
-                TestLaunchObjects.Test1().IdStatus,
-                TestLaunchObjects.Test1().IdLaunchServiceProvider,
-                TestLaunchObjects.Test1().IdRocket,
-                TestLaunchObjects.Test1().IdMission,
-                TestLaunchObjects.Test1().IdPad)));
-
-            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
-                TestLaunchObjects.Test2(),
-                TestLaunchObjects.Test2().IdStatus,
-                TestLaunchObjects.Test2().IdLaunchServiceProvider,
-                TestLaunchObjects.Test2().IdRocket,
-                TestLaunchObjects.Test2().IdMission,
-                TestLaunchObjects.Test2().IdPad)));
-
-            _fixture.LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
-                TestLaunchObjects.Test3(),
-                TestLaunchObjects.Test3().IdStatus,
-                TestLaunchObjects.Test3().IdLaunchServiceProvider,
-                TestLaunchObjects.Test3().IdRocket,
-                TestLaunchObjects.Test3().IdMission,
-                TestLaunchObjects.Test3().IdPad)));
-        }
-
-        private void SetUpReturnGuidForDapper()
-        {
-            _fixture.DapperStatusRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdStatus)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdStatus)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdStatus);
-
-            _fixture.DapperLaunchServiceProviderRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdLaunchServiceProvider)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdLaunchServiceProvider)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdLaunchServiceProvider);
-
-            _fixture.DapperConfigurationRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Rocket.IdConfiguration)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Rocket.IdConfiguration)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Rocket.IdConfiguration);
-
-            _fixture.DapperRocketRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync(TestLaunchObjects.Test1().Rocket.Id)
-                .ReturnsAsync(TestLaunchObjects.Test2().Rocket.Id)
-                .ReturnsAsync(TestLaunchObjects.Test3().Rocket.Id);
-
-            _fixture.DapperMissionRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().IdMission)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().IdMission)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().IdMission);
-
-            _fixture.DapperOrbitRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Mission.IdOrbit)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Mission.IdOrbit)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Mission.IdOrbit);
-
-            _fixture.DapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync(TestLaunchObjects.Test1().Pad.Id)
-                .ReturnsAsync(TestLaunchObjects.Test2().Pad.Id)
-                .ReturnsAsync(TestLaunchObjects.Test3().Pad.Id);
-
-            _fixture.DapperPadRepository.SetupSequence(l => l.GetSelected<Guid>(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<object>(),
-                It.IsAny<IDbContextTransaction>()))
-                .ReturnsAsync((Guid)TestLaunchObjects.Test1().Pad.IdLocation)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test2().Pad.IdLocation)
-                .ReturnsAsync((Guid)TestLaunchObjects.Test3().Pad.IdLocation);
         }
     }
 }
