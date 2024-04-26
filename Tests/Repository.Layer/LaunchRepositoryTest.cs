@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using Tests.Fixture;
 using Tests.Test.Objects;
+using Z.EntityFramework.Extensions;
 
 namespace Tests.Repository.Layer
 {
@@ -294,17 +295,110 @@ namespace Tests.Repository.Layer
         }
 
         [Fact]
-        public async Task GenericRepository_GetSelected_GetFirstEntityWithABuildedObject()
+        public async Task GenericRepository_GetSelected_GetOneLaunchAndSelectHisId()
         {
             //Arrange
-            Expression<Func<Launch, bool>> qryFilter = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
+            Expression<Func<Launch, bool>> qryId = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName()
+                && l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039");
 
             //Act
-
+            var result = await _fixture.Launch.GetSelected(
+                filter: qryId,
+                selectColumns: l => l.Id,
+                buildObject: l => l
+            );
 
             //Assert
+            Assert.NotNull(result);
+            Assert.IsType<Guid>(result);
+            Assert.Equal(TestLaunchInMemoryObjects.Test1().Id, result);
+        }
 
+        [Fact]
+        public async Task GenericRepository_GetSelected_GetOneLaunchAndBuildDTO()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> qryId = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName()
+                && l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039");
 
+            //Act
+            var result = await _fixture.Launch.GetSelected(
+                filter: qryId,
+                selectColumns: l => new { l.Id, l.WindowStart },
+                buildObject: l => new TestObjectsDTO.OnlyIdAndDateDTO(l.Id, (DateTime)l.WindowStart)
+            );
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<TestObjectsDTO.OnlyIdAndDateDTO>(result);
+            Assert.Equal(TestLaunchInMemoryObjects.Test1().Id, result.Id);
+            Assert.Equal(TestLaunchInMemoryObjects.Test1().WindowStart, result.WindowStart);
+        }
+
+        [Fact]
+        public async Task GenericRepository_GetSelected_GetOneLaunchWithIncludeAndBuildDTO()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> qryId = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName()
+                && l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039");
+            
+            //Act
+            var result = await _fixture.Launch.GetSelected(
+                filter: qryId,
+                selectColumns: l => new { l.IdPad, l.Pad.Name },
+                buildObject: l => new TestObjectsDTO.OnlyIdAndPadNameDTO(){ IdPad = (Guid)l.IdPad, PadName = l.Name },
+                includedProperties: "Pad"
+            );
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.IsType<TestObjectsDTO.OnlyIdAndPadNameDTO>(result);
+            Assert.Equal(TestLaunchInMemoryObjects.Test1().IdPad, result.IdPad);
+            Assert.Equal(TestLaunchInMemoryObjects.Test1().Pad.Name, result.PadName);
+        }
+
+        [Fact]
+        public async Task GenericRepository_UpdateOnQuery_UpdateDatabaseObjectsWithoutBringToMemory()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> filter = l => l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039");
+            Expression<Func<Launch, Launch>> updateStatusColumn = l => new Launch()
+            { EntityStatus = EStatus.TRASH.GetDisplayName() };
+
+            //Act
+            await _fixture.Launch.UpdateOnQuery(filter, updateStatusColumn);
+
+            //Assert
+            var getAssertInMemoryObject = await _fixture.Launch.GetSelected(
+                filter: l => l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039"),
+                selectColumns: l => l.EntityStatus,
+                buildObject: l => l);
+
+            Assert.NotNull(getAssertInMemoryObject);
+            Assert.Equal(getAssertInMemoryObject, EStatus.TRASH.GetDisplayName());
+
+            //Rolling back the change for the other tests...
+            Expression<Func<Launch, Launch>> rollbackUpdate = l => new Launch()
+            { EntityStatus = EStatus.PUBLISHED.GetDisplayName() };
+            await _fixture.Launch.UpdateOnQuery(filter, rollbackUpdate);
+        }
+
+        [Fact]
+        public async Task GenericRepository_Save_SaveANewObjectInMemory()
+        {
+            //Arrange && Act
+            await _fixture.Launch.Save(_fixture.NewObjectForSaveTests());
+
+            //Assert
+            Assert.Equal(4, await _fixture.Launch.EntityCount());
+            Assert.Equal(new Guid("f81f0bd0-d730-46a4-aa00-44ef7441fd92"),
+                await _fixture.Launch.GetSelected(l => l.Id == new Guid("f81f0bd0-d730-46a4-aa00-44ef7441fd92"),
+                    selectColumns: l => l.Id,
+                    buildObject: l => l)
+            );
+
+            //Rolling back the change for the other tests...
+            await _fixture.Launch.Delete(_fixture.NewObjectForSaveTests());
         }
     }
 }
