@@ -153,8 +153,8 @@ namespace Tests.Business.Layer
             var entity = TestLaunchObjects.Test1();
 
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
-            _fixture.LaunchRepository.Setup(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>(), null)).ReturnsAsync(true);
-            _fixture.LaunchRepository.Setup(l => l.UpdateOnQuery(It.IsAny<List<Expression<Func<Launch, bool>>>>(), It.IsAny<Expression<Func<Launch, Launch>>>(), null));
+            _fixture.LaunchRepository.Setup(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>())).ReturnsAsync(true);
+            _fixture.LaunchRepository.Setup(l => l.UpdateOnQuery(It.IsAny<List<Expression<Func<Launch, bool>>>>(), It.IsAny<Expression<Func<Launch, Launch>>>()));
             _fixture.LaunchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
 
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
@@ -194,7 +194,7 @@ namespace Tests.Business.Layer
         {
             //Arrange
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
-            _fixture.LaunchRepository.Setup(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>(), null)).ReturnsAsync(false);
+            _fixture.LaunchRepository.Setup(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>())).ReturnsAsync(false);
             var business = new LaunchApiBusiness(_fixture.Uow.Object, _fixture.Client.Object, _fixture.Mapper.Object);
 
             //Act
@@ -211,8 +211,8 @@ namespace Tests.Business.Layer
         {
             //Arrange
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
-            _fixture.LaunchRepository.Setup(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>(), null)).ReturnsAsync(true);
-            _fixture.LaunchRepository.Setup(l => l.UpdateOnQuery(It.IsAny<List<Expression<Func<Launch, bool>>>>(), It.IsAny<Expression<Func<Launch, Launch>>>(), null)).ThrowsAsync(new Exception());
+            _fixture.LaunchRepository.Setup(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>())).ReturnsAsync(true);
+            _fixture.LaunchRepository.Setup(l => l.UpdateOnQuery(It.IsAny<List<Expression<Func<Launch, bool>>>>(), It.IsAny<Expression<Func<Launch, Launch>>>())).ThrowsAsync(new Exception());
             _fixture.LaunchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
 
             var business = new LaunchApiBusiness(_fixture.Uow.Object, _fixture.Client.Object, _fixture.Mapper.Object);
@@ -371,8 +371,7 @@ namespace Tests.Business.Layer
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
 
             _fixture.LaunchRepository.SetupSequence(l => l.EntityExist(
-                It.IsAny<Expression<Func<Launch, bool>>>(),
-                null))
+                It.IsAny<Expression<Func<Launch, bool>>>()))
                 .ReturnsAsync(false)
                 .ReturnsAsync(false)
                 .ReturnsAsync(false);
@@ -398,7 +397,7 @@ namespace Tests.Business.Layer
             var result = business.UpdateDataSet(request).Result;
 
             //Assert
-            _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>(), null), Times.Exactly((int)request.Limit));
+            _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>()), Times.Exactly((int)request.Limit));
             _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
             _fixture.LaunchRepository.Verify(l => l.SaveTransaction(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
             _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
@@ -440,10 +439,8 @@ namespace Tests.Business.Layer
             _fixture.Uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(_fixture.UpdateLogRepository.Object);
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
 
-            _fixture.LaunchRepository.Reset(); //Reset the instance.
             _fixture.LaunchRepository.SetupSequence(l => l.EntityExist(
-                It.IsAny<Expression<Func<Launch, bool>>>(),
-                null))
+                It.IsAny<Expression<Func<Launch, bool>>>()))
                 .ReturnsAsync(false)
                 .ReturnsAsync(false)
                 .ReturnsAsync(false);
@@ -453,7 +450,6 @@ namespace Tests.Business.Layer
             _fixture.SetUpReturnGuidForDapper(emptyGuid: true);
             _fixture.SetupDapperSave();
 
-            _fixture.Mapper.Reset(); //Reset the instance.
             _fixture.Mapper.SetupSequence(m => m.Map<Launch>(It.IsAny<LaunchDTO>()))
                 .Returns(TestLaunchObjects.Test1())
                 .Returns(TestLaunchObjects.Test2())
@@ -471,7 +467,7 @@ namespace Tests.Business.Layer
             var result = business.UpdateDataSet(request).Result;
 
             //Assert
-            _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>(), null), Times.Exactly((int)request.Limit));
+            _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>()), Times.Exactly((int)request.Limit));
             _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
             _fixture.LaunchRepository.Verify(l => l.SaveTransaction(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
             
