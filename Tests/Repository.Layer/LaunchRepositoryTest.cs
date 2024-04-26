@@ -382,6 +382,19 @@ namespace Tests.Repository.Layer
             { EntityStatus = EStatus.PUBLISHED.GetDisplayName() };
             await _fixture.Launch.UpdateOnQuery(filter, rollbackUpdate);
         }
+    }
+
+    [CollectionDefinition("NoParallelism", DisableParallelization = true)]
+    public class NoParallelism { }
+
+    [Collection("NoParallelism")]
+    public class SequentialTests : IClassFixture<TestDatabaseFixture>
+    {
+        private readonly TestDatabaseFixture _fixture;
+        public SequentialTests(TestDatabaseFixture fixture)
+        {
+            _fixture = fixture;
+        }
 
         [Fact]
         public async Task GenericRepository_Save_SaveANewObjectInMemory()
