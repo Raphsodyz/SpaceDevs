@@ -77,9 +77,14 @@ namespace Business.Business
             return await _repository.GetSelected(filter, selectColumns, buildObject, includedProperties);
         }
 
-        public async Task UpdateOnQuery(List<Expression<Func<T, bool>>> filters, Expression<Func<T, T>> updateColumns, string includedProperties = null)
+        public async Task UpdateOnQuery(List<Expression<Func<T, bool>>> filters, Expression<Func<T, T>> updateColumns)
         {
-            await _repository.UpdateOnQuery(filters, updateColumns, includedProperties);
+            await _repository.UpdateOnQuery(filters, updateColumns);
+        }
+
+        public async Task UpdateOnQuery(Expression<Func<T, bool>> filter, Expression<Func<T, T>> updateColumns)
+        {
+            await _repository.UpdateOnQuery(filter, updateColumns);
         }
 
         public async Task Save(T entity)
@@ -92,9 +97,9 @@ namespace Business.Business
             await _repository.SaveTransaction(entity);
         }
 
-        public async Task<bool> EntityExist(Expression<Func<T, bool>> filter, string includedProperties = null)
+        public async Task<bool> EntityExist(Expression<Func<T, bool>> filter)
         {
-            return await _repository.EntityExist(filter, includedProperties);
+            return await _repository.EntityExist(filter);
         }
     }
 }

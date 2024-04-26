@@ -46,10 +46,13 @@ namespace Data.Interface
 
         Task UpdateOnQuery(
             List<Expression<Func<T, bool>>> filters,
-            Expression<Func<T, T>> updateColumns,
-            string includedProperties = null);
+            Expression<Func<T, T>> updateColumns);
 
-        Task<bool> EntityExist(Expression<Func<T, bool>> filter, string includedProperties = null);
+        Task UpdateOnQuery(
+            Expression<Func<T, bool>> filter,
+            Expression<Func<T, T>> updateColumns);
+
+        Task<bool> EntityExist(Expression<Func<T, bool>> filter);
 
         Task Save(T entity);
         Task SaveTransaction(T entity);

@@ -175,37 +175,31 @@ namespace Data.Repository
 
         public async Task UpdateOnQuery(
             List<Expression<Func<T, bool>>> filters,
-            Expression<Func<T, T>> updateColumns,
-            string includedProperties = null)
+            Expression<Func<T, T>> updateColumns)
         {
             IQueryable<T> query = _dbSet;
 
             foreach(var filter in filters)
                 query = query.Where(filter);
-
-            if (!string.IsNullOrWhiteSpace(includedProperties))
-            {
-                foreach (var includeProperty in includedProperties.Split
-                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    query = query.Include(includeProperty.TrimStart());
-            }
             
             await query.UpdateFromQueryAsync(updateColumns);
         }
 
-        public async Task<bool> EntityExist(Expression<Func<T, bool>> filter, string includedProperties = null)
+        public async Task UpdateOnQuery(
+            Expression<Func<T, bool>> filter,
+            Expression<Func<T, T>> updateColumns)
         {
             IQueryable<T> query = _dbSet;
 
             query = query.Where(filter);
+            await query.UpdateFromQueryAsync(updateColumns);
+        }
 
-            if (!string.IsNullOrWhiteSpace(includedProperties))
-            {
-                foreach (var includeProperty in includedProperties.Split
-                    (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                    query = query.Include(includeProperty.TrimStart());
-            }
+        public async Task<bool> EntityExist(Expression<Func<T, bool>> filter)
+        {
+            IQueryable<T> query = _dbSet;
 
+            query = query.Where(filter);
             return await query.AnyAsync();
         }
 
