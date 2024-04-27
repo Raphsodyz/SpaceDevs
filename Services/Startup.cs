@@ -27,7 +27,6 @@ namespace Services
             services.AddCors();
 
             services.AddTransient<ILaunchApiBusiness, LaunchApiBusiness>();
-            services.AddTransient<IJobBusiness, JobBusiness>();
             services.AddTransient<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
