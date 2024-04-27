@@ -11,6 +11,7 @@ using Business.DTO.Entities;
 using System.Text.Json;
 using Business.DTO.Request;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Data.Common;
 
 namespace Business.Business
 {
@@ -263,22 +264,26 @@ namespace Business.Business
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+            
             if(await _launchBusiness.EntityExist(l => l.ApiGuid == launch.ApiGuid))
                 return;
 
             using var trans = await _repository.GetTransaction();
             try
             {
-                Guid? idStatus = await SaveLaunchEntitiesProcess(launch.Status, _repository.GetCurrentlyTransaction());
-                Guid? idLaunchServiceProvider = await SaveLaunchEntitiesProcess(launch.LaunchServiceProvider, _repository.GetCurrentlyTransaction());
-                Guid? idConfiguration = await SaveLaunchEntitiesProcess(launch.Rocket?.Configuration, _repository.GetCurrentlyTransaction());
-                Guid? idRocket = await SaveLaunchEntitiesProcess(new Rocket(launch.Rocket?.IdFromApi, idConfiguration), _repository.GetCurrentlyTransaction());
-                Guid? idOrbit = await SaveLaunchEntitiesProcess(launch.Mission?.Orbit, _repository.GetCurrentlyTransaction());
-                Guid? idMission = await SaveLaunchEntitiesProcess(new Mission(launch.Mission, idOrbit), _repository.GetCurrentlyTransaction());
-                Guid? idLocation = await SaveLaunchEntitiesProcess(launch.Pad?.Location, _repository.GetCurrentlyTransaction());
-                Guid? idPad = await SaveLaunchEntitiesProcess(new Pad(launch.Pad, idLocation), _repository.GetCurrentlyTransaction());
+                var currentlyTransaction = _repository.GetCurrentlyTransaction();
+                var efConnection = _repository.GetEfConnection();
+
+                Guid? idStatus = await SaveLaunchEntitiesProcess(launch.Status, efConnection, currentlyTransaction);
+                Guid? idLaunchServiceProvider = await SaveLaunchEntitiesProcess(launch.LaunchServiceProvider, efConnection, currentlyTransaction);
+                Guid? idConfiguration = await SaveLaunchEntitiesProcess(launch.Rocket?.Configuration, efConnection, currentlyTransaction);
+                Guid? idRocket = await SaveLaunchEntitiesProcess(new Rocket(launch.Rocket?.IdFromApi, idConfiguration), efConnection, currentlyTransaction);
+                Guid? idOrbit = await SaveLaunchEntitiesProcess(launch.Mission?.Orbit, efConnection, currentlyTransaction);
+                Guid? idMission = await SaveLaunchEntitiesProcess(new Mission(launch.Mission, idOrbit), efConnection, currentlyTransaction);
+                Guid? idLocation = await SaveLaunchEntitiesProcess(launch.Pad?.Location, efConnection, currentlyTransaction);
+                Guid? idPad = await SaveLaunchEntitiesProcess(new Pad(launch.Pad, idLocation), efConnection, currentlyTransaction);
                 
-                await _launchBusiness.SaveTransaction(new Launch(launch, idStatus, idLaunchServiceProvider, idRocket, idMission, idPad));
+                await _launchBusiness.Save(new Launch(launch, idStatus, idLaunchServiceProvider, idRocket, idMission, idPad));
                 await trans.CommitAsync();
             }
             catch (Exception ex)
@@ -292,20 +297,20 @@ namespace Business.Business
             }
         }
 
-        private async Task<Guid?> SaveLaunchEntitiesProcess<T>(T entity, IDbContextTransaction transaction) where T : BaseEntity
+        private async Task<Guid?> SaveLaunchEntitiesProcess<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
         {
             if(entity == null)
                 return null;
 
-            Guid? dbGuid = await DatabaseGuid(entity, transaction);
+            Guid? dbGuid = await DatabaseGuid(entity, sharedConnection, transaction);
 
             if(dbGuid == null || dbGuid == Guid.Empty)
-                return await SaveNewLaunchEntity(entity, transaction);
+                return await SaveNewLaunchEntity(entity, sharedConnection, transaction);
 
             return dbGuid;
         }
 
-        private async Task<Guid> SaveNewLaunchEntity<T>(T entity, IDbContextTransaction transaction) where T : BaseEntity
+        private async Task<Guid> SaveNewLaunchEntity<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
         {
             var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
 
@@ -314,12 +319,12 @@ namespace Business.Business
             entity.AtualizationDate = DateTime.Now;
             entity.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
-            await _dapper.Save(entity, transaction);
+            await _dapper.Save(entity, sharedConnection, transaction);
 
             return entity.Id;
         }
 
-        private async Task<Guid> DatabaseGuid<T>(T entity, IDbContextTransaction transaction) where T : BaseEntity
+        private async Task<Guid> DatabaseGuid<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
         {
             var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
             return await _dapper.GetSelected<Guid>(
