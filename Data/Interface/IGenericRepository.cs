@@ -1,11 +1,7 @@
 ﻿using Cross.Cutting.Helper;
 using Microsoft.EntityFrameworkCore.Storage;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Data.Common;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Data.Interface
 {
@@ -36,6 +32,8 @@ namespace Data.Interface
 
         IDbContextTransaction GetCurrentlyTransaction();
 
+        DbConnection GetEfConnection();
+
         Task<T> Get(Expression<Func<T, bool>> filter, string includedProperties = "");
 
         Task<TObject> GetSelected<TResult, TObject>(
@@ -55,9 +53,9 @@ namespace Data.Interface
         Task<bool> EntityExist(Expression<Func<T, bool>> filter);
 
         Task Save(T entity);
-        Task SaveTransaction(T entity);
 
         Task Delete(T entity);
-        Task DeleteTransaction(T entity);
+
+        Task Delete(Guid id);
     }
 }

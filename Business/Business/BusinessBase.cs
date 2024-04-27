@@ -42,9 +42,9 @@ namespace Business.Business
             await _repository.Delete(entity);
         }
 
-        public async Task DeleteTransaction(T entity)
+        public async Task Delete(Guid id)
         {
-            await _repository.DeleteTransaction(entity);
+            await _repository.Delete(id);
         }
 
         public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
@@ -90,11 +90,6 @@ namespace Business.Business
         public async Task Save(T entity)
         {
             await _repository.Save(entity);
-        }
-
-        public async Task SaveTransaction(T entity)
-        {
-            await _repository.SaveTransaction(entity);
         }
 
         public async Task<bool> EntityExist(Expression<Func<T, bool>> filter)

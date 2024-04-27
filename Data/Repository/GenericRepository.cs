@@ -4,6 +4,7 @@ using Cross.Cutting.Helper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
+using System.Data.Common;
 
 namespace Data.Repository
 {
@@ -22,6 +23,11 @@ namespace Data.Repository
         public async Task<IDbContextTransaction> GetTransaction()
         {
             return await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
+        }
+
+        public DbConnection GetEfConnection()
+        {
+            return _context.Database.GetDbConnection();
         }
 
         public IDbContextTransaction GetCurrentlyTransaction()
@@ -205,12 +211,6 @@ namespace Data.Repository
 
         public async Task Save(T entity)
         {
-            await _dbSet.AddAsync(entity);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task SaveTransaction(T entity)
-        {
             if (entity.Id == Guid.Empty)
             {
                 await _dbSet.AddAsync(entity);
@@ -230,23 +230,23 @@ namespace Data.Repository
             }
         }
 
-        public async Task Delete(T entity) 
+        public async Task Delete(T entity)
         {
-            T dbEntity = await _dbSet.FindAsync(entity.Id);
-
-            if (_context.Entry(dbEntity).State == EntityState.Detached)
-                _dbSet.Attach(dbEntity);
-
-            _dbSet.Remove(dbEntity);
+            await DeleteProccess(entity);
         }
 
-        public async Task DeleteTransaction(T entity)
+        public async Task Delete(Guid id)
         {
-            T dbEntity = await _dbSet.FindAsync(entity.Id);
-            if(_context.Entry(dbEntity).State == EntityState.Detached)
-                _dbSet.Attach(dbEntity);
+            T dbEntity = await _dbSet.FindAsync(id);
+            await DeleteProccess(dbEntity);
+        }
+
+        private async Task DeleteProccess(T entity)
+        {
+            if(_context.Entry(entity).State == EntityState.Detached)
+                _dbSet.Attach(entity);
             
-            _dbSet.Remove(dbEntity);
+            _dbSet.Remove(entity);
             await _context.SaveChangesAsync();
         }
     }
