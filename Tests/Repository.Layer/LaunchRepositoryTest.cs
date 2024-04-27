@@ -1,5 +1,7 @@
 using System.Linq.Expressions;
 using Data.Interface;
+using Data.Repository;
+using Microsoft.EntityFrameworkCore;
 using Tests.Fixture;
 using Tests.Test.Objects;
 using Z.EntityFramework.Extensions;
@@ -496,6 +498,70 @@ namespace Tests.Repository.Layer
                 selectColumns: l => l.Id,
                 buildObject: l => l)
             );
+        }
+    
+        [Fact]
+        public async Task GenericRepository_Save_UpdateAEntityWithSaveMethod()
+        {
+            //Arrange
+            Expression<Func<Launch, bool>> qryTest = l => l.Id == TestLaunchInMemoryObjects.Test1().Id;
+
+            var entityToBeUpdated = await _fixture.Launch.Get(filter: qryTest);
+            entityToBeUpdated.EntityStatus = EStatus.TRASH.GetDisplayName();
+
+            Assert.Equal(EStatus.PUBLISHED.GetDisplayName(), await _fixture.Launch.GetSelected(
+                filter: qryTest,
+                selectColumns:l => l.EntityStatus,
+                buildObject: l => l
+            ));
+
+            //Act
+            await _fixture.Launch.Save(entityToBeUpdated);
+            
+            //Assert
+            Assert.Equal(EStatus.TRASH.GetDisplayName(), await _fixture.Launch.GetSelected(
+                filter: qryTest,
+                selectColumns:l => l.EntityStatus,
+                buildObject: l => l
+            ));
+
+            //Rollback the changes..
+            entityToBeUpdated.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
+            await _fixture.Launch.Save(entityToBeUpdated);
+        }
+    
+        [Fact]
+        public async Task GenericRepository_Delete_DeleteEntity()
+        {
+            //Arrange
+            var entity = _fixture.NewObjectForSaveTests();
+            await _fixture.Context.AddAsync(entity);
+            await _fixture.Context.SaveChangesAsync();
+
+            Assert.Equal(4, await _fixture.Launch.EntityCount());
+
+            //Act
+            await _fixture.Launch.Delete(entity);
+
+            //Assert
+            Assert.Equal(3, await _fixture.Launch.EntityCount());
+        }
+
+        [Fact]
+        public async Task GenericRepository_Delete_DeleteEntityById()
+        {
+            //Arrange
+            var entity = _fixture.NewObjectForSaveTests();
+            await _fixture.Context.AddAsync(entity);
+            await _fixture.Context.SaveChangesAsync();
+
+            Assert.Equal(4, await _fixture.Launch.EntityCount());
+
+            //Act
+            await _fixture.Launch.Delete(entity);
+
+            //Assert
+            Assert.Equal(3, await _fixture.Launch.EntityCount());
         }
     }
 }
