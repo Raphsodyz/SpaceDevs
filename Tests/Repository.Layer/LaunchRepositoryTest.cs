@@ -1,10 +1,6 @@
 using System.Linq.Expressions;
 using Data.Interface;
-using Data.Repository;
-using Microsoft.EntityFrameworkCore;
-using Tests.Fixture;
 using Tests.Test.Objects;
-using Z.EntityFramework.Extensions;
 
 namespace Tests.Repository.Layer
 {

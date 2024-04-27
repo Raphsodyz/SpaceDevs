@@ -18,7 +18,7 @@ namespace Data.Repository
             
         }
 
-        public virtual async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Expression<Func<Location, TResult>> selectColumns, string includedProperties = null)
+        public async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Expression<Func<Location, TResult>> selectColumns, string includedProperties = null)
         {
             IQueryable<Location> query = _dbSet;
 
