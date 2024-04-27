@@ -2,6 +2,7 @@ using Data.Context;
 using Data.Interface;
 using Data.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Tests.Test.Objects;
 using Z.EntityFramework.Extensions;
 
@@ -16,6 +17,7 @@ namespace Tests.Fixture
         {
             var options = new DbContextOptionsBuilder<FutureSpaceContext>()
                 .UseInMemoryDatabase("futurespacedbtest")
+                .ConfigureWarnings(warn => warn.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
             Context = new FutureSpaceContext(options);
@@ -44,7 +46,6 @@ namespace Tests.Fixture
         {
             return new Launch()
             {
-                Id = new Guid("f81f0bd0-d730-46a4-aa00-44ef7441fd92"),
                 AtualizationDate = new DateTime(2024, 04, 21, 17, 54, 00),
                 ImportedT = new DateTime(2024, 04, 21, 17, 54, 00),
                 EntityStatus = "PUBLISHED",
