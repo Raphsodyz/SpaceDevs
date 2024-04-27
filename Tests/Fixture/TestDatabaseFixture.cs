@@ -12,17 +12,18 @@ namespace Tests.Fixture
     {
         public readonly FutureSpaceContext Context;
         public readonly ILaunchRepository Launch;
+        private readonly DbContextOptions<FutureSpaceContext> Options;
 
         public TestDatabaseFixture()
         {
-            var options = new DbContextOptionsBuilder<FutureSpaceContext>()
+            Options = new DbContextOptionsBuilder<FutureSpaceContext>()
                 .UseInMemoryDatabase("futurespacedbtest")
                 .ConfigureWarnings(warn => warn.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
 
-            Context = new FutureSpaceContext(options);
+            Context = new FutureSpaceContext(Options);
             Launch = new LaunchRepository(Context);
-            EntityFrameworkManager.ContextFactory = context => new FutureSpaceContext(options); //SetUp context for zzz.EntityFramework Extension.
+            EntityFrameworkManager.ContextFactory = context => new FutureSpaceContext(Options); //SetUp context for zzz.EntityFramework Extension.
 
             if (Context.Launch.Any())
             {
@@ -31,6 +32,11 @@ namespace Tests.Fixture
             }
 
             SeedDatabase();
+        }
+
+        public FutureSpaceContext CreateScopedContext()
+        {
+            return new FutureSpaceContext(Options);
         }
 
         private void SeedDatabase()

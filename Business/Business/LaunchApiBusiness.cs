@@ -320,7 +320,6 @@ namespace Business.Business
             entity.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
 
             await _dapper.Save(entity, sharedConnection, transaction);
-
             return entity.Id;
         }
 
