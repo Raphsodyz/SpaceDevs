@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Data.Interface;
 using Tests.Fixture;
 using Tests.Test.Objects;
 using Z.EntityFramework.Extensions;
@@ -400,18 +401,101 @@ namespace Tests.Repository.Layer
         public async Task GenericRepository_Save_SaveANewObjectInMemory()
         {
             //Arrange && Act
-            await _fixture.Launch.Save(_fixture.NewObjectForSaveTests());
+            var newLaunch = _fixture.NewObjectForSaveTests();
+            await _fixture.Launch.Save(newLaunch);
 
             //Assert
             Assert.Equal(4, await _fixture.Launch.EntityCount());
-            Assert.Equal(new Guid("f81f0bd0-d730-46a4-aa00-44ef7441fd92"),
-                await _fixture.Launch.GetSelected(l => l.Id == new Guid("f81f0bd0-d730-46a4-aa00-44ef7441fd92"),
+            Assert.Equal(newLaunch.Id,
+                await _fixture.Launch.GetSelected(l => l.Id == newLaunch.Id,
                     selectColumns: l => l.Id,
                     buildObject: l => l)
             );
 
             //Rolling back the change for the other tests...
-            await _fixture.Launch.Delete(_fixture.NewObjectForSaveTests());
+            await _fixture.Launch.Delete(newLaunch);
+        }
+
+        [Fact]
+        public async Task GenericRepository_Save_SaveANewObjectInMemoryWithTransaction()
+        {
+            //Test made with mock bcoz in memory database does not support transactions.
+            //Arrange
+            var newLaunch = _fixture.NewObjectForSaveTests();
+            var uow = new Mock<IUnitOfWork>();
+            var launchRepository = new Mock<ILaunchRepository>();
+
+            uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
+            launchRepository.Setup(l => l.GetTransaction());
+            launchRepository.Setup(l => l.Save(It.IsAny<Launch>()));
+            launchRepository.Setup(l => l.GetTransaction().Result.Commit())
+                .Callback(async () => await _fixture.Launch.Save(newLaunch));
+
+            //Act
+            using var trans = await launchRepository.Object.GetTransaction();
+            await launchRepository.Object.Save(newLaunch);
+
+            //Assert -- Before Commit transaction.
+            Assert.Equal(3, await _fixture.Launch.EntityCount());
+            Assert.Equal(Guid.Empty, await _fixture.Launch.GetSelected(
+                l => l.Id == newLaunch.Id,
+                selectColumns: l => l.Id,
+                buildObject: l => l)
+            );
+
+            trans.Commit();
+
+            //Assert -- After Commit transaction.
+            Assert.Equal(4, await _fixture.Launch.EntityCount());
+            Assert.Equal(newLaunch.Id, await _fixture.Launch.GetSelected(
+                l => l.Id == newLaunch.Id,
+                selectColumns: l => l.Id,
+                buildObject: l => l)
+            );
+
+            //Rolling back the change for the other tests...
+            await _fixture.Launch.Delete(newLaunch);
+        }
+
+        [Fact]
+        public async Task GenericRepository_Save_RollbackTransactionAfterAException()
+        {
+            //Test made with mock bcoz in memory database does not support transactions.
+            //Arrange
+            var newLaunch = _fixture.NewObjectForSaveTests();
+            var uow = new Mock<IUnitOfWork>();
+            var launchRepository = new Mock<ILaunchRepository>();
+
+            uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
+            launchRepository.Setup(l => l.GetTransaction());
+            launchRepository.Setup(l => l.Save(It.IsAny<Launch>()))
+                .Callback(async () => await _fixture.Launch.Save(newLaunch));
+            launchRepository.Setup(l => l.GetTransaction().Result.Rollback())
+                .Callback(async () => await _fixture.Launch.Delete(newLaunch));
+
+            //Act & Assert
+            //Before Save proccess..
+            Assert.Equal(3, await _fixture.Launch.EntityCount());
+
+            //Saving...
+            using var trans = await launchRepository.Object.GetTransaction();
+            try
+            {
+                launchRepository.Object.Save(newLaunch);
+                throw new Exception(); //Any exception during the code execution....
+            }
+            catch
+            {
+                trans.Rollback();
+            }
+
+            //After save proccess... Same data before bcoz the rollback.
+            Assert.Equal(3, await _fixture.Launch.EntityCount());
+            Assert.Equal(Guid.Empty, await _fixture.Launch.GetSelected(
+                l => l.Id == newLaunch.Id,
+                selectColumns: l => l.Id,
+                buildObject: l => l)
+            );
         }
     }
 }
