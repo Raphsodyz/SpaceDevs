@@ -23,7 +23,7 @@ namespace Data.Repository
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            _connectionString = configuration.GetSection("ConnectionStrings:default").Value;
+            _connectionString = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:default").Value);
         }
 
         public async Task<TResult> GetSelected<TResult>(string columns, string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
