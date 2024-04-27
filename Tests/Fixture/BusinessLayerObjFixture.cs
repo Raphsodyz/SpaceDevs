@@ -1,3 +1,4 @@
+using System.Data.Common;
 using AutoMapper;
 using Data.Interface;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -62,7 +63,7 @@ namespace Tests.Fixture
 
         public void SetUpSaveSequenceLaunchRepository()
         {
-            LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+            LaunchRepository.SetupSequence(l => l.Save(new Launch(
                 TestLaunchObjects.Test1(),
                 TestLaunchObjects.Test1().IdStatus,
                 TestLaunchObjects.Test1().IdLaunchServiceProvider,
@@ -70,7 +71,7 @@ namespace Tests.Fixture
                 TestLaunchObjects.Test1().IdMission,
                 TestLaunchObjects.Test1().IdPad)));
 
-            LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+            LaunchRepository.SetupSequence(l => l.Save(new Launch(
                 TestLaunchObjects.Test2(),
                 TestLaunchObjects.Test2().IdStatus,
                 TestLaunchObjects.Test2().IdLaunchServiceProvider,
@@ -78,7 +79,7 @@ namespace Tests.Fixture
                 TestLaunchObjects.Test2().IdMission,
                 TestLaunchObjects.Test2().IdPad)));
 
-            LaunchRepository.SetupSequence(l => l.SaveTransaction(new Launch(
+            LaunchRepository.SetupSequence(l => l.Save(new Launch(
                 TestLaunchObjects.Test3(),
                 TestLaunchObjects.Test3().IdStatus,
                 TestLaunchObjects.Test3().IdLaunchServiceProvider,
@@ -93,6 +94,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().IdStatus)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test2().IdStatus)
@@ -102,6 +104,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().IdLaunchServiceProvider)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test2().IdLaunchServiceProvider)
@@ -111,6 +114,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().Rocket.IdConfiguration)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test2().Rocket.IdConfiguration)
@@ -120,6 +124,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : TestLaunchObjects.Test1().Rocket.Id)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : TestLaunchObjects.Test2().Rocket.Id)
@@ -129,6 +134,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().IdMission)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test2().IdMission)
@@ -138,6 +144,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().Mission.IdOrbit)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test2().Mission.IdOrbit)
@@ -147,6 +154,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : TestLaunchObjects.Test1().Pad.Id)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : TestLaunchObjects.Test2().Pad.Id)
@@ -156,6 +164,7 @@ namespace Tests.Fixture
                 "Id",
                 "id_from_api = @IdFromApi",
                 new { IdFromApi = It.IsAny<Guid>() },
+                It.IsAny<DbConnection>(),
                 It.IsAny<IDbContextTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().Pad.IdLocation)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test2().Pad.IdLocation)
@@ -164,14 +173,14 @@ namespace Tests.Fixture
 
         public void SetupDapperSave()
         {
-            DapperStatusRepository.Setup(l => l.Save(It.IsAny<Status>(), It.IsAny<IDbContextTransaction>()));
-            DapperLaunchServiceProviderRepository.Setup(l => l.Save( It.IsAny<LaunchServiceProvider>(), It.IsAny<IDbContextTransaction>()));
-            DapperConfigurationRepository.Setup(l => l.Save( It.IsAny<Configuration>(), It.IsAny<IDbContextTransaction>()));
-            DapperRocketRepository.Setup(l => l.Save( It.IsAny<Rocket>(), It.IsAny<IDbContextTransaction>()));
-            DapperMissionRepository.Setup(l => l.Save( It.IsAny<Mission>(), It.IsAny<IDbContextTransaction>()));
-            DapperOrbitRepository.Setup(l => l.Save( It.IsAny<Orbit>(), It.IsAny<IDbContextTransaction>()));
-            DapperPadRepository.Setup(l => l.Save( It.IsAny<Pad>(), It.IsAny<IDbContextTransaction>()));
-            DapperLocationRepository.Setup(l => l.Save( It.IsAny<Location>(), It.IsAny<IDbContextTransaction>()));
+            DapperStatusRepository.Setup(l => l.Save(It.IsAny<Status>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+            DapperLaunchServiceProviderRepository.Setup(l => l.Save( It.IsAny<LaunchServiceProvider>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+            DapperConfigurationRepository.Setup(l => l.Save( It.IsAny<Configuration>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+            DapperRocketRepository.Setup(l => l.Save( It.IsAny<Rocket>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+            DapperMissionRepository.Setup(l => l.Save( It.IsAny<Mission>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+            DapperOrbitRepository.Setup(l => l.Save( It.IsAny<Orbit>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+            DapperPadRepository.Setup(l => l.Save( It.IsAny<Pad>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+            DapperLocationRepository.Setup(l => l.Save( It.IsAny<Location>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
         }
 
         public void ResetMockVerifyClasses()

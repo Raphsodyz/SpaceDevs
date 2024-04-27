@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
 using Business.DTO.Request;
+using System.Data.Common;
 
 namespace Tests.Business.Layer
 {
@@ -399,14 +400,14 @@ namespace Tests.Business.Layer
             //Assert
             _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>()), Times.Exactly((int)request.Limit));
             _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
-            _fixture.LaunchRepository.Verify(l => l.SaveTransaction(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.LaunchRepository.Verify(l => l.Save(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
             
             Assert.NotNull(result);
             Assert.IsType<bool>(result);
@@ -469,23 +470,23 @@ namespace Tests.Business.Layer
             //Assert
             _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>()), Times.Exactly((int)request.Limit));
             _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
-            _fixture.LaunchRepository.Verify(l => l.SaveTransaction(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
+            _fixture.LaunchRepository.Verify(l => l.Save(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
             
-            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
             
-            _fixture.DapperStatusRepository.Verify(l => l.Save(It.IsAny<Status>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.Save(It.IsAny<LaunchServiceProvider>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperConfigurationRepository.Verify(l => l.Save(It.IsAny<Configuration>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperRocketRepository.Verify(l => l.Save(It.IsAny<Rocket>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperMissionRepository.Verify(l => l.Save(It.IsAny<Mission>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperOrbitRepository.Verify(l => l.Save(It.IsAny<Orbit>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLocationRepository.Verify(l => l.Save(It.IsAny<Location>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperStatusRepository.Verify(l => l.Save(It.IsAny<Status>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.Save(It.IsAny<LaunchServiceProvider>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperConfigurationRepository.Verify(l => l.Save(It.IsAny<Configuration>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperRocketRepository.Verify(l => l.Save(It.IsAny<Rocket>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperMissionRepository.Verify(l => l.Save(It.IsAny<Mission>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperOrbitRepository.Verify(l => l.Save(It.IsAny<Orbit>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperLocationRepository.Verify(l => l.Save(It.IsAny<Location>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
             
             Assert.NotNull(result);
             Assert.IsType<bool>(result);
