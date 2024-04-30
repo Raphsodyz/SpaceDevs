@@ -13,7 +13,9 @@ services:
     image: "postgres:16.1"
     hostname: postgresql
     volumes:
-      - ./Data/Migrations/migrations.sql:/docker-entrypoint-initdb.d/migrations.sql
+      - ./Data/Migrations/migrations.sql:/migrations/migrations.sql
+      - ./Data/Migrations/Launch.data/spacedevs_data.sql:/migrations/seed/spacedevs_data.sql
+      - ./Data/Migrations/Launch.data/seeddatabase.sh:/docker-entrypoint-initdb.d/seeddatabase.sh
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root

@@ -365,3 +365,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+Data/Migrations/Launch.data/spacedevs_data.sql
