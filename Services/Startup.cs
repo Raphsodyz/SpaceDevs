@@ -2,7 +2,6 @@
 using Business.Interface;
 using Data.Context;
 using Data.Interface;
-using Quartz;
 
 namespace Services
 {
@@ -24,8 +23,8 @@ namespace Services
 
             services.AddHttpClient();
 
-            services.AddTransient<ILaunchApiBusiness, LaunchApiBusiness>();
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ILaunchApiBusiness, LaunchApiBusiness>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         }
