@@ -10,7 +10,7 @@ This project is a Rest Web Api for the Space Launch List of the https://ll.thesp
 - Dapper
 - AutoMapper
 - Asp.NetCore WebApi
-- Quartz
+- Nginx
 - Postgresql
 - GIST Indexes
 - Docker
