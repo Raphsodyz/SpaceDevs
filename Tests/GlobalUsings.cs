@@ -9,4 +9,3 @@ global using Domain.Entities;
 global using Cross.Cutting.Enum;
 global using Cross.Cutting.Helper;
 global using Tests.Helper;
-global using Tests.Fixture;

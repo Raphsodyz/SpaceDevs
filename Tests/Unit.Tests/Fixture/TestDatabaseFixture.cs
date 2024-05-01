@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Tests.Test.Objects;
 using Z.EntityFramework.Extensions;
 
-namespace Tests.Fixture
+namespace Tests.Unit.Tests.Fixture
 {
     public class TestDatabaseFixture : IDisposable
     {

@@ -11,8 +11,9 @@ using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
 using Business.DTO.Request;
 using System.Data.Common;
+using Tests.Unit.Tests.Fixture;
 
-namespace Tests.Business.Layer
+namespace Tests.Unit.Tests.Business.Layer
 {
     public class LaunchApiBusinessTest : IClassFixture<BusinessLayerObjFixture>
     {

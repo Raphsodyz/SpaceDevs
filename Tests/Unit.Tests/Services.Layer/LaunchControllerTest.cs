@@ -9,7 +9,7 @@ using Tests.Helper;
 using Tests.Test.Objects;
 using Xunit.Sdk;
 
-namespace Tests.Services.Layer
+namespace Tests.Unit.Tests.Services.Layer
 {
     public class LaunchControllerTest
     {

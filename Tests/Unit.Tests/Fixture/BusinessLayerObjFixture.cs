@@ -4,7 +4,7 @@ using Data.Interface;
 using Microsoft.EntityFrameworkCore.Storage;
 using Tests.Test.Objects;
 
-namespace Tests.Fixture
+namespace Tests.Unit.Tests.Fixture
 {
     public class BusinessLayerObjFixture : IDisposable
     {
