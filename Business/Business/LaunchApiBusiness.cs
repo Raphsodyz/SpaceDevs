@@ -30,6 +30,7 @@ namespace Business.Business
         public async Task<LaunchView> GetOneLaunch(Guid? launchId)
         {
             ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+            _ = launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             Expression<Func<LaunchView, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
             bool launchExist = await _launchViewBusiness.ViewExists();
