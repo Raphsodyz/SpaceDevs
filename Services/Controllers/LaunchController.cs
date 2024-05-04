@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
 using Business.DTO.Entities;
 using Business.DTO.Request;
 using Business.Interface;
@@ -53,11 +52,11 @@ namespace Services.Controllers
         [HttpGet]
         [Route("{launchId}")]
         [SwaggerOperation(Summary = "Method for search a launch by his UUID. This UUID is proveniente from the database.")]
-        public async Task<IActionResult> GetById(Guid? launchId)
+        public async Task<IActionResult> GetById(LaunchRequest request)
         {
             try
             {
-                var launchView = await _launchApiBusiness.GetOneLaunch(launchId);
+                var launchView = await _launchApiBusiness.GetOneLaunch(request.LaunchId);
                 return Ok(launchView);
             }
             catch (ArgumentNullException ex)
@@ -77,11 +76,11 @@ namespace Services.Controllers
         [HttpGet]
         [Route("paged")]
         [SwaggerOperation(Summary = "Method for return launches paged")]
-        public async Task<IActionResult> GetAllPaged([FromQuery]int page)
+        public async Task<IActionResult> GetAllPaged([FromQuery]PageRequest request)
         {
             try
             {
-                Pagination<LaunchView> pagedLaunchList = await _launchApiBusiness.GetAllLaunchPaged(page);
+                Pagination<LaunchView> pagedLaunchList = await _launchApiBusiness.GetAllLaunchPaged(request.Page);
                 return Ok(new { CurrentlyPage = pagedLaunchList.CurrentPage, TotalRegisters = pagedLaunchList.NumberOfEntities, Pages = pagedLaunchList.NumberOfPages, Data = pagedLaunchList.Entities });
             }
             catch (InvalidOperationException ex)
@@ -101,11 +100,11 @@ namespace Services.Controllers
         [HttpDelete]
         [Route("{launchId}")]
         [SwaggerOperation(Summary = "Method for delete a launch by his UUID.")]
-        public async Task<IActionResult> Delete(Guid? launchId)
+        public async Task<IActionResult> Delete(LaunchRequest request)
         {
             try
             {
-                await _launchApiBusiness.SoftDeleteLaunch(launchId);
+                await _launchApiBusiness.SoftDeleteLaunch(request.LaunchId);
                 return Ok(SuccessMessages.DeletedEntity);
             }
             catch (ArgumentNullException ex)
@@ -125,11 +124,11 @@ namespace Services.Controllers
         [HttpPut]
         [Route("{launchId}")]
         [SwaggerOperation(Summary = "Method to update a launch by synchronize his data with ll.thespacedevs API.")]
-        public async Task<IActionResult> Update(Guid? launchId)
+        public async Task<IActionResult> Update(LaunchRequest request)
         {
             try
             {
-                LaunchView updatedLaunch = await _launchApiBusiness.UpdateLaunch(launchId);
+                LaunchView updatedLaunch = await _launchApiBusiness.UpdateLaunch(request.LaunchId);
                 return Ok(updatedLaunch);
             }
             catch (ArgumentNullException ex)
