@@ -31,9 +31,6 @@ namespace Business.Business
         {
             ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
 
-            if (launchId == null)
-                throw new ArgumentNullException(ErrorMessages.NullArgument);
-
             Expression<Func<LaunchView, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
             bool launchExist = await _launchViewBusiness.ViewExists();
             if (!launchExist)
