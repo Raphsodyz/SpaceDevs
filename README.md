@@ -2,7 +2,7 @@ Project initially made as a test for a selection process in which I was particip
 
 ## Overview
 
-This project is a Rest Web Api for the Space Launch List of the https://ll.thespacedevs.com/2.1.0/swagger. It has a complete CRUD, fuzzy text search and his own database that's feed from llapi.
+This project is a Rest Web Api for the Space Launch List of the https://ll.thespacedevs.com/2.1.0/swagger. It has a complete CRUD, fuzzy text search and his own database that's feed from llapi. This API will not have a limitations like spacedevs API that blocks after 15 requests. The data is stored with you.
 
 ## Technologies
 - .Net 7.0
