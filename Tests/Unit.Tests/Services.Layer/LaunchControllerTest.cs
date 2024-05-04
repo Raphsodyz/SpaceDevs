@@ -146,7 +146,7 @@ namespace Tests.Unit.Tests.Services.Layer
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetById(id).Result as OkObjectResult;
+            var result = controller.GetById(new LaunchRequest(id)).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -166,7 +166,7 @@ namespace Tests.Unit.Tests.Services.Layer
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetById(id).Result as BadRequestObjectResult;
+            var result = controller.GetById(new LaunchRequest(id)).Result as BadRequestObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -182,12 +182,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            Guid? id = Guid.NewGuid();
-            launchApiBusiness.Setup(a => a.GetOneLaunch(id)).ThrowsAsync(new KeyNotFoundException());
+            launchApiBusiness.Setup(a => a.GetOneLaunch(It.IsAny<Guid>())).ThrowsAsync(new KeyNotFoundException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetById(id).Result as NotFoundObjectResult;
+            var result = controller.GetById(new LaunchRequest(It.IsAny<Guid>())).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -203,11 +202,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.GetOneLaunch(It.IsAny<Guid>())).ThrowsAsync(new Exception());
+            launchApiBusiness.Setup(a => a.GetOneLaunch(It.IsAny<Guid?>())).ThrowsAsync(new Exception());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetById(It.IsAny<Guid>()).Result as ObjectResult;
+            var result = controller.GetById(new LaunchRequest(It.IsAny<Guid?>())).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -224,11 +223,11 @@ namespace Tests.Unit.Tests.Services.Layer
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
             Pagination<LaunchView> pagination = new(){ CurrentPage = 1, Entities = new List<LaunchView>(){ TestLaunchViewObjects.Test1(), TestLaunchViewObjects.Test2(), TestLaunchViewObjects.Test3() }, NumberOfEntities = 3, NumberOfPages = 1 };
-            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int>())).ReturnsAsync(pagination);
+            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int?>())).ReturnsAsync(pagination);
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetAllPaged(It.IsAny<int>()).Result as OkObjectResult;
+            var result = controller.GetAllPaged(new PageRequest(It.IsAny<int?>())).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -247,7 +246,7 @@ namespace Tests.Unit.Tests.Services.Layer
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetAllPaged(2).Result as BadRequestObjectResult;
+            var result = controller.GetAllPaged(new PageRequest(2)).Result as BadRequestObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -263,11 +262,11 @@ namespace Tests.Unit.Tests.Services.Layer
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
             Pagination<LaunchView> pagination = new(){ CurrentPage = 1, Entities = new List<LaunchView>(), NumberOfEntities = 0, NumberOfPages = 1 };
-            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int>())).ThrowsAsync(new KeyNotFoundException(ErrorMessages.NoData));
+            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int?>())).ThrowsAsync(new KeyNotFoundException(ErrorMessages.NoData));
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetAllPaged(It.IsAny<int>()).Result as NotFoundObjectResult;
+            var result = controller.GetAllPaged(new PageRequest(It.IsAny<int?>())).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -282,11 +281,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int>())).ThrowsAsync(new Exception());
+            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int?>())).ThrowsAsync(new Exception());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.GetAllPaged(It.IsAny<int>()).Result as ObjectResult;
+            var result = controller.GetAllPaged(new PageRequest(It.IsAny<int?>())).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -306,7 +305,7 @@ namespace Tests.Unit.Tests.Services.Layer
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Delete(It.IsAny<Guid>()).Result as OkObjectResult;
+            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -324,7 +323,7 @@ namespace Tests.Unit.Tests.Services.Layer
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Delete(null).Result as BadRequestObjectResult; 
+            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as BadRequestObjectResult; 
 
             //Assert
             Assert.NotNull(result);
@@ -340,11 +339,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(It.IsAny<Guid>())).ThrowsAsync(new KeyNotFoundException());
+            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(It.IsAny<Guid?>())).ThrowsAsync(new KeyNotFoundException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Delete(It.IsAny<Guid>()).Result as NotFoundObjectResult;
+            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -360,11 +359,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(It.IsAny<Guid>())).ThrowsAsync(new Exception());
+            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(It.IsAny<Guid?>())).ThrowsAsync(new Exception());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Delete(It.IsAny<Guid>()).Result as ObjectResult;
+            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -380,11 +379,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ReturnsAsync(TestLaunchViewObjects.Test1());
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ReturnsAsync(TestLaunchViewObjects.Test1());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Update(It.IsAny<Guid>()).Result as OkObjectResult;
+            var result = controller.Update(new LaunchRequest(It.IsAny<Guid?>())).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -403,7 +402,7 @@ namespace Tests.Unit.Tests.Services.Layer
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Update(null).Result as BadRequestObjectResult;
+            var result = controller.Update(new LaunchRequest(null)).Result as BadRequestObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -419,11 +418,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ThrowsAsync(new KeyNotFoundException());
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ThrowsAsync(new KeyNotFoundException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Update(It.IsAny<Guid>()).Result as NotFoundObjectResult;
+            var result = controller.Update(new LaunchRequest(It.IsAny<Guid?>())).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -439,11 +438,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ThrowsAsync(new HttpRequestException());
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ThrowsAsync(new HttpRequestException());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Update(It.IsAny<Guid>()).Result as ObjectResult;
+            var result = controller.Update(new LaunchRequest(It.IsAny<Guid>())).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -459,11 +458,11 @@ namespace Tests.Unit.Tests.Services.Layer
             //Arrange
             var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid>())).ThrowsAsync(new Exception());
+            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ThrowsAsync(new Exception());
             var controller = new LaunchController(launchApiBusiness.Object);
 
             //Act
-            var result = controller.Update(It.IsAny<Guid>()).Result as ObjectResult;
+            var result = controller.Update(new LaunchRequest(It.IsAny<Guid?>())).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
