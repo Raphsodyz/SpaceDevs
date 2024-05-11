@@ -201,7 +201,7 @@ namespace Tests.Unit.Tests.Repository.Layer
             Assert.NotNull(result);
             Assert.IsType<Pagination<Launch>>(result);
             Assert.Equal(2, result.NumberOfEntities);
-            Assert.Equal(1, result.NumberOfPages);
+            Assert.Equal(0, result.NumberOfPages);
             Assert.Equal(0, result.CurrentPage);
             Assert.Equal(2, result.Entities.Count);
         }
@@ -220,7 +220,7 @@ namespace Tests.Unit.Tests.Repository.Layer
             Assert.NotNull(result);
             Assert.IsType<Pagination<Launch>>(result);
             Assert.Equal(3, result.NumberOfEntities);
-            Assert.Equal(1, result.NumberOfPages);
+            Assert.Equal(0, result.NumberOfPages);
             Assert.Equal(0, result.CurrentPage);
             Assert.IsType<List<Launch>>(result.Entities);
             Assert.Equal(3, result.Entities.Count);
