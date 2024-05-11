@@ -46,15 +46,8 @@ namespace Business.Business
         public async Task<Pagination<LaunchView>> GetAllLaunchPaged(int? page)
         {
             ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
-            Expression<Func<LaunchView, bool>> query = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-
-            int totalEntities = await _launchViewBusiness.EntityCount(query);
-            int totalPages = totalEntities % 10 == 0 ? totalEntities / 10 : (totalEntities / 10) + 1;
+            List<Expression<Func<LaunchView, bool>>> publishedLaunchQuery = new(){ l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
             
-            if (page > totalPages)
-                throw new InvalidOperationException($"{ErrorMessages.InvalidPageSelected} Total pages = {totalPages}");
-
-            List<Expression<Func<LaunchView, bool>>> publishedLaunchQuery = new(){ query };
             var pagedResults = await _launchViewBusiness.GetViewPaged(
                 page ?? 0, 10,
                 filters: publishedLaunchQuery);
