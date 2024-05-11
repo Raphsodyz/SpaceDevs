@@ -118,7 +118,12 @@ namespace Tests.Unit.Tests.Business.Layer
         {
              //Arrange
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
-            _fixture.LaunchViewRepository.Setup(l => l.EntityCount(It.IsAny<Expression<Func<LaunchView, bool>>>())).ReturnsAsync(3);
+            _fixture.LaunchViewRepository.Setup(l => l.GetViewPaged(
+                It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<List<Expression<Func<LaunchView, bool>>>>(),
+                It.IsAny<Expression<Func<IQueryable<LaunchView>, IOrderedQueryable<LaunchView>>>>()))
+                .ThrowsAsync(new InvalidOperationException($"{ErrorMessages.InvalidPageSelected} Total pages = {1}"));
+            
             var business = new LaunchApiBusiness(_fixture.Uow.Object, _fixture.Client.Object, _fixture.Mapper.Object);
 
             //Act
