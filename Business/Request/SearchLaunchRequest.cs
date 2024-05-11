@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Business.DTO.Entities
+namespace Business.Request
 {
     public class SearchLaunchRequest
     {

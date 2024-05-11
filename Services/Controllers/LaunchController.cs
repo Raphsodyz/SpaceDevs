@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Business.DTO.Entities;
-using Business.DTO.Request;
 using Business.Interface;
+using Business.Request;
 using Cross.Cutting.Helper;
 using Data.Materializated.Views;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Services.Controllers
 {
     [ApiController]
-    [Route("api/launches")]
+    [Route("api/launch")]
     public class LaunchController : ControllerBase
     {
         private readonly ILaunchApiBusiness _launchApiBusiness;
@@ -52,11 +51,11 @@ namespace Services.Controllers
         [HttpGet]
         [Route("{launchId}")]
         [SwaggerOperation(Summary = "Method for search a launch by his UUID. This UUID is proveniente from the database.")]
-        public async Task<IActionResult> GetById(LaunchRequest request)
+        public async Task<IActionResult> GetById([FromRoute]LaunchRequest request)
         {
             try
             {
-                var launchView = await _launchApiBusiness.GetOneLaunch(request.LaunchId);
+                var launchView = await _launchApiBusiness.GetOneLaunch(request.launchId);
                 return Ok(launchView);
             }
             catch (ArgumentNullException ex)
@@ -100,11 +99,11 @@ namespace Services.Controllers
         [HttpDelete]
         [Route("{launchId}")]
         [SwaggerOperation(Summary = "Method for delete a launch by his UUID.")]
-        public async Task<IActionResult> Delete(LaunchRequest request)
+        public async Task<IActionResult> Delete([FromRoute]LaunchRequest request)
         {
             try
             {
-                await _launchApiBusiness.SoftDeleteLaunch(request.LaunchId);
+                await _launchApiBusiness.SoftDeleteLaunch(request.launchId);
                 return Ok(SuccessMessages.DeletedEntity);
             }
             catch (ArgumentNullException ex)
@@ -124,11 +123,11 @@ namespace Services.Controllers
         [HttpPut]
         [Route("{launchId}")]
         [SwaggerOperation(Summary = "Method to update a launch by synchronize his data with ll.thespacedevs API.")]
-        public async Task<IActionResult> Update(LaunchRequest request)
+        public async Task<IActionResult> Update([FromRoute]LaunchRequest request)
         {
             try
             {
-                LaunchView updatedLaunch = await _launchApiBusiness.UpdateLaunch(request.LaunchId);
+                LaunchView updatedLaunch = await _launchApiBusiness.UpdateLaunch(request.launchId);
                 return Ok(updatedLaunch);
             }
             catch (ArgumentNullException ex)

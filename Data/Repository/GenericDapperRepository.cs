@@ -2,8 +2,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.Common;
 using System.Reflection;
+using System.Text;
 using Dapper;
 using Data.Interface;
+using Data.Repository.Helper;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Configuration;
@@ -28,38 +30,20 @@ namespace Data.Repository
 
         public async Task<TResult> GetSelected<TResult>(string columns, string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
-            await using var connection = sharedConnection ?? new NpgsqlConnection(_connectionString);
-            try
+            return await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
-                if(connection.State == ConnectionState.Closed)
-                    connection.Open();
-
                 var trans = transaction?.GetDbTransaction();
                 string query = $"SELECT {columns} FROM {table} WHERE {where}";
 
                 var result = await connection.QueryFirstOrDefaultAsync<TResult>(query, parameters, trans);
-
                 return result;
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if(sharedConnection == null)
-                    connection.Dispose();
-            }
+            }, sharedConnection, _connectionString);
         }
     
         public async Task<IEnumerable<TResult>> GetAllSelected<TResult>(string columns, object parameters, int? howMany = null, string where = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
-            await using var connection = sharedConnection ?? new NpgsqlConnection(_connectionString);
-            try
+            return await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
-                if(connection.State == ConnectionState.Closed)
-                    connection.Open();
-
                 var trans = transaction?.GetDbTransaction();
                 string query = $"SELECT LIMIT {howMany ?? maxEntityReturn} {columns} FROM {table}";
                 
@@ -68,51 +52,25 @@ namespace Data.Repository
                 
                 var result = await connection.QueryAsync<TResult>(query, parameters, trans);
                 return result;
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if(sharedConnection == null)
-                    connection.Dispose();
-            }
+            }, sharedConnection, _connectionString);
         }
     
         public async Task<T> Get(string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
-            await using var connection = sharedConnection ?? new NpgsqlConnection(_connectionString);
-            try
+            return await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
-                if(connection.State == ConnectionState.Closed)
-                    connection.Open();
-
                 var trans = transaction?.GetDbTransaction();
                 string query = $"SELECT * FROM {table} WHERE {where}";
 
                 var result = await connection.QueryFirstOrDefaultAsync<T>(query, parameters, trans);
                 return result;
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if(sharedConnection == null)
-                    connection.Dispose();
-            }
+            }, sharedConnection, _connectionString);
         }
     
         public async Task<IEnumerable<T>> GetAll(object parameters, int? howMany = null, string where = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
-            await using var connection = sharedConnection ?? new NpgsqlConnection(_connectionString);
-            try
+            return await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
-                if(connection.State == ConnectionState.Closed)
-                    connection.Open();
-
                 var trans = transaction?.GetDbTransaction();
 
                 string query = $"SELECT LIMIT {howMany ?? maxEntityReturn} * FROM {table}";
@@ -121,23 +79,13 @@ namespace Data.Repository
                 
                 var result = await connection.QueryAsync<T>(query, parameters, trans);
                 return result;
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if(sharedConnection == null)
-                    connection.Dispose();
-            }
+            }, sharedConnection, _connectionString);
         }
     
         public async Task Save(T entity, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
-            //Remeber to generate the Guid ID first in the server!!
-            await using var connection = sharedConnection ?? new NpgsqlConnection(_connectionString);
-            try
+            //Remeber to generate the BaseEntity props first in the server for new entities!!
+            await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
                 if(connection.State == ConnectionState.Closed)
                     connection.Open();
@@ -146,22 +94,12 @@ namespace Data.Repository
                 string query = $"INSERT INTO {table}({GetColumnNames()}) VALUES ({GetPropNames()})";
 
                 await connection.ExecuteAsync(query, entity, trans);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if(sharedConnection == null)
-                    connection.Dispose();
-            }
+            }, sharedConnection, _connectionString);
         }
 
-        public async Task Update(string where, string set, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
+        public async Task PartialUpdate(string where, string set, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
-            await using var connection = sharedConnection ?? new NpgsqlConnection(_connectionString);
-            try
+            await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
                 if(connection.State == ConnectionState.Closed)
                     connection.Open();
@@ -170,22 +108,23 @@ namespace Data.Repository
                 string query = $"UPDATE {table} SET {set} WHERE {where}";
 
                 await connection.ExecuteAsync(query, parameters, trans);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if(sharedConnection == null)
-                    connection.Dispose();
-            }
+            }, sharedConnection, _connectionString);
         }
 
+        public async Task FullUpdate(T entity, string where, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
+        {
+            await DapperConnectionHelper.ResolveConnection(async (connection) =>
+            {
+                var trans = transaction?.GetDbTransaction();
+                string query = $"UPDATE {table} SET {FullUpdateSetString(GetColumnNames(), GetPropNames())} WHERE {where}";
+
+                await connection.ExecuteAsync(query, entity, trans);
+            }, sharedConnection, _connectionString);
+        }
+        
         public async Task Delete(string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
-            await using var connection = sharedConnection ?? new NpgsqlConnection(_connectionString);
-            try
+            await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
                 if(connection.State == ConnectionState.Closed)
                     connection.Open();
@@ -194,16 +133,7 @@ namespace Data.Repository
                 string query = $"DELETE FROM {table} WHERE {where}";
 
                 await connection.ExecuteAsync(query, parameters, trans);
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                if(sharedConnection == null)
-                    connection.Dispose();
-            }
+            }, sharedConnection, _connectionString);
         }
 
         private string GetPropNames()
@@ -241,6 +171,20 @@ namespace Data.Repository
             .Where(column => column != null);
 
             return string.Join(", ", columns).Trim();
+        }
+    
+        private string FullUpdateSetString(string columnNames, string propNames)
+        {
+            string[] columnsSplitted = columnNames.Split(',');
+            string[] propSplitted = propNames.Split(',');
+
+            StringBuilder builder = new();
+
+            for(int i = 0; i < propSplitted.Length; i++)
+                builder.Append(columnsSplitted[i].Trim() + " = " + propSplitted[i].Trim() + ',');
+            
+            builder.Length--;
+            return builder.ToString();
         }
     }
 }

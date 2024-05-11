@@ -1,6 +1,8 @@
-﻿using Data.Interface;
+﻿using Cross.Cutting.Helper;
+using Data.Interface;
 using Data.Repository;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Data.Context
 {
@@ -18,6 +20,17 @@ namespace Data.Context
         {
             IRepository repository = new GenericDapperRepository<T>();
             return repository;
+        }
+
+        public void SetupForeignKey<T>(T entity, string foreignKeyName, Guid desiredFkValue) where T : BaseEntity
+        {
+            var entityType = _context.Model.FindEntityType(typeof(T));
+            var foreignKeys = entityType.GetProperties()
+                .FirstOrDefault(p => p.Name.Equals(foreignKeyName, StringComparison.OrdinalIgnoreCase));
+
+            _ = foreignKeys ?? throw new ArgumentException(ErrorMessages.ForeignKeyNotFound);
+
+            foreignKeys.PropertyInfo.SetValue(entity, desiredFkValue);
         }
 
         public IRepository Repository(Type type)
@@ -68,9 +81,9 @@ namespace Data.Context
             return _repository[type];
         }
 
-        public void Save()
+        public async Task Save()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         private bool disposed = false;

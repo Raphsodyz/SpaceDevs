@@ -19,6 +19,7 @@ namespace Business.Interface
         Task<TObject> GetSelected<TResult, TObject>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selectColumns, Func<TResult, TObject> buildObject, string includedProperties = "");
         Task UpdateOnQuery(List<Expression<Func<T, bool>>> filters, Expression<Func<T, T>> updateColumns);
         Task UpdateOnQuery(Expression<Func<T, bool>> filter, Expression<Func<T, T>> updateColumns);
+        Task AddToChangeTracker(T entity);
         Task Save(T entity);
         Task<bool> EntityExist(Expression<Func<T, bool>> filter);
     }

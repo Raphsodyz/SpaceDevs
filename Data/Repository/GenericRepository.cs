@@ -209,6 +209,11 @@ namespace Data.Repository
             return await query.AnyAsync();
         }
 
+        public async Task AddToChangeTracker(T entity)
+        {
+            await _context.AddAsync(entity);
+        }
+
         public async Task Save(T entity)
         {
             if (entity.Id == Guid.Empty)

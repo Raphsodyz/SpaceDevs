@@ -52,6 +52,8 @@ namespace Data.Interface
 
         Task<bool> EntityExist(Expression<Func<T, bool>> filter);
 
+        Task AddToChangeTracker(T entity);
+
         Task Save(T entity);
 
         Task Delete(T entity);

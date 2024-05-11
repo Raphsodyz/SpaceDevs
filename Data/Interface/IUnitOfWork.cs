@@ -10,8 +10,9 @@ namespace Data.Interface
     public interface IUnitOfWork
     {
         IRepository Repository(Type type);
-        void Save();
+        Task Save();
         void Dispose();
         IRepository Dapper<T>() where T : BaseEntity;
+        void SetupForeignKey<T>(T entity, string foreignKeyName, Guid desiredFkValue) where T : BaseEntity;
     }
 }

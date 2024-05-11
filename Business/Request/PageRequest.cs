@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Cross.Cutting.Helper;
 
-namespace Business.DTO.Request
+namespace Business.Request
 {
     public class PageRequest
     {

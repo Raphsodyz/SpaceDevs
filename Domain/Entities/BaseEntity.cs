@@ -51,11 +51,12 @@ namespace Domain.Entities
 
         [NotMapped]
         [JsonIgnore]
-        public bool IsNew => ImportedT == DateTime.MinValue;
+        public bool? IsNew => ImportedT == DateTime.MinValue ? null : false;
         
         public virtual void BeforeSave()
         {
-            if (IsNew)
+            bool newEntity = IsNew ?? true;
+            if (newEntity)
             {
                 ImportedT = DateTime.Now;
                 AtualizationDate = DateTime.Now;

@@ -14,7 +14,8 @@ namespace Data.Interface
         Task<T> Get(string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null);
         Task<IEnumerable<T>> GetAll(object parameters, int? howMany = null, string where = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null);
         Task Save(T entity, DbConnection sharedConnection = null, IDbContextTransaction transaction = null);
-        Task Update(string where, string set, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null);
+        Task PartialUpdate(string where, string set, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null);
+        Task FullUpdate(T entity, string where, DbConnection sharedConnection = null, IDbContextTransaction transaction = null);
         Task Delete(string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null);
     }
 }

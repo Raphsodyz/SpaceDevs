@@ -1,13 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using Business.DTO.Entities;
-using Business.DTO.Request;
+using Business.Request;
 using Data.Materializated.Views;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
-using Tests.Helper;
 using Tests.Test.Objects;
-using Xunit.Sdk;
 
 namespace Tests.Unit.Tests.Services.Layer
 {

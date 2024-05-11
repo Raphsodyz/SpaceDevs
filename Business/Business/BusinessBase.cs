@@ -87,6 +87,11 @@ namespace Business.Business
             await _repository.UpdateOnQuery(filter, updateColumns);
         }
 
+        public async Task AddToChangeTracker(T entity)
+        {
+            await _repository.AddToChangeTracker(entity);
+        }
+
         public async Task Save(T entity)
         {
             await _repository.Save(entity);

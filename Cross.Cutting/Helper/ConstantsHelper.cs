@@ -24,6 +24,7 @@ namespace Cross.Cutting.Helper
         public const string UpdateJobError = "Attention! The update job has failed.";
         public const string StoredProcedurePublishedRoutineError = "Attention! The update to published stored procedure has failed.";
         public const string ViewNotExists = "Attention! The launch view not exists. Contact the sys admin to get support.";
+        public const string ForeignKeyNotFound = "Attention! The selected foreign key does not exists.";
     }
 
     public static class SuccessMessages
@@ -37,5 +38,12 @@ namespace Cross.Cutting.Helper
     public static class EndPoints
     {
         public const string TheSpaceDevsLaunchEndPoint = "https://ll.thespacedevs.com/2.2.0/launch/";
+    }
+
+    public static class LaunchNestedObjectsForeignKeys
+    {
+        public const string ROCKET = "IdConfiguration";
+        public const string MISSION = "IdOrbit";
+        public const string PAD = "IdLocation";
     }
 }

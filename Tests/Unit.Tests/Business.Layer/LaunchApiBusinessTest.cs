@@ -9,9 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Storage;
 using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
-using Business.DTO.Request;
 using System.Data.Common;
 using Tests.Unit.Tests.Fixture;
+using Business.Request;
+using Business.DTO.Aggregates;
 
 namespace Tests.Unit.Tests.Business.Layer
 {
@@ -239,17 +240,34 @@ namespace Tests.Unit.Tests.Business.Layer
             var client = mockHttp.ToHttpClient();
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
             _fixture.Mapper.Setup(m => m.Map<Launch>(It.IsAny<LaunchDTO>())).Returns(TestLaunchObjects.Test1());
+            _fixture.Mapper.Setup(m => m.Map(It.IsAny<LaunchBaseEntityAggregate>(), It.IsAny<Launch>())).Returns(TestLaunchPopulatedBaseEntity.Test1());
+            _fixture.Uow.Setup(u => u.Dapper<Status>()).Returns(_fixture.DapperStatusRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<LaunchServiceProvider>()).Returns(_fixture.DapperLaunchServiceProviderRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Configuration>()).Returns(_fixture.DapperConfigurationRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Rocket>()).Returns(_fixture.DapperRocketRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Mission>()).Returns(_fixture.DapperMissionRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Orbit>()).Returns(_fixture.DapperOrbitRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Pad>()).Returns(_fixture.DapperPadRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper<Location>()).Returns(_fixture.DapperLocationRepository.Object);
+            _fixture.SetupDapperRecoveryBaseEntity();
 
             _fixture.Client.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client);
             _fixture.LaunchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ReturnsAsync(TestLaunchObjects.Test1());
             _fixture.LaunchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
+            _fixture.LaunchRepository.Setup(l => l.GetSelected(It.IsAny<Expression<Func<Launch, bool>>>(),
+                It.IsAny<Expression<Func<Launch, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(), It.IsAny<string>())).ReturnsAsync(TestLaunchObjects.Test1().ApiGuid);
+            _fixture.LaunchRepository.Setup(l => l.GetSelected(It.IsAny<Expression<Func<Launch, bool>>>(),
+                It.IsAny<Expression<Func<Launch, BaseEntityLaunchDTO>>>(),
+                It.IsAny<Func<BaseEntityLaunchDTO, BaseEntityLaunchDTO>>(), It.IsAny<string>()))
+                .ReturnsAsync(new BaseEntityLaunchDTO(){ ApiGuid = TestLaunchObjects.Test1().ApiGuid, Id = TestLaunchObjects.Test1().Id, ImportedT = TestLaunchObjects.Test1().ImportedT, Status = TestLaunchObjects.Test1().EntityStatus });
 
             var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchDTOObjects.Test1().Id}");
             var json = await response.Content.ReadFromJsonAsync<LaunchDTO>();
             _fixture.Uow.Setup(u =>u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
             _fixture.LaunchViewRepository.Setup(lv => lv.RefreshView());
             _fixture.LaunchViewRepository.Setup(lv => lv.GetById(It.IsAny<Expression<Func<LaunchView, bool>>>())).ReturnsAsync(TestLaunchViewObjects.Test1());
-            
+
             var business = new LaunchApiBusiness(_fixture.Uow.Object, _fixture.Client.Object, _fixture.Mapper.Object);
 
             //Act
@@ -281,7 +299,11 @@ namespace Tests.Unit.Tests.Business.Layer
         {
             //Arrange
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
-            _fixture.LaunchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ThrowsAsync(new KeyNotFoundException(ErrorMessages.KeyNotFound));
+            _fixture.LaunchRepository.Setup(l => l.GetSelected(
+                It.IsAny<Expression<Func<Launch, bool>>>(), 
+                It.IsAny<Expression<Func<Launch, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                It.IsAny<string>())).ReturnsAsync(Guid.Empty);
             var business = new LaunchApiBusiness(_fixture.Uow.Object, _fixture.Client.Object, _fixture.Mapper.Object);
 
             //Act
@@ -305,8 +327,12 @@ namespace Tests.Unit.Tests.Business.Layer
             var client = mockHttp.ToHttpClient();
             
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
-            _fixture.Client.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(client);
-            _fixture.LaunchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ReturnsAsync(TestLaunchObjects.Test1());
+            _fixture.Client.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client);
+            _fixture.LaunchRepository.Setup(l => l.GetSelected(
+                It.IsAny<Expression<Func<Launch, bool>>>(), 
+                It.IsAny<Expression<Func<Launch, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                It.IsAny<string>())).ReturnsAsync(TestLaunchObjects.Test1().ApiGuid);
             _fixture.LaunchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
             var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchObjects.Test1().ApiGuid}");
 
@@ -333,7 +359,11 @@ namespace Tests.Unit.Tests.Business.Layer
             _fixture.Mapper.Setup(m => m.Map<Launch>(It.IsAny<LaunchDTO>())).Returns(TestLaunchObjects.Test1());
 
             _fixture.Client.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client);
-            _fixture.LaunchRepository.Setup(l => l.Get(It.IsAny<Expression<Func<Launch, bool>>>(), string.Empty)).ReturnsAsync(TestLaunchObjects.Test1());
+            _fixture.LaunchRepository.Setup(l => l.GetSelected(
+                It.IsAny<Expression<Func<Launch, bool>>>(), 
+                It.IsAny<Expression<Func<Launch, Guid>>>(),
+                It.IsAny<Func<Guid, Guid>>(),
+                It.IsAny<string>())).ReturnsAsync(TestLaunchObjects.Test1().Id);
             _fixture.LaunchRepository.Setup(l => l.GetTransaction()).ReturnsAsync(Mock.Of<IDbContextTransaction>());
 
             var response = await client.GetAsync($"{EndPoints.TheSpaceDevsLaunchEndPoint}{TestLaunchDTOObjects.Test1().Id}");

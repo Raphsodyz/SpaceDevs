@@ -1,10 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Business.DTO.Request
+namespace Business.Request
 {
     public class UpdateLaunchRequest
     {
@@ -19,5 +15,8 @@ namespace Business.DTO.Request
         [Range(0, 15, ErrorMessage = "The value on the field {0} must be greater than 0 and less 15.")]
         [Display(Name = "Iterations")]
         public int? Iterations { get; set; }
+
+        [Display(Name = "Replace Data")]
+        public bool? ReplaceData { get; set; }
     }
 }

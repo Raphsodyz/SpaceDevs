@@ -9,9 +9,11 @@ using System.Net.Http.Json;
 using Data.Materializated.Views;
 using Business.DTO.Entities;
 using System.Text.Json;
-using Business.DTO.Request;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Data.Common;
+using Business.DTO.Aggregates;
+using Business.DTO;
+using Business.Request;
 
 namespace Business.Business
 {
@@ -29,12 +31,12 @@ namespace Business.Business
 
         public async Task<LaunchView> GetOneLaunch(Guid? launchId)
         {
-            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
             _ = launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-
+            
+            ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
             Expression<Func<LaunchView, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            bool launchExist = await _launchViewBusiness.ViewExists();
-            if (!launchExist)
+            
+            if (!await _launchViewBusiness.ViewExists())
                 throw new Exception(ErrorMessages.ViewNotExists);
 
             var launch = await _launchViewBusiness.GetById(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
@@ -44,30 +46,29 @@ namespace Business.Business
         public async Task<Pagination<LaunchView>> GetAllLaunchPaged(int? page)
         {
             ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
+            Expression<Func<LaunchView, bool>> query = l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
 
-            int totalEntities = await _launchViewBusiness.EntityCount(l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());
+            int totalEntities = await _launchViewBusiness.EntityCount(query);
             int totalPages = totalEntities % 10 == 0 ? totalEntities / 10 : (totalEntities / 10) + 1;
-            if (page > totalPages || page < 0)
+            
+            if (page > totalPages)
                 throw new InvalidOperationException($"{ErrorMessages.InvalidPageSelected} Total pages = {totalPages}");
 
-            List<Expression<Func<LaunchView, bool>>> publishedLaunchQuery = new()
-            { l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
-            var selectedPageLaunchList = await _launchViewBusiness.GetViewPaged(
+            List<Expression<Func<LaunchView, bool>>> publishedLaunchQuery = new(){ query };
+            var pagedResults = await _launchViewBusiness.GetViewPaged(
                 page ?? 0, 10,
                 filters: publishedLaunchQuery);
 
-            if (selectedPageLaunchList.Entities?.Count == 0)
+            if (!pagedResults.Entities.Any())
                 throw new KeyNotFoundException(ErrorMessages.NoData);
             
-            return selectedPageLaunchList;
+            return pagedResults;
         }
 
         public async Task SoftDeleteLaunch(Guid? launchId)
         {
+            _ = launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
-
-            if (launchId == null)
-                throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             List<Expression<Func<Launch, bool>>> launchQuery = new()
             { l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
@@ -81,7 +82,7 @@ namespace Business.Business
             {
                 Expression<Func<Launch, Launch>> updateColumns = l => new Launch()
                 { EntityStatus = EStatus.TRASH.GetDisplayName() };
-                await _launchBusiness.UpdateOnQuery(launchQuery, updateColumns );
+                await _launchBusiness.UpdateOnQuery(launchQuery, updateColumns);
 
                 await trans.CommitAsync();
 
@@ -101,19 +102,22 @@ namespace Business.Business
 
         public async Task<LaunchView> UpdateLaunch(Guid? launchId)
         {
+            _ = launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
 
-            if (launchId == null)
-                throw new ArgumentNullException(ErrorMessages.NullArgument);
-
             Expression<Func<Launch, bool>> launchQuery = l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
-            var launch = await _launchBusiness.Get(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+            var apiGuid = await _launchBusiness.GetSelected(
+                filter: launchQuery,
+                selectColumns: l => l.ApiGuid,
+                buildObject: l => l);
 
-            using var trans = await _repository.GetTransaction();
+            if(apiGuid == Guid.Empty)
+                throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
+
             var client = _client.CreateClient();
             try
             {
-                string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}{launch.ApiGuid}";
+                string url = $"{EndPoints.TheSpaceDevsLaunchEndPoint}{apiGuid}";
                 HttpResponseMessage response = await client.GetAsync(url);
                 if (!response.IsSuccessStatusCode)
                     throw new HttpRequestException($"{response.StatusCode} - {ErrorMessages.LaunchApiEndPointError}");
@@ -122,10 +126,8 @@ namespace Business.Business
                 if(ObjectHelper.IsObjectEmpty(updatedLaunch))
                     throw new JsonException(ErrorMessages.DeserializingContentError);
 
-                launch = _mapper.Map<Launch>(updatedLaunch);
-                launch.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
-
-                await trans.CommitAsync();
+                var launch = _mapper.Map<Launch>(updatedLaunch);
+                await SaveLaunch(launch, true);
 
                 ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;
                 await _launchViewBusiness.RefreshView();
@@ -133,26 +135,9 @@ namespace Business.Business
                 var result = await _launchViewBusiness.GetById(l => l.Id == launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());                
                 return result;
             }
-            catch (HttpRequestException ex)
-            {
-                throw ex;
-            }
-            catch (JsonException ex)
-            {
-                throw ex;
-            }
-            catch (KeyNotFoundException ex)
-            {
-                throw ex;
-            }
             catch (Exception ex)
             {
-                await trans.RollbackAsync();
                 throw ex;
-            }
-            finally
-            {
-                await trans.DisposeAsync();
             }
         }
 
@@ -179,7 +164,7 @@ namespace Business.Business
                     foreach(var data in dataList.Results)
                     {
                         var launch = _mapper.Map<Launch>(data);
-                        await SaveLaunch(launch);
+                        await SaveLaunch(launch, request.ReplaceData ?? false);
                         entityCounter++;
                     }
 
@@ -256,15 +241,19 @@ namespace Business.Business
             return found;
         }
 
-        private async Task SaveLaunch(Launch launch)
+        private async Task SaveLaunch(Launch launch, bool replaceData)
         {
-            if (launch == null)
+            if (ObjectHelper.IsObjectEmpty(launch))
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
             ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
-            
-            if(await _launchBusiness.EntityExist(l => l.ApiGuid == launch.ApiGuid))
-                return;
+            if(replaceData == false)
+            {
+                if(await _launchBusiness.EntityExist(l => l.ApiGuid == launch.ApiGuid))
+                    return;
+            }
+            else
+                await SetOriginalBaseEntityDataProcesses(launch);
 
             using var trans = await _repository.GetTransaction();
             try
@@ -272,16 +261,16 @@ namespace Business.Business
                 var currentlyTransaction = _repository.GetCurrentlyTransaction();
                 var efConnection = _repository.GetEfConnection();
 
-                Guid? idStatus = await SaveLaunchEntitiesProcess(launch.Status, efConnection, currentlyTransaction);
-                Guid? idLaunchServiceProvider = await SaveLaunchEntitiesProcess(launch.LaunchServiceProvider, efConnection, currentlyTransaction);
-                Guid? idConfiguration = await SaveLaunchEntitiesProcess(launch.Rocket?.Configuration, efConnection, currentlyTransaction);
-                Guid? idRocket = await SaveLaunchEntitiesProcess(new Rocket(launch.Rocket?.IdFromApi, idConfiguration), efConnection, currentlyTransaction);
-                Guid? idOrbit = await SaveLaunchEntitiesProcess(launch.Mission?.Orbit, efConnection, currentlyTransaction);
-                Guid? idMission = await SaveLaunchEntitiesProcess(new Mission(launch.Mission, idOrbit), efConnection, currentlyTransaction);
-                Guid? idLocation = await SaveLaunchEntitiesProcess(launch.Pad?.Location, efConnection, currentlyTransaction);
-                Guid? idPad = await SaveLaunchEntitiesProcess(new Pad(launch.Pad, idLocation), efConnection, currentlyTransaction);
+                Guid? idStatus = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<Status>(launch.Status, null, null), efConnection, currentlyTransaction, replaceData);
+                Guid? idLaunchServiceProvider = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<LaunchServiceProvider>(launch.LaunchServiceProvider, null, null), efConnection, currentlyTransaction,replaceData);
+                Guid? idConfiguration = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<Configuration>(launch.Rocket?.Configuration, null, null), efConnection, currentlyTransaction, replaceData);
+                Guid? idRocket = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<Rocket>(launch.Rocket, idConfiguration, LaunchNestedObjectsForeignKeys.ROCKET), efConnection, currentlyTransaction, replaceData);
+                Guid? idOrbit = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<Orbit>(launch.Mission?.Orbit, null, null), efConnection, currentlyTransaction, replaceData);
+                Guid? idMission = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<Mission>(launch.Mission, idOrbit, LaunchNestedObjectsForeignKeys.MISSION), efConnection, currentlyTransaction, replaceData);
+                Guid? idLocation = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<Location>(launch.Pad?.Location, null, null), efConnection, currentlyTransaction, replaceData);
+                Guid? idPad = await SaveLaunchEntitiesProcesses(new ForeignKeyManagerDTO<Pad>(launch.Pad, idLocation, LaunchNestedObjectsForeignKeys.PAD), efConnection, currentlyTransaction, replaceData);
+                await _launchBusiness.SaveOnUpdateLaunch(launch, idStatus, idLaunchServiceProvider, idRocket, idMission, idPad);
                 
-                await _launchBusiness.Save(new Launch(launch, idStatus, idLaunchServiceProvider, idRocket, idMission, idPad));
                 await trans.CommitAsync();
             }
             catch (Exception ex)
@@ -295,17 +284,19 @@ namespace Business.Business
             }
         }
 
-        private async Task<Guid?> SaveLaunchEntitiesProcess<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
+        private async Task<Guid?> SaveLaunchEntitiesProcesses<T>(ForeignKeyManagerDTO<T> fkManager, DbConnection sharedConnection, IDbContextTransaction transaction, bool replaceData) where T : BaseEntity
         {
-            if(entity == null)
-                return null;
+            if(ObjectHelper.IsObjectEmpty(fkManager.Entity)) return null;
+            if(!string.IsNullOrWhiteSpace(fkManager.DesiredFk)) _uow.SetupForeignKey(fkManager.Entity, fkManager.DesiredFk, (Guid)fkManager.FkValue);
+            if(replaceData == false) fkManager.Entity.Id = await DatabaseGuid(fkManager.Entity, sharedConnection, transaction);
+            
+            if(fkManager.Entity.Id == Guid.Empty)
+                return await SaveNewLaunchEntity(fkManager.Entity, sharedConnection, transaction);
 
-            Guid? dbGuid = await DatabaseGuid(entity, sharedConnection, transaction);
+            if(replaceData == true)
+                await UpdateExistingLaunch(fkManager.Entity, sharedConnection, transaction);
 
-            if(dbGuid == null || dbGuid == Guid.Empty)
-                return await SaveNewLaunchEntity(entity, sharedConnection, transaction);
-
-            return dbGuid;
+            return fkManager.Entity.Id;
         }
 
         private async Task<Guid> SaveNewLaunchEntity<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
@@ -321,14 +312,16 @@ namespace Business.Business
             return entity.Id;
         }
 
+        private async Task UpdateExistingLaunch<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
+        {
+            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
+            await _dapper.FullUpdate(entity, "id_from_api = @IdFromApi", sharedConnection, transaction);
+        }
+
         private async Task<Guid> DatabaseGuid<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
         {
             var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
-            return await _dapper.GetSelected<Guid>(
-                columns: "Id",
-                where: "id_from_api = @IdFromApi",
-                parameters: new { IdFromApi = entity.IdFromApi },
-                transaction: transaction);
+            return await _dapper.GetSelected<Guid>("Id", "id_from_api = @IdFromApi", new { IdFromApi = entity.IdFromApi }, sharedConnection, transaction);
         }
 
         private async Task GenerateLog(int offset, string message, int entityCount, bool success)
@@ -348,6 +341,80 @@ namespace Business.Business
             await _updateLogBusiness.Save(log);
         }
     
+        private async Task SetOriginalBaseEntityDataProcesses(Launch launch)
+        {
+            LaunchBaseEntityAggregate launchBaseEntityAggregate = new();
+
+            try
+            {
+                await Task.WhenAll(
+                    SetOriginalBaseEntityData(launch.Status, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityData(launch.LaunchServiceProvider, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityData(launch.Rocket.Configuration, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityData(launch.Rocket, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityData(launch.Mission.Orbit, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityData(launch.Mission, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityData(launch.Pad.Location, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityData(launch.Pad, launchBaseEntityAggregate),
+                    SetOriginalBaseEntityLaunchData(launch, launchBaseEntityAggregate)
+                );
+                _mapper.Map(launchBaseEntityAggregate, launch);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        private async Task SetOriginalBaseEntityLaunchData(Launch launch, LaunchBaseEntityAggregate aggregateData)
+        {
+            ILaunchBusiness _launchBusiness = GetBusiness(typeof(ILaunchBusiness)) as ILaunchBusiness;
+
+            Expression<Func<Launch, bool>> qryBaseDataLaunch = l => l.ApiGuid == launch.ApiGuid;
+            var originalData = await _launchBusiness.GetSelected(
+                filter: qryBaseDataLaunch,
+                selectColumns: l => new BaseEntityLaunchDTO() { ApiGuid = l.ApiGuid, Id = l.Id, ImportedT = l.ImportedT, Status = l.EntityStatus },
+                buildObject: l => l
+            );
+
+            PopulateBaseEntityAggregate("Launch", aggregateData, originalLaunchData: originalData);
+        }
+
+        private async Task SetOriginalBaseEntityData<T>(T entity, LaunchBaseEntityAggregate aggregateData) where T : BaseEntity
+        {
+            if(ObjectHelper.IsObjectEmpty(entity))
+                return;
+
+            var originalData = await RecoveryOriginalBaseEntity(entity);
+            PopulateBaseEntityAggregate(typeof(T).Name, aggregateData, originalData);
+        }
+
+        private async Task<BaseEntityDTO> RecoveryOriginalBaseEntity<T>(T entity) where T : BaseEntity
+        {
+            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
+            var result = await _dapper.GetSelected<BaseEntityDTO>("id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status","id_from_api = @IdFromApi", new { IdFromApi = entity.IdFromApi }, null);
+
+            result.AtualizationDate = DateTime.Now;
+            return result;
+        }
+
+        private void PopulateBaseEntityAggregate(string prop, LaunchBaseEntityAggregate launchBaseEntityAggregate, BaseEntityDTO? originalData = null, BaseEntityLaunchDTO originalLaunchData = null)
+        {
+            switch(prop)
+            {
+                case "Status": launchBaseEntityAggregate.StatusBaseEntity = originalData; break;
+                case "LaunchServiceProvider": launchBaseEntityAggregate.LaunchServiceProviderBaseEntity = originalData; break;
+                case "Rocket": launchBaseEntityAggregate.RocketBaseEntity = originalData; break;
+                case "Configuration": launchBaseEntityAggregate.ConfigurationBaseEntity = originalData; break;
+                case "Mission": launchBaseEntityAggregate.MissionBaseEntity = originalData; break;
+                case "Orbit": launchBaseEntityAggregate.OrbitBaseEntity = originalData; break;
+                case "Pad": launchBaseEntityAggregate.PadBaseEntity = originalData; break;
+                case "Location": launchBaseEntityAggregate.LocationBaseEntity = originalData; break;
+                case "Launch": launchBaseEntityAggregate.LaunchBaseEntity = originalLaunchData; break;
+                default: throw new NotImplementedException();
+            };
+        }
+
         private async Task RefreshView()
         {
             ILaunchViewBusiness _launchViewBusiness = GetBusiness(typeof(ILaunchViewBusiness)) as ILaunchViewBusiness;

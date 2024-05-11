@@ -1,5 +1,6 @@
 using System.Data.Common;
 using AutoMapper;
+using Business.DTO.Entities;
 using Data.Interface;
 using Microsoft.EntityFrameworkCore.Storage;
 using Tests.Test.Objects;
@@ -181,6 +182,89 @@ namespace Tests.Unit.Tests.Fixture
             DapperOrbitRepository.Setup(l => l.Save( It.IsAny<Orbit>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
             DapperPadRepository.Setup(l => l.Save( It.IsAny<Pad>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
             DapperLocationRepository.Setup(l => l.Save( It.IsAny<Location>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()));
+        }
+
+        public void SetupDapperRecoveryBaseEntity()
+        {
+            DapperStatusRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().Status.Id, TestLaunchObjects.Test1().Status.IdFromApi, TestLaunchObjects.Test1().Status.AtualizationDate, TestLaunchObjects.Test1().Status.ImportedT, TestLaunchObjects.Test1().Status.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().Status.Id, TestLaunchObjects.Test2().Status.IdFromApi, TestLaunchObjects.Test2().Status.AtualizationDate, TestLaunchObjects.Test2().Status.ImportedT, TestLaunchObjects.Test2().Status.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().Status.Id, TestLaunchObjects.Test3().Status.IdFromApi, TestLaunchObjects.Test3().Status.AtualizationDate, TestLaunchObjects.Test3().Status.ImportedT, TestLaunchObjects.Test3().Status.EntityStatus));
+
+            DapperLaunchServiceProviderRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().LaunchServiceProvider.Id, TestLaunchObjects.Test1().LaunchServiceProvider.IdFromApi, TestLaunchObjects.Test1().LaunchServiceProvider.AtualizationDate, TestLaunchObjects.Test1().LaunchServiceProvider.ImportedT, TestLaunchObjects.Test1().LaunchServiceProvider.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().LaunchServiceProvider.Id, TestLaunchObjects.Test2().LaunchServiceProvider.IdFromApi, TestLaunchObjects.Test2().LaunchServiceProvider.AtualizationDate, TestLaunchObjects.Test2().LaunchServiceProvider.ImportedT, TestLaunchObjects.Test2().LaunchServiceProvider.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().LaunchServiceProvider.Id, TestLaunchObjects.Test3().LaunchServiceProvider.IdFromApi, TestLaunchObjects.Test3().LaunchServiceProvider.AtualizationDate, TestLaunchObjects.Test3().LaunchServiceProvider.ImportedT, TestLaunchObjects.Test3().LaunchServiceProvider.EntityStatus));
+
+            DapperConfigurationRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().Rocket.Configuration.Id, TestLaunchObjects.Test1().Rocket.Configuration.IdFromApi, TestLaunchObjects.Test1().Rocket.Configuration.AtualizationDate, TestLaunchObjects.Test1().Rocket.Configuration.ImportedT, TestLaunchObjects.Test1().Rocket.Configuration.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().Rocket.Configuration.Id, TestLaunchObjects.Test2().Rocket.Configuration.IdFromApi, TestLaunchObjects.Test2().Rocket.Configuration.AtualizationDate, TestLaunchObjects.Test2().Rocket.Configuration.ImportedT, TestLaunchObjects.Test2().Rocket.Configuration.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().Rocket.Configuration.Id, TestLaunchObjects.Test3().Rocket.Configuration.IdFromApi, TestLaunchObjects.Test3().Rocket.Configuration.AtualizationDate, TestLaunchObjects.Test3().Rocket.Configuration.ImportedT, TestLaunchObjects.Test3().Rocket.Configuration.EntityStatus));
+
+            DapperRocketRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().Rocket.Id, TestLaunchObjects.Test1().Rocket.IdFromApi, TestLaunchObjects.Test1().Rocket.AtualizationDate, TestLaunchObjects.Test1().Rocket.ImportedT, TestLaunchObjects.Test1().Rocket.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().Rocket.Id, TestLaunchObjects.Test2().Rocket.IdFromApi, TestLaunchObjects.Test2().Rocket.AtualizationDate, TestLaunchObjects.Test2().Rocket.ImportedT, TestLaunchObjects.Test2().Rocket.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().Rocket.Id, TestLaunchObjects.Test3().Rocket.IdFromApi, TestLaunchObjects.Test3().Rocket.AtualizationDate, TestLaunchObjects.Test3().Rocket.ImportedT, TestLaunchObjects.Test3().Rocket.EntityStatus));
+
+            DapperMissionRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,   
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().Mission.Id, TestLaunchObjects.Test1().Mission.IdFromApi, TestLaunchObjects.Test1().Mission.AtualizationDate, TestLaunchObjects.Test1().Mission.ImportedT, TestLaunchObjects.Test1().Mission.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().Mission.Id, TestLaunchObjects.Test2().Mission.IdFromApi, TestLaunchObjects.Test2().Mission.AtualizationDate, TestLaunchObjects.Test2().Mission.ImportedT, TestLaunchObjects.Test2().Mission.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().Mission.Id, TestLaunchObjects.Test3().Mission.IdFromApi, TestLaunchObjects.Test3().Mission.AtualizationDate, TestLaunchObjects.Test3().Mission.ImportedT, TestLaunchObjects.Test3().Mission.EntityStatus));
+
+            DapperOrbitRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().Mission.Orbit.Id, TestLaunchObjects.Test1().Mission.Orbit.IdFromApi, TestLaunchObjects.Test1().Mission.Orbit.AtualizationDate, TestLaunchObjects.Test1().Mission.Orbit.ImportedT, TestLaunchObjects.Test1().Mission.Orbit.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().Mission.Orbit.Id, TestLaunchObjects.Test2().Mission.Orbit.IdFromApi, TestLaunchObjects.Test2().Mission.Orbit.AtualizationDate, TestLaunchObjects.Test2().Mission.Orbit.ImportedT, TestLaunchObjects.Test2().Mission.Orbit.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().Mission.Orbit.Id, TestLaunchObjects.Test3().Mission.Orbit.IdFromApi, TestLaunchObjects.Test3().Mission.Orbit.AtualizationDate, TestLaunchObjects.Test3().Mission.Orbit.ImportedT, TestLaunchObjects.Test3().Mission.Orbit.EntityStatus));
+
+            DapperPadRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().Pad.Id, TestLaunchObjects.Test1().Pad.IdFromApi, TestLaunchObjects.Test1().Pad.AtualizationDate, TestLaunchObjects.Test1().Pad.ImportedT, TestLaunchObjects.Test1().Pad.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().Pad.Id, TestLaunchObjects.Test2().Pad.IdFromApi, TestLaunchObjects.Test2().Pad.AtualizationDate, TestLaunchObjects.Test2().Pad.ImportedT, TestLaunchObjects.Test2().Pad.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().Pad.Id, TestLaunchObjects.Test3().Pad.IdFromApi, TestLaunchObjects.Test3().Pad.AtualizationDate, TestLaunchObjects.Test3().Pad.ImportedT, TestLaunchObjects.Test3().Pad.EntityStatus));
+
+            DapperLocationRepository.SetupSequence(l => l.GetSelected<BaseEntityDTO>(
+                "id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status",
+                "id_from_api = @IdFromApi",
+                It.IsAny<object>(),
+                null,
+                null))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test1().Pad.Location.Id, TestLaunchObjects.Test1().Pad.Location.IdFromApi, TestLaunchObjects.Test1().Pad.Location.AtualizationDate, TestLaunchObjects.Test1().Pad.Location.ImportedT, TestLaunchObjects.Test1().Pad.Location.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test2().Pad.Location.Id, TestLaunchObjects.Test2().Pad.Location.IdFromApi, TestLaunchObjects.Test2().Pad.Location.AtualizationDate, TestLaunchObjects.Test2().Pad.Location.ImportedT, TestLaunchObjects.Test2().Pad.Location.EntityStatus))
+                .ReturnsAsync(new BaseEntityDTO(TestLaunchObjects.Test3().Pad.Location.Id, TestLaunchObjects.Test3().Pad.Location.IdFromApi, TestLaunchObjects.Test3().Pad.Location.AtualizationDate, TestLaunchObjects.Test3().Pad.Location.ImportedT, TestLaunchObjects.Test3().Pad.Location.EntityStatus));
         }
 
         public void ResetMockVerifyClasses()

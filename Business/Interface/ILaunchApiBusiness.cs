@@ -2,8 +2,7 @@
 using Domain.Entities;
 using Cross.Cutting.Helper;
 using Data.Materializated.Views;
-using Business.DTO.Entities;
-using Business.DTO.Request;
+using Business.Request;
 
 namespace Business.Interface
 {
