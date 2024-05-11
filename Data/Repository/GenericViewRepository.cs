@@ -65,7 +65,9 @@ namespace Data.Repository
             IList<T> results;
 
             var entityCount = await query.CountAsync();
-            if ((entityCount / pageSize) + 1 < page) page = 1;
+            int totalPages = entityCount % pageSize == 0 ? (int)Math.Ceiling((decimal)entityCount / pageSize) : (int)Math.Ceiling((decimal)entityCount / pageSize) - 1;
+
+            if (totalPages < page) throw new InvalidOperationException($"{ErrorMessages.InvalidPageSelected} Total pages = {totalPages}");
             if (orderBy != null)
             {
                 var q1 = orderBy.Compile()(query);
@@ -80,7 +82,7 @@ namespace Data.Repository
                 results = await q2.ToListAsync();
             }
 
-            var result = new Pagination<T>(results, (int)Math.Ceiling((decimal)entityCount / pageSize), page, entityCount);
+            var result = new Pagination<T>(results, totalPages, page, entityCount);
             return result;
         }
 
