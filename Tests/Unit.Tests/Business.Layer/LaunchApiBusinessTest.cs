@@ -246,14 +246,7 @@ namespace Tests.Unit.Tests.Business.Layer
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
             _fixture.Mapper.Setup(m => m.Map<Launch>(It.IsAny<LaunchDTO>())).Returns(TestLaunchObjects.Test1());
             _fixture.Mapper.Setup(m => m.Map(It.IsAny<LaunchBaseEntityAggregate>(), It.IsAny<Launch>())).Returns(TestLaunchPopulatedBaseEntity.Test1());
-            _fixture.Uow.Setup(u => u.Dapper<Status>()).Returns(_fixture.DapperStatusRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<LaunchServiceProvider>()).Returns(_fixture.DapperLaunchServiceProviderRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Configuration>()).Returns(_fixture.DapperConfigurationRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Rocket>()).Returns(_fixture.DapperRocketRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Mission>()).Returns(_fixture.DapperMissionRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Orbit>()).Returns(_fixture.DapperOrbitRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Pad>()).Returns(_fixture.DapperPadRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Location>()).Returns(_fixture.DapperLocationRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper()).Returns(_fixture.DapperBusiness.Object);
             _fixture.SetupDapperRecoveryBaseEntity();
 
             _fixture.Client.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(() => client);
@@ -396,14 +389,7 @@ namespace Tests.Unit.Tests.Business.Layer
             var client = mockHttp.ToHttpClient();
 
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Status>()).Returns(_fixture.DapperStatusRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<LaunchServiceProvider>()).Returns(_fixture.DapperLaunchServiceProviderRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Configuration>()).Returns(_fixture.DapperConfigurationRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Rocket>()).Returns(_fixture.DapperRocketRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Mission>()).Returns(_fixture.DapperMissionRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Orbit>()).Returns(_fixture.DapperOrbitRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Pad>()).Returns(_fixture.DapperPadRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Location>()).Returns(_fixture.DapperLocationRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper()).Returns(_fixture.DapperBusiness.Object);
             _fixture.Uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(_fixture.UpdateLogRepository.Object);
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
 
@@ -415,7 +401,6 @@ namespace Tests.Unit.Tests.Business.Layer
 
             _fixture.ResetMockVerifyClasses();
             _fixture.SetUpSaveSequenceLaunchRepository();
-            _fixture.SetUpReturnGuidForDapper(emptyGuid: false);
 
             _fixture.Mapper.SetupSequence(m => m.Map<Launch>(It.IsAny<LaunchDTO>()))
                 .Returns(TestLaunchObjects.Test1())
@@ -434,16 +419,14 @@ namespace Tests.Unit.Tests.Business.Layer
             var result = business.UpdateDataSet(request).Result;
 
             //Assert
+            int totalLaunchNestedEntitiesProps = 8;
             _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>()), Times.Exactly((int)request.Limit));
             _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
             _fixture.LaunchRepository.Verify(l => l.Save(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
+            _fixture.DapperBusiness.Verify(l => l.GetSelected<Guid>(
+                It.IsAny<string>(), It.IsAny<object>(),
+                It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()),
+                Times.Exactly((int)request.Limit * totalLaunchNestedEntitiesProps));
             
             Assert.NotNull(result);
             Assert.IsType<bool>(result);
@@ -465,14 +448,7 @@ namespace Tests.Unit.Tests.Business.Layer
             var client = mockHttp.ToHttpClient();
 
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(_fixture.LaunchRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Status>()).Returns(_fixture.DapperStatusRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<LaunchServiceProvider>()).Returns(_fixture.DapperLaunchServiceProviderRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Configuration>()).Returns(_fixture.DapperConfigurationRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Rocket>()).Returns(_fixture.DapperRocketRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Mission>()).Returns(_fixture.DapperMissionRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Orbit>()).Returns(_fixture.DapperOrbitRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Pad>()).Returns(_fixture.DapperPadRepository.Object);
-            _fixture.Uow.Setup(u => u.Dapper<Location>()).Returns(_fixture.DapperLocationRepository.Object);
+            _fixture.Uow.Setup(u => u.Dapper()).Returns(_fixture.DapperBusiness.Object);
             _fixture.Uow.Setup(u => u.Repository(typeof(IUpdateLogRepository))).Returns(_fixture.UpdateLogRepository.Object);
             _fixture.Uow.Setup(u => u.Repository(typeof(ILaunchViewRepository))).Returns(_fixture.LaunchViewRepository.Object);
 
@@ -484,8 +460,6 @@ namespace Tests.Unit.Tests.Business.Layer
 
             _fixture.ResetMockVerifyClasses();
             _fixture.SetUpSaveSequenceLaunchRepository();
-            _fixture.SetUpReturnGuidForDapper(emptyGuid: true);
-            _fixture.SetupDapperSave();
 
             _fixture.Mapper.SetupSequence(m => m.Map<Launch>(It.IsAny<LaunchDTO>()))
                 .Returns(TestLaunchObjects.Test1())
@@ -504,26 +478,14 @@ namespace Tests.Unit.Tests.Business.Layer
             var result = business.UpdateDataSet(request).Result;
 
             //Assert
+            int totalLaunchNestedEntitiesProps = 8;
             _fixture.LaunchRepository.Verify(l => l.EntityExist(It.IsAny<Expression<Func<Launch, bool>>>()), Times.Exactly((int)request.Limit));
             _fixture.Mapper.Verify(m => m.Map<Launch>(It.IsAny<LaunchDTO>()), Times.Exactly((int)request.Limit));
             _fixture.LaunchRepository.Verify(l => l.Save(It.IsAny<Launch>()), Times.Exactly((int)request.Limit));
-            
-            _fixture.DapperStatusRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperConfigurationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperRocketRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperMissionRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperOrbitRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLocationRepository.Verify(l => l.GetSelected<Guid>(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            
-            _fixture.DapperStatusRepository.Verify(l => l.Save(It.IsAny<Status>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLaunchServiceProviderRepository.Verify(l => l.Save(It.IsAny<LaunchServiceProvider>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperConfigurationRepository.Verify(l => l.Save(It.IsAny<Configuration>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperRocketRepository.Verify(l => l.Save(It.IsAny<Rocket>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperMissionRepository.Verify(l => l.Save(It.IsAny<Mission>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperOrbitRepository.Verify(l => l.Save(It.IsAny<Orbit>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            _fixture.DapperLocationRepository.Verify(l => l.Save(It.IsAny<Location>(), It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()), Times.Exactly((int)request.Limit));
-            
+            _fixture.DapperBusiness.Verify(l => l.GetSelected<Guid>(
+                            It.IsAny<string>(), It.IsAny<object>(),
+                            It.IsAny<DbConnection>(), It.IsAny<IDbContextTransaction>()),
+                            Times.Exactly((int)request.Limit * totalLaunchNestedEntitiesProps));            
             Assert.NotNull(result);
             Assert.IsType<bool>(result);
             Assert.Equal(result, true);
