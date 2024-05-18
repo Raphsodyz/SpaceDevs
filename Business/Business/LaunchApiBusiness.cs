@@ -372,8 +372,15 @@ namespace Business.Business
             Expression<Func<Launch, bool>> qryBaseDataLaunch = l => l.ApiGuid == launch.ApiGuid;
             var originalData = await _launchBusiness.GetSelected(
                 filter: qryBaseDataLaunch,
-                selectColumns: l => new BaseEntityLaunchDTO() { ApiGuid = l.ApiGuid, Id = l.Id, ImportedT = l.ImportedT, Status = l.EntityStatus },
-                buildObject: l => l
+                selectColumns: l => new { l.ApiGuid, l.Id, l.ImportedT, l.EntityStatus },
+                buildObject: l => new BaseEntityLaunchDTO() 
+                { 
+                    ApiGuid = l.ApiGuid,
+                    Id = l.Id,
+                    ImportedT = l.ImportedT,
+                    Status = l.EntityStatus,
+                    AtualizationDate = DateTime.Now 
+                }
             );
 
             PopulateBaseEntityAggregate("Launch", aggregateData, originalLaunchData: originalData);
@@ -396,7 +403,9 @@ namespace Business.Business
                 $"FROM {typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name} WHERE id_from_api = @IdFromApi",
                 parameters: new { IdFromApi = entity.IdFromApi });
 
-            result.AtualizationDate = DateTime.Now;
+            if(result != null)
+                result.AtualizationDate = DateTime.Now;
+            
             return result;
         }
 
