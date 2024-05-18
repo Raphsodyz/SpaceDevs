@@ -12,7 +12,7 @@ namespace Data.Interface
         IRepository Repository(Type type);
         Task Save();
         void Dispose();
-        IRepository Dapper<T>() where T : BaseEntity;
+        IGenericDapperRepository Dapper();
         void SetupForeignKey<T>(T entity, string foreignKeyName, Guid desiredFkValue) where T : BaseEntity;
     }
 }

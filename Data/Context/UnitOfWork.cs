@@ -16,10 +16,9 @@ namespace Data.Context
             _repository = new Dictionary<Type, IRepository>();
         }
 
-        public IRepository Dapper<T>() where T : BaseEntity
+        public IGenericDapperRepository Dapper()
         {
-            IRepository repository = new GenericDapperRepository<T>();
-            return repository;
+            return new GenericDapperRepository();
         }
 
         public void SetupForeignKey<T>(T entity, string foreignKeyName, Guid desiredFkValue) where T : BaseEntity

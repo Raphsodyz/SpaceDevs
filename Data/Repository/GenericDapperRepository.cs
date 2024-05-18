@@ -13,11 +13,9 @@ using Npgsql;
 
 namespace Data.Repository
 {
-    public class GenericDapperRepository<T> : IGenericDapperRepository<T> where T : BaseEntity
+    public class GenericDapperRepository : IGenericDapperRepository
     {
         private readonly string _connectionString;
-        private const int maxEntityReturn = 10;
-        private readonly string table = typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name;
         public GenericDapperRepository()
         {
             var configuration = new ConfigurationBuilder()
@@ -28,115 +26,61 @@ namespace Data.Repository
             _connectionString = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:default").Value);
         }
 
-        public async Task<TResult> GetSelected<TResult>(string columns, string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
+        public async Task<TResult> GetSelected<TResult>(string query, object parameters = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
             return await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
                 var trans = transaction?.GetDbTransaction();
-                string query = $"SELECT {columns} FROM {table} WHERE {where}";
-
                 var result = await connection.QueryFirstOrDefaultAsync<TResult>(query, parameters, trans);
+
                 return result;
             }, sharedConnection, _connectionString);
         }
     
-        public async Task<IEnumerable<TResult>> GetAllSelected<TResult>(string columns, object parameters, int? howMany = null, string where = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
+        public async Task<IEnumerable<TResult>> GetAllSelected<TResult>(string query, object parameters = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
             return await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
                 var trans = transaction?.GetDbTransaction();
-                string query = $"SELECT LIMIT {howMany ?? maxEntityReturn} {columns} FROM {table}";
-                
-                if(!string.IsNullOrWhiteSpace(where))
-                    query += " WHERE " + where;
-                
                 var result = await connection.QueryAsync<TResult>(query, parameters, trans);
-                return result;
-            }, sharedConnection, _connectionString);
-        }
-    
-        public async Task<T> Get(string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
-        {
-            return await DapperConnectionHelper.ResolveConnection(async (connection) =>
-            {
-                var trans = transaction?.GetDbTransaction();
-                string query = $"SELECT * FROM {table} WHERE {where}";
-
-                var result = await connection.QueryFirstOrDefaultAsync<T>(query, parameters, trans);
-                return result;
-            }, sharedConnection, _connectionString);
-        }
-    
-        public async Task<IEnumerable<T>> GetAll(object parameters, int? howMany = null, string where = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
-        {
-            return await DapperConnectionHelper.ResolveConnection(async (connection) =>
-            {
-                var trans = transaction?.GetDbTransaction();
-
-                string query = $"SELECT LIMIT {howMany ?? maxEntityReturn} * FROM {table}";
-                if(!string.IsNullOrWhiteSpace(where))
-                    query += " WHERE " + where;
                 
-                var result = await connection.QueryAsync<T>(query, parameters, trans);
                 return result;
             }, sharedConnection, _connectionString);
         }
     
-        public async Task Save(T entity, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
+        public async Task Save<T>(T entity, DbConnection sharedConnection = null, IDbContextTransaction transaction = null) where T : BaseEntity
         {
             //Remeber to generate the BaseEntity props first in the server for new entities!!
             await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
-                if(connection.State == ConnectionState.Closed)
-                    connection.Open();
-                
                 var trans = transaction?.GetDbTransaction();
-                string query = $"INSERT INTO {table}({GetColumnNames()}) VALUES ({GetPropNames()})";
+                string query = $"INSERT INTO {typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name}({GetColumnNames<T>()}) VALUES ({GetPropNames<T>()})";
 
                 await connection.ExecuteAsync(query, entity, trans);
             }, sharedConnection, _connectionString);
         }
 
-        public async Task PartialUpdate(string where, string set, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
-        {
-            await DapperConnectionHelper.ResolveConnection(async (connection) =>
-            {
-                if(connection.State == ConnectionState.Closed)
-                    connection.Open();
-
-                var trans = transaction?.GetDbTransaction();
-                string query = $"UPDATE {table} SET {set} WHERE {where}";
-
-                await connection.ExecuteAsync(query, parameters, trans);
-            }, sharedConnection, _connectionString);
-        }
-
-        public async Task FullUpdate(T entity, string where, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
+        public async Task FullUpdate<T>(T entity, string where, DbConnection sharedConnection = null, IDbContextTransaction transaction = null) where T : BaseEntity
         {
             await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
                 var trans = transaction?.GetDbTransaction();
-                string query = $"UPDATE {table} SET {FullUpdateSetString(GetColumnNames(), GetPropNames())} WHERE {where}";
+                string query = $"UPDATE {typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name} SET {FullUpdateSetString(GetColumnNames<T>(), GetPropNames<T>())} WHERE {where}";
 
                 await connection.ExecuteAsync(query, entity, trans);
             }, sharedConnection, _connectionString);
         }
         
-        public async Task Delete(string where, object parameters, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
+        public async Task ExecuteSql(string query, object parameters = null, DbConnection sharedConnection = null, IDbContextTransaction transaction = null)
         {
             await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
-                if(connection.State == ConnectionState.Closed)
-                    connection.Open();
-
                 var trans = transaction?.GetDbTransaction();
-                string query = $"DELETE FROM {table} WHERE {where}";
-
                 await connection.ExecuteAsync(query, parameters, trans);
             }, sharedConnection, _connectionString);
         }
 
-        private string GetPropNames()
+        private string GetPropNames<T>() where T : BaseEntity
         {
             string[] undesiredProps = new string[]{"@Search", "@IsNew"};
             var properties = typeof(T).GetProperties().Select(prop => 
@@ -156,7 +100,7 @@ namespace Data.Repository
             return string.Join(", ", properties).Trim();
         }
 
-        private string GetColumnNames()
+        private string GetColumnNames<T>() where T : BaseEntity
         {
             var properties = typeof(T).GetProperties();
             var columns = properties.Select(prop =>
