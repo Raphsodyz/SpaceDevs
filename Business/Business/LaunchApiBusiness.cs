@@ -14,6 +14,8 @@ using System.Data.Common;
 using Business.DTO.Aggregates;
 using Business.DTO;
 using Business.Request;
+using System.Reflection;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Business.Business
 {
@@ -294,7 +296,7 @@ namespace Business.Business
 
         private async Task<Guid> SaveNewLaunchEntity<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
         {
-            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
+            var _dapper = _uow.Dapper();
 
             entity.Id = Guid.NewGuid();
             entity.ImportedT = DateTime.Now;
@@ -307,14 +309,18 @@ namespace Business.Business
 
         private async Task UpdateExistingLaunch<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
         {
-            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
+            var _dapper = _uow.Dapper();
             await _dapper.FullUpdate(entity, "id_from_api = @IdFromApi", sharedConnection, transaction);
         }
 
         private async Task<Guid> DatabaseGuid<T>(T entity, DbConnection sharedConnection, IDbContextTransaction transaction) where T : BaseEntity
         {
-            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
-            return await _dapper.GetSelected<Guid>("Id", "id_from_api = @IdFromApi", new { IdFromApi = entity.IdFromApi }, sharedConnection, transaction);
+            var _dapper = _uow.Dapper();
+            return await _dapper.GetSelected<Guid>(
+                query: $"SELECT Id FROM {typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name} WHERE id_from_api = @IdFromApi",
+                parameters: new { IdFromApi = entity.IdFromApi },
+                sharedConnection: sharedConnection,
+                transaction: transaction);
         }
 
         private async Task GenerateLog(int offset, string message, int entityCount, bool success)
@@ -384,8 +390,11 @@ namespace Business.Business
 
         private async Task<BaseEntityDTO> RecoveryOriginalBaseEntity<T>(T entity) where T : BaseEntity
         {
-            var _dapper = _uow.Dapper<T>() as IGenericDapperRepository<T>;
-            var result = await _dapper.GetSelected<BaseEntityDTO>("id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status","id_from_api = @IdFromApi", new { IdFromApi = entity.IdFromApi }, null);
+            var _dapper = _uow.Dapper();
+            var result = await _dapper.GetSelected<BaseEntityDTO>(
+                query: "SELECT id as Id, id_from_api as IdFromApi, imported_t as ImportedT, status as Status " +
+                $"FROM {typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name} WHERE id_from_api = @IdFromApi",
+                parameters: new { IdFromApi = entity.IdFromApi });
 
             result.AtualizationDate = DateTime.Now;
             return result;
