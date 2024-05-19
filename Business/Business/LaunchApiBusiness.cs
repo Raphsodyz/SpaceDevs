@@ -343,26 +343,18 @@ namespace Business.Business
         private async Task SetOriginalBaseEntityDataProcesses(Launch launch)
         {
             LaunchBaseEntityAggregate launchBaseEntityAggregate = new();
-
-            try
-            {
-                await Task.WhenAll(
-                    SetOriginalBaseEntityData(launch.Status, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityData(launch.LaunchServiceProvider, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityData(launch.Rocket.Configuration, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityData(launch.Rocket, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityData(launch.Mission.Orbit, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityData(launch.Mission, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityData(launch.Pad.Location, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityData(launch.Pad, launchBaseEntityAggregate),
-                    SetOriginalBaseEntityLaunchData(launch, launchBaseEntityAggregate)
-                );
-                _mapper.Map(launchBaseEntityAggregate, launch);
-            }
-            catch
-            {
-                throw;
-            }
+            await Task.WhenAll(
+                SetOriginalBaseEntityData(launch.Status, launchBaseEntityAggregate),
+                SetOriginalBaseEntityData(launch.LaunchServiceProvider, launchBaseEntityAggregate),
+                SetOriginalBaseEntityData(launch.Rocket.Configuration, launchBaseEntityAggregate),
+                SetOriginalBaseEntityData(launch.Rocket, launchBaseEntityAggregate),
+                SetOriginalBaseEntityData(launch.Mission.Orbit, launchBaseEntityAggregate),
+                SetOriginalBaseEntityData(launch.Mission, launchBaseEntityAggregate),
+                SetOriginalBaseEntityData(launch.Pad.Location, launchBaseEntityAggregate),
+                SetOriginalBaseEntityData(launch.Pad, launchBaseEntityAggregate),
+                SetOriginalBaseEntityLaunchData(launch, launchBaseEntityAggregate)
+            );
+            _mapper.Map(launchBaseEntityAggregate, launch);
         }
 
         private async Task SetOriginalBaseEntityLaunchData(Launch launch, LaunchBaseEntityAggregate aggregateData)
