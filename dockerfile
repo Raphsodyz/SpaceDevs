@@ -17,12 +17,12 @@ RUN dotnet restore
 RUN dotnet build -c Release
 RUN dotnet publish -c Release -o out
 
-COPY Data/Migrations/migrations.sql /migrations/
-COPY Data/Migrations/Launch.data/seeddatabase.sh /docker-entrypoint-initdb.d/
+COPY Infrastructure/Persistence/Migrations/migrations.sql /migrations/
+COPY Infrastructure/Persistence/Migrations/Launch.data/seeddatabase.sh /docker-entrypoint-initdb.d/
 
-RUN if [ -f "Data/Migrations/Launch.data/spacedevs_data.sql" ]; then \
+RUN if [ -f "Infrastructure/Migrations/Launch.data/spacedevs_data.sql" ]; then \
         mkdir -p /migrations/seed/ \
-        && cp Data/Migrations/Launch.data/spacedevs_data.sql /migrations/seed/; \
+        && cp Infrastructure/Persistence/Migrations/Launch.data/spacedevs_data.sql /migrations/seed/; \
     fi
 
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS runtime

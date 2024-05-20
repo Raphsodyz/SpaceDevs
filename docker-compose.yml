@@ -19,9 +19,9 @@ services:
       retries: 20
       start_period: 10s
     volumes:
-      - ./Data/Migrations/migrations.sql:/migrations/migrations.sql:ro
-      - ./Data/Migrations/Launch.data/spacedevs_data.sql:/migrations/seed/spacedevs_data.sql:ro
-      - ./Data/Migrations/Launch.data/seeddatabase.sh:/docker-entrypoint-initdb.d/seeddatabase.sh:ro
+      - ./Infrastructure/Migrations/migrations.sql:/migrations/migrations.sql:ro
+      - ./Infrastructure/Migrations/Launch.data/spacedevs_data.sql:/migrations/seed/spacedevs_data.sql:ro
+      - ./Infrastructure/Migrations/Launch.data/seeddatabase.sh:/docker-entrypoint-initdb.d/seeddatabase.sh:ro
     environment:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
