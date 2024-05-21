@@ -1,7 +1,6 @@
 ﻿using Application.Business;
 using Business.Interface;
 using Domain.Interface;
-using Infrastructure.Context;
 
 namespace WebApi
 {
