@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using Domain.Entities;
 using Cross.Cutting.Helper;
-using Application.DTO.Entities;
 using Domain.Materializated.Views;
-using Application.DTO.Aggregates;
+using Infrastructure.DTO;
 
-namespace Application.Mapper
+namespace Infrastructure.Mapper
 {
     public class FutureSpaceMapper : Profile
     {
