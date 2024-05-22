@@ -1,11 +1,12 @@
+using Cross.Cutting.Helper;
 using Domain.Materializated.Views;
 using Domain.Shared;
 
 namespace Domain.Queries.Launch.Responses
 {
-    public class GetOneLaunchResponse : BaseResponse<LaunchView>
+    public class GetLaunchesPagedResponse : BaseResponse<Pagination<LaunchView>>
     {
-        public GetOneLaunchResponse(bool success, string error, LaunchView data)
+        public GetLaunchesPagedResponse(bool success, string error, Pagination<LaunchView> data)
         {
             Success = success;
             Error = error;
