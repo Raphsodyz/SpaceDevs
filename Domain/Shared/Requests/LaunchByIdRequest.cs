@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Cross.Cutting.Helper;
-using Domain.Queries.Launch.Responses;
 
-namespace Domain.Request
+namespace Domain.Shared.Request
 {
     public class LaunchByIdRequest
     {
