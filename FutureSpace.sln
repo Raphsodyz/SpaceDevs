@@ -13,9 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{F77161DE-8A41-43A6-B846-A72B93F33289}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{6C249BA9-79EC-425A-9290-1CAFA55509E9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\WebApi\Presentation.csproj", "{FD1A25FA-4224-4BA0-A13B-C55D25095B89}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "Services\Services.csproj", "{54A760BB-9149-46FD-A07A-BFC31F777309}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,18 +41,15 @@ Global
 		{F77161DE-8A41-43A6-B846-A72B93F33289}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F77161DE-8A41-43A6-B846-A72B93F33289}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F77161DE-8A41-43A6-B846-A72B93F33289}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FD1A25FA-4224-4BA0-A13B-C55D25095B89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD1A25FA-4224-4BA0-A13B-C55D25095B89}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD1A25FA-4224-4BA0-A13B-C55D25095B89}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD1A25FA-4224-4BA0-A13B-C55D25095B89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54A760BB-9149-46FD-A07A-BFC31F777309}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54A760BB-9149-46FD-A07A-BFC31F777309}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54A760BB-9149-46FD-A07A-BFC31F777309}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54A760BB-9149-46FD-A07A-BFC31F777309}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {57A25ABA-33A4-4C08-8C16-A43B9C52427B}
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{FD1A25FA-4224-4BA0-A13B-C55D25095B89} = {6C249BA9-79EC-425A-9290-1CAFA55509E9}
 	EndGlobalSection
 EndGlobal
