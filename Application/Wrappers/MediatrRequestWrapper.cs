@@ -8,8 +8,8 @@ namespace Application.Wrappers
 {
     public class MediatrRequestWrapper<TRequest, TResponse> : IRequest<TResponse>
     {
-        TRequest DomainRequest { get; }
-        TResponse DomainResponse { get; }
+        public TRequest DomainRequest { get; }
+        public TResponse DomainResponse { get; }
 
         public MediatrRequestWrapper(TRequest domainRequest, TResponse domainResponse)
         {
