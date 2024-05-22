@@ -1,6 +1,6 @@
-﻿using Data.Context.Builder;
-using Domain.Entities;
+﻿using Domain.Entities;
 using Domain.Materializated.Views;
+using Infrastructure.Persistence.Context.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
