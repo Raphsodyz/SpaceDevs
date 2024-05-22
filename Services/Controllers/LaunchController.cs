@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace WebApi.Controllers
+namespace Services.Controllers
 {
     [ApiController]
     [Route("api/launch")]

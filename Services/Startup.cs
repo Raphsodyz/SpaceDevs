@@ -2,7 +2,7 @@
 using Business.Interface;
 using Domain.Interface;
 
-namespace WebApi
+namespace Services
 {
     public class Startup : IStartup
     {
@@ -21,8 +21,6 @@ namespace WebApi
             services.AddDbContext<FutureSpaceContext>();
 
             services.AddHttpClient();
-
-            services.AddScoped<ILaunchApiBusiness, LaunchApiBusiness>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
