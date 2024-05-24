@@ -3,6 +3,7 @@ using Domain.Entities;
 using Cross.Cutting.Helper;
 using Domain.Materializated.Views;
 using Infrastructure.DTO;
+using Domain.Aggregates;
 
 namespace Infrastructure.Mapper
 {
@@ -109,42 +110,42 @@ namespace Infrastructure.Mapper
 
             CreateMap<LaunchBaseEntityAggregate, Launch>()
                 .ForPath(entity => entity.Id, dto => dto.MapFrom(src => src.LaunchBaseEntity.Id))
-                .ForPath(entity => entity.ApiGuid, dto => dto.MapFrom(src => src.LaunchBaseEntity.ApiGuid))
+                .ForPath(entity => entity.ApiGuid, dto => dto.MapFrom(src => src.ApiGuid))
                 .ForPath(entity => entity.AtualizationDate, dto => dto.MapFrom(src => src.LaunchBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.ImportedT, dto => dto.MapFrom(src => src.LaunchBaseEntity.ImportedT))
-                .ForPath(entity => entity.EntityStatus, dto => dto.MapFrom(src => src.LaunchBaseEntity.Status))
+                .ForPath(entity => entity.EntityStatus, dto => dto.MapFrom(src => src.LaunchBaseEntity.EntityStatus))
                 .ForPath(entity => entity.Status.Id, dto => dto.MapFrom(src => src.StatusBaseEntity.Id))
                 .ForPath(entity => entity.Status.AtualizationDate, dto => dto.MapFrom(src => src.StatusBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.Status.ImportedT, dto => dto.MapFrom(src => src.StatusBaseEntity.ImportedT))
-                .ForPath(entity => entity.Status.EntityStatus, dto => dto.MapFrom(src => src.StatusBaseEntity.Status))
+                .ForPath(entity => entity.Status.EntityStatus, dto => dto.MapFrom(src => src.StatusBaseEntity.EntityStatus))
                 .ForPath(entity => entity.LaunchServiceProvider.Id, dto => dto.MapFrom(src => src.LaunchServiceProviderBaseEntity.Id))
                 .ForPath(entity => entity.LaunchServiceProvider.AtualizationDate, dto => dto.MapFrom(src => src.LaunchServiceProviderBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.LaunchServiceProvider.ImportedT, dto => dto.MapFrom(src => src.LaunchServiceProviderBaseEntity.ImportedT))
-                .ForPath(entity => entity.LaunchServiceProvider.EntityStatus, dto => dto.MapFrom(src => src.LaunchServiceProviderBaseEntity.Status))
+                .ForPath(entity => entity.LaunchServiceProvider.EntityStatus, dto => dto.MapFrom(src => src.LaunchServiceProviderBaseEntity.EntityStatus))
                 .ForPath(entity => entity.Rocket.Id, dto => dto.MapFrom(src => src.RocketBaseEntity.Id))
                 .ForPath(entity => entity.Rocket.AtualizationDate, dto => dto.MapFrom(src => src.RocketBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.Rocket.ImportedT, dto => dto.MapFrom(src => src.RocketBaseEntity.ImportedT))
-                .ForPath(entity => entity.Rocket.EntityStatus, dto => dto.MapFrom(src => src.RocketBaseEntity.Status))
+                .ForPath(entity => entity.Rocket.EntityStatus, dto => dto.MapFrom(src => src.RocketBaseEntity.EntityStatus))
                 .ForPath(entity => entity.Rocket.Configuration.Id, dto => dto.MapFrom(src => src.ConfigurationBaseEntity.Id))
                 .ForPath(entity => entity.Rocket.Configuration.AtualizationDate, dto => dto.MapFrom(src => src.ConfigurationBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.Rocket.Configuration.ImportedT, dto => dto.MapFrom(src => src.ConfigurationBaseEntity.ImportedT))
-                .ForPath(entity => entity.Rocket.Configuration.EntityStatus, dto => dto.MapFrom(src => src.ConfigurationBaseEntity.Status))
+                .ForPath(entity => entity.Rocket.Configuration.EntityStatus, dto => dto.MapFrom(src => src.ConfigurationBaseEntity.EntityStatus))
                 .ForPath(entity => entity.Mission.Id, dto => dto.MapFrom(src => src.MissionBaseEntity.Id))
                 .ForPath(entity => entity.Mission.AtualizationDate, dto => dto.MapFrom(src => src.MissionBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.Mission.ImportedT, dto => dto.MapFrom(src => src.MissionBaseEntity.ImportedT))
-                .ForPath(entity => entity.Mission.EntityStatus, dto => dto.MapFrom(src => src.MissionBaseEntity.Status))
+                .ForPath(entity => entity.Mission.EntityStatus, dto => dto.MapFrom(src => src.MissionBaseEntity.EntityStatus))
                 .ForPath(entity => entity.Mission.Orbit.Id, dto => dto.MapFrom(src => src.OrbitBaseEntity.Id))
                 .ForPath(entity => entity.Mission.Orbit.AtualizationDate, dto => dto.MapFrom(src => src.OrbitBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.Mission.Orbit.ImportedT, dto => dto.MapFrom(src => src.OrbitBaseEntity.ImportedT))
-                .ForPath(entity => entity.Mission.Orbit.EntityStatus, dto => dto.MapFrom(src => src.OrbitBaseEntity.Status))
+                .ForPath(entity => entity.Mission.Orbit.EntityStatus, dto => dto.MapFrom(src => src.OrbitBaseEntity.EntityStatus))
                 .ForPath(entity => entity.Pad.Id, dto => dto.MapFrom(src => src.PadBaseEntity.Id))
                 .ForPath(entity => entity.Pad.AtualizationDate, dto => dto.MapFrom(src => src.PadBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.Pad.ImportedT, dto => dto.MapFrom(src => src.PadBaseEntity.ImportedT))
-                .ForPath(entity => entity.Pad.EntityStatus, dto => dto.MapFrom(src => src.PadBaseEntity.Status))
+                .ForPath(entity => entity.Pad.EntityStatus, dto => dto.MapFrom(src => src.PadBaseEntity.EntityStatus))
                 .ForPath(entity => entity.Pad.Location.Id, dto => dto.MapFrom(src => src.LocationBaseEntity.Id))
                 .ForPath(entity => entity.Pad.Location.AtualizationDate, dto => dto.MapFrom(src => src.LocationBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.Pad.Location.ImportedT, dto => dto.MapFrom(src => src.LocationBaseEntity.ImportedT))
-                .ForPath(entity => entity.Pad.Location.EntityStatus, dto => dto.MapFrom(src => src.LocationBaseEntity.Status))
+                .ForPath(entity => entity.Pad.Location.EntityStatus, dto => dto.MapFrom(src => src.LocationBaseEntity.EntityStatus))
                 .ReverseMap();
         }
     }
