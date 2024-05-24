@@ -10,7 +10,7 @@ using Domain.Interface;
 using Domain.Shared.Request;
 using MediatR;
 
-namespace Application.Handlers.CommandHandlers
+namespace Application.Handlers.CommandHandlers.LaunchApi
 {
     public class UpdateOneLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse>, UpdateOneLaunchResponse>, IUpdateOneLaunchHandler
     {

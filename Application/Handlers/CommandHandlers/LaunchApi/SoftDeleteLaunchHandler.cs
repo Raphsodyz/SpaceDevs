@@ -9,7 +9,7 @@ using Domain.Interface;
 using Domain.Shared.Request;
 using MediatR;
 
-namespace Application.Handlers.CommandHandlers
+namespace Application.Handlers.CommandHandlers.LaunchApi
 {
     public class SoftDeleteLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, SoftDeleteLaunchResponse>, SoftDeleteLaunchResponse>, ISoftDeleteLaunchHandler
     {

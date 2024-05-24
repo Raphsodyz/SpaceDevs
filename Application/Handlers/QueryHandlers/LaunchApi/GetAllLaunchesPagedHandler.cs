@@ -9,7 +9,7 @@ using Domain.Queries.Launch.Responses;
 using Domain.Request;
 using MediatR;
 
-namespace Application.Handlers.QueryHandlers.Launch
+namespace Application.Handlers.QueryHandlers.LaunchApi
 {
     public class GetAllLaunchesPagedHandler : IRequestHandler<MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse>, GetLaunchesPagedResponse>, IGetAllLaunchesPagedHandler
     {

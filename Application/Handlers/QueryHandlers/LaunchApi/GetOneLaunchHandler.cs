@@ -9,7 +9,7 @@ using Domain.Queries.Launch.Responses;
 using Domain.Shared.Request;
 using MediatR;
 
-namespace Application.Handlers.QueryHandlers.Launch
+namespace Application.Handlers.QueryHandlers.LaunchApi
 {
     public class GetOneLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, GetOneLaunchResponse>, GetOneLaunchResponse>, IGetOneLaunchHandler
     {
