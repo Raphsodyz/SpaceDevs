@@ -1,6 +1,6 @@
-namespace Application.DTO.Entities
+namespace Infrastructure.DTO
 {
-    public class BaseEntityLaunchDTO
+    public class BaseEntityLaunchData
     {
         public Guid Id { get; set; }
         public Guid ApiGuid { get; set; }
