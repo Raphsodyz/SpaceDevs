@@ -6,10 +6,10 @@ namespace Application.Shared.Handler
 {
     public abstract class BaseUpdateDataHandler
     {
-        private readonly IUnitOfWork _uow;
-        protected BaseUpdateDataHandler(IUnitOfWork uow)
+        private readonly ILaunchRepository _launchRepository;
+        protected BaseUpdateDataHandler(ILaunchRepository launchRepository)
         {
-            _uow = uow;
+            _launchRepository = launchRepository;
         }
 
         protected async Task SaveLaunch(Launch launch, bool replaceData)
@@ -17,7 +17,6 @@ namespace Application.Shared.Handler
             if (ObjectHelper.IsObjectEmpty(launch))
                 throw new ArgumentNullException(ErrorMessages.NullArgument);
 
-            ILaunchRepository _launchRepository = _uow.Repository(typeof(ILaunchRepository)) as ILaunchRepository;
             if(replaceData == false)
             {
                 if(await _launchRepository.EntityExist(l => l.ApiGuid == launch.ApiGuid))
