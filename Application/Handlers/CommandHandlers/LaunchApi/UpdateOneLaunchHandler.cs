@@ -14,11 +14,11 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
 {
     public class UpdateOneLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse>, UpdateOneLaunchResponse>, IUpdateOneLaunchHandler
     {
-        private readonly IUnitOfWork _uow;
+        private readonly ILaunchRepository _launchRepository;
         private readonly IRequestLaunchService _request;
-        public UpdateOneLaunchHandler(IUnitOfWork uow, IRequestLaunchService request)
+        public UpdateOneLaunchHandler(ILaunchRepository launchRepository, IRequestLaunchService request)
         {
-            _uow = uow;
+            _launchRepository = launchRepository;
             _request = request;
         }
         public async Task<UpdateOneLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse> request, CancellationToken cancellationToken)
@@ -32,7 +32,6 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             try
             {
                 _ = request?.launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-                ILaunchRepository _launchRepository = _uow.Repository(typeof(ILaunchRepository)) as ILaunchRepository;
 
                 Expression<Func<Launch, bool>> launchQuery = l => l.Id == request.launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
                 var apiGuid = await _launchRepository.GetSelected(

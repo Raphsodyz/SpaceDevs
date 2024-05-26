@@ -13,10 +13,10 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
 {
     public class GetOneLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, GetOneLaunchResponse>, GetOneLaunchResponse>, IGetOneLaunchHandler
     {
-        private readonly IUnitOfWork _uow;
-        public GetOneLaunchHandler(IUnitOfWork uow)
+        private readonly ILaunchViewRepository _launchViewRepository;
+        public GetOneLaunchHandler(ILaunchViewRepository launchViewRepository)
         {
-            _uow = uow;
+            _launchViewRepository = launchViewRepository;
         }
 
         public async Task<GetOneLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, GetOneLaunchResponse> request, CancellationToken cancellationToken)
@@ -29,9 +29,7 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
         {
             try
             {
-                _ = request?.launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-                ILaunchViewRepository _launchViewRepository = _uow.Repository(typeof(ILaunchViewRepository)) as ILaunchViewRepository;
-            
+                _ = request?.launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);            
                 Expression<Func<LaunchView, bool>> launchQuery = l => l.Id == request.launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName();
                 
                 if (!await _launchViewRepository.ViewExists())

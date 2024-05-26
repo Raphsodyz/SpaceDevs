@@ -13,10 +13,12 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
 {
     public class SoftDeleteLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, SoftDeleteLaunchResponse>, SoftDeleteLaunchResponse>, ISoftDeleteLaunchHandler
     {
-        private readonly IUnitOfWork _uow;
-        public SoftDeleteLaunchHandler(IUnitOfWork uow)
+        private readonly ILaunchRepository _launchRepository;
+        private readonly ILaunchViewRepository _launchViewRepository;
+        public SoftDeleteLaunchHandler(ILaunchRepository launchRepository, ILaunchViewRepository launchViewRepository)
         {
-            _uow = uow;
+            _launchRepository = launchRepository;
+            _launchViewRepository = launchViewRepository;
         }
 
         public async Task<SoftDeleteLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, SoftDeleteLaunchResponse> request, CancellationToken cancellationToken)
@@ -30,7 +32,6 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             try
             {
                 _ = request?.launchId ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-                ILaunchRepository _launchRepository = _uow.Repository(typeof(ILaunchRepository)) as ILaunchRepository;
 
                 List<Expression<Func<Launch, bool>>> launchQuery = new()
                 { l => l.Id == request.launchId && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
@@ -41,9 +42,8 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
 
                 Expression<Func<Launch, Launch>> updateColumns = l => new Launch()
                 { EntityStatus = EStatus.TRASH.GetDisplayName() };
+                
                 await _launchRepository.UpdateOnQuery(launchQuery, updateColumns);
-
-                ILaunchViewRepository _launchViewRepository = _uow.Repository(typeof(ILaunchViewRepository)) as ILaunchViewRepository;
                 await _launchViewRepository.RefreshView();
 
                 return new SoftDeleteLaunchResponse(true, SuccessMessages.DeletedEntity);

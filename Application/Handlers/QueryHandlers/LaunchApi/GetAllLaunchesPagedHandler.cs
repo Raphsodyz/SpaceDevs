@@ -13,10 +13,10 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
 {
     public class GetAllLaunchesPagedHandler : IRequestHandler<MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse>, GetLaunchesPagedResponse>, IGetAllLaunchesPagedHandler
     {
-        private readonly IUnitOfWork _uow;
-        public GetAllLaunchesPagedHandler(IUnitOfWork uow)
+        private readonly ILaunchViewRepository _launchViewRepository;
+        public GetAllLaunchesPagedHandler(ILaunchViewRepository launchViewRepository)
         {
-            _uow = uow;
+            _launchViewRepository = launchViewRepository;
         }
 
         public async Task<GetLaunchesPagedResponse> Handle(MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse> request, CancellationToken cancellationToken)
@@ -29,10 +29,8 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
         {
             try
             {
-                ILaunchViewRepository _launchViewBusiness = _uow.Repository(typeof(ILaunchViewRepository)) as ILaunchViewRepository;
                 List<Expression<Func<LaunchView, bool>>> publishedLaunchQuery = new(){ l => l.EntityStatus == EStatus.PUBLISHED.GetDisplayName() };
-                
-                var pagedResults = await _launchViewBusiness.GetViewPaged(
+                var pagedResults = await _launchViewRepository.GetViewPaged(
                     request?.Page ?? 0, 10,
                     filters: publishedLaunchQuery);
 
