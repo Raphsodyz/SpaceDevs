@@ -21,13 +21,14 @@ namespace Infrastructure.Persistence.Repository.Helper
 
                 await action(connection);
             }
+            catch
+            {
+                throw;
+            }
             finally
             {
                 if (shouldDisposeConnection)
-                {
-                    await connection.CloseAsync();
                     await connection.DisposeAsync();
-                }
             }
         }
 
@@ -46,13 +47,14 @@ namespace Infrastructure.Persistence.Repository.Helper
 
                 return await action(connection);
             }
+            catch
+            {
+                throw;
+            }
             finally
             {
                 if (shouldDisposeConnection)
-                {
-                    await connection.CloseAsync();
                     await connection.DisposeAsync();
-                }
             }
         }
     }
