@@ -1,19 +1,19 @@
 namespace Infrastructure.DTO
 {
-    public class BaseEntityData
+    public class BaseEntityDTO
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public int? IdFromApi { get; set; }
-        public DateTime AtualizationDate { get; set; }
-        public DateTime ImportedT { get; set; }
+        public DateTime? AtualizationDate { get; set; }
+        public DateTime? ImportedT { get; set; }
         public string Status { get; set; }
 
-        public BaseEntityData()
+        public BaseEntityDTO()
         {
             
         }
 
-        public BaseEntityData(Guid id, int? idFromApi, DateTime atualizationDate, DateTime importedT, string status)
+        public BaseEntityDTO(Guid? id, int? idFromApi, DateTime? atualizationDate, DateTime? importedT, string status)
         {
             Id = id;
             IdFromApi = idFromApi;
