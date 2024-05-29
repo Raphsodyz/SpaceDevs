@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using Application.Shared.Handler;
 using Application.Wrappers;
 using Cross.Cutting.Enum;
 using Cross.Cutting.Helper;
@@ -12,14 +13,20 @@ using MediatR;
 
 namespace Application.Handlers.CommandHandlers.LaunchApi
 {
-    public class UpdateOneLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse>, UpdateOneLaunchResponse>, IUpdateOneLaunchHandler
+    public class UpdateOneLaunchHandler : BaseUpdateDataHandler, IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse>, UpdateOneLaunchResponse>, IUpdateOneLaunchHandler
     {
         private readonly ILaunchRepository _launchRepository;
         private readonly IRequestLaunchService _request;
-        public UpdateOneLaunchHandler(ILaunchRepository launchRepository, IRequestLaunchService request)
+        private readonly ILaunchViewRepository _launchViewRepository;
+        public UpdateOneLaunchHandler(
+            ILaunchRepository launchRepository,
+            IGenericDapperRepository genericDapperRepository,
+            IRequestLaunchService request,
+            ILaunchViewRepository launchViewRepository)
+            : base(launchRepository, genericDapperRepository)
         {
-            _launchRepository = launchRepository;
             _request = request;
+            _launchViewRepository = launchViewRepository;
         }
         public async Task<UpdateOneLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse> request, CancellationToken cancellationToken)
         {
@@ -43,6 +50,14 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
                     throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
                 var launch = await _request.RequestLaunchById(apiGuid);
+                await SaveLaunch(launch, true);
+                await _launchViewRepository.RefreshView();
+
+                var result = await _launchViewRepository.GetById(
+                    l => l.Id == request.launchId
+                    && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());                
+                    
+                return new UpdateOneLaunchResponse(true, SuccessMessages.UpdateJob, result);
             }
             catch(Exception ex)
             {
