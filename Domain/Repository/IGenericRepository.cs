@@ -37,6 +37,8 @@ namespace Domain.Interface
 
         DbConnection GetEfConnection();
 
+        void SetupForeignKey<TEntity>(TEntity entity, string foreignKeyName, Guid desiredFkValue);
+
         Task<T> Get(Expression<Func<T, bool>> filter, string includedProperties = "");
 
         Task<TObject> GetSelected<TResult, TObject>(
