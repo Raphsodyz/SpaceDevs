@@ -13,12 +13,15 @@ namespace Application.Shared.Handler
     {
         private readonly ILaunchRepository _launchRepository;
         private readonly IGenericDapperRepository _genericDapperRepository;
+        private readonly IUpdateLogRepository _updateLogRepository;
         protected BaseUpdateDataHandler(
             ILaunchRepository launchRepository,
-            IGenericDapperRepository genericDapperRepository)
+            IGenericDapperRepository genericDapperRepository,
+            IUpdateLogRepository updateLogRepository)
         {
             _launchRepository = launchRepository;
             _genericDapperRepository = genericDapperRepository;
+            _updateLogRepository = updateLogRepository;
         }
 
         protected async Task SaveLaunch(Launch launch, bool replaceData)
@@ -109,6 +112,11 @@ namespace Application.Shared.Handler
             DbTransaction transaction) where T : BaseEntity
         {
             await _genericDapperRepository.FullUpdate(entity, "id_from_api = @IdFromApi", sharedConnection, transaction);
+        }
+
+        protected async Task GenerateLog(int offset, string message, int entityCount, bool success)
+        {
+            await _updateLogRepository.Save(new UpdateLog(offset, message, entityCount, success));
         }
     }
 }
