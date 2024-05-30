@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Cross.Cutting.Enum;
+using Cross.Cutting.Helper;
 
 namespace Domain.Entities
 {
@@ -22,5 +19,24 @@ namespace Domain.Entities
         public int EntityCount { get; set; }
         [Column("origin")]
         public string Origin { get; set; }
+
+        #region Constructors
+
+        public UpdateLog()
+        {
+        }
+
+        public UpdateLog(int offset, string message, int entityCount, bool success)
+        {
+            TransactionDate = DateTime.Now;
+            OffSet = offset;
+            Success = success;
+            Message = message;
+            EntityCount = entityCount;
+            Origin = EOrigin.API_UPDATE.GetDisplayName();
+            EntityStatus = EStatus.PUBLISHED.GetDisplayName();
+        }
+
+        #endregion
     }
 }
