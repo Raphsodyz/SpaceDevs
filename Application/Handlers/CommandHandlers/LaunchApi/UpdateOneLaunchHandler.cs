@@ -22,12 +22,14 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             ILaunchRepository launchRepository,
             IGenericDapperRepository genericDapperRepository,
             IRequestLaunchService request,
-            ILaunchViewRepository launchViewRepository)
-            : base(launchRepository, genericDapperRepository)
+            ILaunchViewRepository launchViewRepository,
+            IUpdateLogRepository updateLogRepository)
+            : base(launchRepository, genericDapperRepository, updateLogRepository)
         {
             _request = request;
             _launchViewRepository = launchViewRepository;
         }
+
         public async Task<UpdateOneLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse> request, CancellationToken cancellationToken)
         {
             var domainRequest = request.DomainRequest;
