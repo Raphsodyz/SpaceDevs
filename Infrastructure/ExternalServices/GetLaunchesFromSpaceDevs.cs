@@ -4,21 +4,27 @@ using AutoMapper;
 using Cross.Cutting.Helper;
 using Domain.Entities;
 using Domain.ExternalServices;
+using Domain.Interface;
 using Infrastructure.DTO;
 
 namespace Infrastructure.ExternalServices
 {
-    public class GetLaunches : IRequestLaunchService
+    public class GetLaunchesFromSpaceDevs : IRequestLaunchService
     {
         private readonly IHttpClientFactory _client;
         private readonly IMapper _mapper;
-        public GetLaunches(IHttpClientFactory client, IMapper mapper)
+        private readonly IUpdateLogRepository _updateLogRepository;
+        public GetLaunchesFromSpaceDevs(
+            IHttpClientFactory client,
+            IMapper mapper,
+            IUpdateLogRepository updateLogRepository)
         {
             _client = client;
             _mapper = mapper;
+            _updateLogRepository = updateLogRepository;
         }
 
-        public async Task<List<Launch>> RequestLaunchSet(int limit, int offset)
+        public async Task<List<Launch>> RequestLaunchSet(int limit, int offset, int entityCounter)
         {
             using var client = _client.CreateClient();
             try
@@ -37,8 +43,8 @@ namespace Infrastructure.ExternalServices
             }
             catch(Exception ex)
             {
-                //Needs implementate the exception handling for generate logs;
-                throw new NotImplementedException();
+                await _updateLogRepository.Save(new UpdateLog(offset, ex.Message, entityCounter, false));
+                throw;
             }
         }
 
@@ -61,8 +67,8 @@ namespace Infrastructure.ExternalServices
             }
             catch(Exception ex)
             {
-                //Needs implementate the exception handling for generate logs;
-                throw new NotImplementedException();
+                await _updateLogRepository.Save(new UpdateLog(0, ex.Message, 1, false));
+                throw;
             }
         }
     }
