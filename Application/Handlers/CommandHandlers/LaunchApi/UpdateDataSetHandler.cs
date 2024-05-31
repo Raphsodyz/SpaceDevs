@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Application.Handlers.CommandHandlers.LaunchApi
 {
-    public class UpdateDataSetHandler : BaseUpdateDataHandler, IRequestHandler<MediatrRequestWrapper<UpdateLaunchRequest, UpdateDataSetResponse>, UpdateDataSetResponse>, IUpdateDataSetHandler
+    public class UpdateDataSetHandler : BaseUpdateDataHandler, IRequestHandler<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>, UpdateDataSetResponse>, IUpdateDataSetHandler
     {
         private readonly IRequestLaunchService _request;
         private readonly ILaunchViewRepository _launchViewRepository;
@@ -26,13 +26,13 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             _launchViewRepository = launchViewRepository;
         }
 
-        public async Task<UpdateDataSetResponse> Handle(MediatrRequestWrapper<UpdateLaunchRequest, UpdateDataSetResponse> request, CancellationToken cancellationToken)
+        public async Task<UpdateDataSetResponse> Handle(MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse> request, CancellationToken cancellationToken)
         {
             var domainRequest = request.DomainRequest;
             return await Handle(domainRequest, cancellationToken);
         }
 
-        public async Task<UpdateDataSetResponse> Handle(UpdateLaunchRequest request, CancellationToken cancellationToken)
+        public async Task<UpdateDataSetResponse> Handle(UpdateLaunchSetRequest request, CancellationToken cancellationToken)
         {
             request.Limit ??= 100;
             request.Iterations ??= 15;
@@ -48,11 +48,11 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
                         await SaveLaunch(data, request.ReplaceData ?? false);
                         entityCounter++;
                     }
-                }
 
-                await GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
-                entityCounter = 0;
-                offset += (int)request.Limit;
+                    await GenerateLog(offset, SuccessMessages.PartialImportSuccess, entityCounter, true);
+                    entityCounter = 0;
+                    offset += (int)request.Limit;
+                }
             }
             catch(Exception ex)
             {
@@ -65,7 +65,7 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             }
 
             await GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
-            return new UpdateDataSetResponse(true, string.Empty, true);
+            return new UpdateDataSetResponse(true, SuccessMessages.ImportedDataSuccess, true);
         }
     }
 }

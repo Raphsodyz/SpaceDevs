@@ -3,17 +3,17 @@ using Application.Shared.Handler;
 using Application.Wrappers;
 using Cross.Cutting.Enum;
 using Cross.Cutting.Helper;
+using Domain.Commands.Launch.Requests;
 using Domain.Commands.Launch.Responses;
 using Domain.Entities;
 using Domain.ExternalServices;
 using Domain.Handlers;
 using Domain.Interface;
-using Domain.Shared.Request;
 using MediatR;
 
 namespace Application.Handlers.CommandHandlers.LaunchApi
 {
-    public class UpdateOneLaunchHandler : BaseUpdateDataHandler, IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse>, UpdateOneLaunchResponse>, IUpdateOneLaunchHandler
+    public class UpdateOneLaunchHandler : BaseUpdateDataHandler, IRequestHandler<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>, UpdateOneLaunchResponse>, IUpdateOneLaunchHandler
     {
         private readonly ILaunchRepository _launchRepository;
         private readonly IRequestLaunchService _request;
@@ -30,13 +30,13 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             _launchViewRepository = launchViewRepository;
         }
 
-        public async Task<UpdateOneLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, UpdateOneLaunchResponse> request, CancellationToken cancellationToken)
+        public async Task<UpdateOneLaunchResponse> Handle(MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse> request, CancellationToken cancellationToken)
         {
             var domainRequest = request.DomainRequest;
             return await Handle(domainRequest, cancellationToken);
         }
 
-        public async Task<UpdateOneLaunchResponse> Handle(LaunchByIdRequest request, CancellationToken cancellationToken)
+        public async Task<UpdateOneLaunchResponse> Handle(UpdateOneLaunchRequest request, CancellationToken cancellationToken)
         {
             try
             {

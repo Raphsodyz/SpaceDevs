@@ -2,16 +2,16 @@ using System.Linq.Expressions;
 using Application.Wrappers;
 using Cross.Cutting.Enum;
 using Cross.Cutting.Helper;
+using Domain.Commands.Launch.Requests;
 using Domain.Commands.Launch.Responses;
 using Domain.Entities;
 using Domain.Handlers;
 using Domain.Interface;
-using Domain.Shared.Request;
 using MediatR;
 
 namespace Application.Handlers.CommandHandlers.LaunchApi
 {
-    public class SoftDeleteLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, SoftDeleteLaunchResponse>, SoftDeleteLaunchResponse>, ISoftDeleteLaunchHandler
+    public class SoftDeleteLaunchHandler : IRequestHandler<MediatrRequestWrapper<SoftDeleteLaunchRequest, SoftDeleteLaunchResponse>, SoftDeleteLaunchResponse>, ISoftDeleteLaunchHandler
     {
         private readonly ILaunchRepository _launchRepository;
         private readonly ILaunchViewRepository _launchViewRepository;
@@ -21,13 +21,13 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             _launchViewRepository = launchViewRepository;
         }
 
-        public async Task<SoftDeleteLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, SoftDeleteLaunchResponse> request, CancellationToken cancellationToken)
+        public async Task<SoftDeleteLaunchResponse> Handle(MediatrRequestWrapper<SoftDeleteLaunchRequest, SoftDeleteLaunchResponse> request, CancellationToken cancellationToken)
         {
             var domainRequest = request.DomainRequest;
             return await Handle(domainRequest, cancellationToken);
         }
 
-        public async Task<SoftDeleteLaunchResponse> Handle(LaunchByIdRequest request, CancellationToken cancellationToken)
+        public async Task<SoftDeleteLaunchResponse> Handle(SoftDeleteLaunchRequest request, CancellationToken cancellationToken)
         {
             try
             {

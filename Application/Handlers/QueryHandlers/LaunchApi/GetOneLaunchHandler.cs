@@ -5,13 +5,13 @@ using Cross.Cutting.Helper;
 using Domain.Handlers;
 using Domain.Interface;
 using Domain.Materializated.Views;
+using Domain.Queries.Launch.Requests;
 using Domain.Queries.Launch.Responses;
-using Domain.Shared.Request;
 using MediatR;
 
 namespace Application.Handlers.QueryHandlers.LaunchApi
 {
-    public class GetOneLaunchHandler : IRequestHandler<MediatrRequestWrapper<LaunchByIdRequest, GetOneLaunchResponse>, GetOneLaunchResponse>, IGetOneLaunchHandler
+    public class GetOneLaunchHandler : IRequestHandler<MediatrRequestWrapper<GetByIdRequest, GetOneLaunchResponse>, GetOneLaunchResponse>, IGetOneLaunchHandler
     {
         private readonly ILaunchViewRepository _launchViewRepository;
         public GetOneLaunchHandler(ILaunchViewRepository launchViewRepository)
@@ -19,13 +19,13 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
             _launchViewRepository = launchViewRepository;
         }
 
-        public async Task<GetOneLaunchResponse> Handle(MediatrRequestWrapper<LaunchByIdRequest, GetOneLaunchResponse> request, CancellationToken cancellationToken)
+        public async Task<GetOneLaunchResponse> Handle(MediatrRequestWrapper<GetByIdRequest, GetOneLaunchResponse> request, CancellationToken cancellationToken)
         {
             var domainRequest = request.DomainRequest;
             return await Handle(domainRequest, cancellationToken);
         }
 
-        public async Task<GetOneLaunchResponse> Handle(LaunchByIdRequest request, CancellationToken cancellationToken)
+        public async Task<GetOneLaunchResponse> Handle(GetByIdRequest request, CancellationToken cancellationToken)
         {
             try
             {
