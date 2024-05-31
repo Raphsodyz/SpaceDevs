@@ -1,23 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using Cross.Cutting.Helper;
 
-namespace Domain.Shared.Request
+namespace Domain.Shared
 {
-    public class LaunchByIdRequest
+    public abstract class BaseLaunchByIdRequest
     {
         [Display(Name = "ID Launch")]
         [DataType(DataType.Text)]
         [Required(ErrorMessage = "{0}: " + ErrorMessages.NullArgument)]
         public Guid? launchId { get; set; }
-
-        public LaunchByIdRequest()
-        {
-            
-        }
-
-        public LaunchByIdRequest(Guid? launchId)
-        {
-            this.launchId = launchId;
-        }
     }
 }

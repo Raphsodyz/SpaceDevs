@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Commands.Launch.Requests
 {
-    public class UpdateLaunchRequest
+    public class UpdateLaunchSetRequest
     {
         [Range(0, 100, ErrorMessage = "The value on the field {0} must be greater than 0 and less 100.")]
         [Display(Name = "Limit")]

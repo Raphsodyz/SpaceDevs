@@ -5,6 +5,6 @@ namespace Domain.Handlers
 {
     public interface IUpdateDataSetHandler
     {
-        Task<UpdateDataSetResponse> Handle(UpdateLaunchRequest request, CancellationToken cancellationToken);
+        Task<UpdateDataSetResponse> Handle(UpdateLaunchSetRequest request, CancellationToken cancellationToken);
     }
 }

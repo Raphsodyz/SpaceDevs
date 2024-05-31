@@ -1,10 +1,10 @@
+using Domain.Queries.Launch.Requests;
 using Domain.Queries.Launch.Responses;
-using Domain.Shared.Request;
 
 namespace Domain.Handlers
 {
     public interface IGetOneLaunchHandler
     {
-        Task<GetOneLaunchResponse> Handle(LaunchByIdRequest request, CancellationToken cancellationToken);
+        Task<GetOneLaunchResponse> Handle(GetByIdRequest request, CancellationToken cancellationToken);
     }
 }
