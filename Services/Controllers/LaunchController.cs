@@ -1,4 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Application.Wrappers;
+using Cross.Cutting.Helper;
+using Domain.Commands.Launch.Requests;
+using Domain.Commands.Launch.Responses;
+using Domain.Queries.Launch.Requests;
+using Domain.Queries.Launch.Responses;
+using Domain.Request;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -8,21 +16,23 @@ namespace Services.Controllers
     [Route("api/launch")]
     public class LaunchController : ControllerBase
     {
-        private readonly ILaunchApiBusiness _launchApiBusiness;
-        public LaunchController(ILaunchApiBusiness launchApiBusiness)
+        private readonly IMediator _mediator;
+        public LaunchController(IMediator mediator)
         {
-            _launchApiBusiness = launchApiBusiness;
+            _mediator = mediator;
         }
 
         [HttpGet]
         [Route("search")]
         [SwaggerOperation(Summary = "Method for fuzzy search of mission, location, pad, rocket and launch.")]
-        public async Task<IActionResult>SearchByParams([FromQuery]SearchLaunchRequest search)
+        public async Task<IActionResult>SearchByParams([FromQuery]SearchLaunchRequest request)
         {
             try
             {
-                _ = search ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
-                var data = await _launchApiBusiness.SearchByParam(search);
+                _ = request ?? throw new ArgumentNullException(ErrorMessages.NullArgument);
+
+                var wrapper = new MediatrRequestWrapper<SearchLaunchRequest, SeachByParamResponse>(request, null);
+                var data = await _mediator.Send(wrapper);
 
                 return Ok(data);
             }
@@ -47,12 +57,14 @@ namespace Services.Controllers
         [HttpGet]
         [Route("{launchId:Guid}")]
         [SwaggerOperation(Summary = "Method for search a launch by his UUID. This UUID is proveniente from the database.")]
-        public async Task<IActionResult> GetById([FromRoute]LaunchRequest request)
+        public async Task<IActionResult> GetById([FromRoute]GetByIdRequest request)
         {
             try
             {
-                var launchView = await _launchApiBusiness.GetOneLaunch(request.launchId);
-                return Ok(launchView);
+                var wrapper = new MediatrRequestWrapper<GetByIdRequest, GetOneLaunchResponse>(request, null);
+                var data = await _mediator.Send(wrapper);
+
+                return Ok(data);
             }
             catch (ArgumentNullException ex)
             {
@@ -75,8 +87,10 @@ namespace Services.Controllers
         {
             try
             {
-                Pagination<LaunchView> pagedLaunchList = await _launchApiBusiness.GetAllLaunchPaged(request.Page);
-                return Ok(new { CurrentlyPage = pagedLaunchList.CurrentPage, TotalRegisters = pagedLaunchList.NumberOfEntities, Pages = pagedLaunchList.NumberOfPages, Data = pagedLaunchList.Entities });
+                var wrapper = new MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse>(request, null);
+                var data = await _mediator.Send(wrapper);
+
+                return Ok(data);
             }
             catch (InvalidOperationException ex)
             {
@@ -95,11 +109,13 @@ namespace Services.Controllers
         [HttpDelete]
         [Route("{launchId:Guid}")]
         [SwaggerOperation(Summary = "Method for delete a launch by his UUID.")]
-        public async Task<IActionResult> Delete([FromRoute]LaunchRequest request)
+        public async Task<IActionResult> Delete([FromRoute]SoftDeleteLaunchRequest request)
         {
             try
             {
-                await _launchApiBusiness.SoftDeleteLaunch(request.launchId);
+                var wrapper = new MediatrRequestWrapper<SoftDeleteLaunchRequest, SoftDeleteLaunchResponse>(request, null);
+                await _mediator.Send(wrapper);
+
                 return Ok(SuccessMessages.DeletedEntity);
             }
             catch (ArgumentNullException ex)
@@ -119,11 +135,13 @@ namespace Services.Controllers
         [HttpPut]
         [Route("{launchId:Guid}")]
         [SwaggerOperation(Summary = "Method to update a launch by synchronize his data with ll.thespacedevs API.")]
-        public async Task<IActionResult> Update([FromRoute]LaunchRequest request)
+        public async Task<IActionResult> Update([FromRoute]UpdateOneLaunchRequest request)
         {
             try
             {
-                LaunchView updatedLaunch = await _launchApiBusiness.UpdateLaunch(request.launchId);
+                var wrapper = new MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>(request, null);
+                var updatedLaunch = await _mediator.Send(wrapper);
+
                 return Ok(updatedLaunch);
             }
             catch (ArgumentNullException ex)
@@ -147,15 +165,14 @@ namespace Services.Controllers
         [HttpPost]
         [Route("launchers")]
         [SwaggerOperation(Summary = "Method to synchronize data with ll.thespacedevs API.", Description = "The offset query string is launch count starting point. It will bring up 100 to 100 max of 1500 new launches per request.")]
-        public async Task<IActionResult> BulkUpdateData([FromQuery]UpdateLaunchRequest request)
+        public async Task<IActionResult> UpdateDataSet([FromQuery]UpdateLaunchSetRequest request)
         {
             try
             {
-                bool updated = await _launchApiBusiness.UpdateDataSet(request);
-                if (updated)
-                    return Ok(SuccessMessages.ImportedDataSuccess);
-                else
-                    return StatusCode(StatusCodes.Status500InternalServerError, $"{ErrorMessages.InternalServerError}");
+                var wrapper = new MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>(request, null);
+                var updated = await _mediator.Send(wrapper);
+
+                return Ok(updated);
             }
             catch(ValidationException ex)
             {
