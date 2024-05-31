@@ -1,6 +1,12 @@
-﻿using Application.Business;
-using Business.Interface;
+﻿using Application.Handlers.CommandHandlers.LaunchApi;
+using Application.Handlers.QueryHandlers.LaunchApi;
+using Domain.ExternalServices;
+using Domain.Handlers;
 using Domain.Interface;
+using Infrastructure.ExternalServices;
+using Infrastructure.Persistence.Context;
+using Infrastructure.Persistence.Repository;
+using MediatR;
 
 namespace Services
 {
@@ -18,12 +24,38 @@ namespace Services
             services.AddSwaggerGen(cfg => {
                 cfg.EnableAnnotations();
             });
+
             services.AddDbContext<FutureSpaceContext>();
 
-            services.AddHttpClient();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //Repository Dependencies ..
+            services.AddTransient<IConfigurationRepository, ConfigurationRepository>();
+            services.AddTransient<IGenericDapperRepository, GenericDapperRepository>();
+            services.AddTransient<ILaunchRepository, LaunchRepository>();
+            services.AddTransient<ILaunchServiceProviderRepository, LaunchServiceProviderRepository>();
+            services.AddTransient<ILaunchViewRepository, LaunchViewRepository>();
+            services.AddTransient<ILocationRepository, LocationRepository>();
+            services.AddTransient<IMissionRepository, MissionRepository>();
+            services.AddTransient<IOrbitRepository, OrbitRepository>();
+            services.AddTransient<IPadRepository, PadRepository>();
+            services.AddTransient<IRocketRepository, RocketRepository>();
+            services.AddTransient<IStatusRepository, StatusRepository>();
+            services.AddTransient<IUpdateLogRepository, UpdateLogRepository>();
+
+            //External Services Dependencies ..
+            services.AddTransient<IRequestLaunchService, GetLaunchesFromSpaceDevs>();
+
+            //Handler Dependencies ..
+            services.AddTransient<IGetAllLaunchesPagedHandler, GetAllLaunchesPagedHandler>();
+            services.AddTransient<IGetOneLaunchHandler, GetOneLaunchHandler>();
+            services.AddTransient<ISearchByParamHandler, SearchByParamHandler>();
+            services.AddTransient<ISoftDeleteLaunchHandler, SoftDeleteLaunchHandler>();
+            services.AddTransient<IUpdateDataSetHandler, UpdateDataSetHandler>();
+            services.AddTransient<IUpdateOneLaunchHandler, UpdateOneLaunchHandler>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddMediatR(AppDomain.CurrentDomain.GetAssemblies());
+
+            services.AddHttpClient();
         }
 
         public void Configure(WebApplication app, IWebHostEnvironment environment)
