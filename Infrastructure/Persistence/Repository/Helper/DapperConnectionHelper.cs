@@ -21,10 +21,6 @@ namespace Infrastructure.Persistence.Repository.Helper
 
                 await action(connection);
             }
-            catch
-            {
-                throw;
-            }
             finally
             {
                 if (shouldDisposeConnection)
@@ -46,10 +42,6 @@ namespace Infrastructure.Persistence.Repository.Helper
                     await connection.OpenAsync();
 
                 return await action(connection);
-            }
-            catch
-            {
-                throw;
             }
             finally
             {
