@@ -28,13 +28,11 @@ namespace Infrastructure.Persistence.Repository
         public async Task CommitTransaction()
         {
             await _context.Database.CurrentTransaction.CommitAsync();
-            await _context.Database.CurrentTransaction.DisposeAsync();
         }
 
         public async Task RollbackTransaction()
         {
             await _context.Database.CurrentTransaction.RollbackAsync();
-            await _context.Database.CurrentTransaction.DisposeAsync();
         }
 
         public DbConnection GetEfConnection()
@@ -53,7 +51,7 @@ namespace Infrastructure.Persistence.Repository
 
         public void SetupForeignKey<TEntity>(TEntity entity, string foreignKeyName, Guid desiredFkValue)
         {
-            var entityType = _context.Model.FindEntityType(typeof(T));
+            var entityType = _context.Model.FindEntityType(typeof(TEntity));
             var foreignKeys = entityType.GetProperties()
                 .FirstOrDefault(p => p.Name.Equals(foreignKeyName, StringComparison.OrdinalIgnoreCase));
 
