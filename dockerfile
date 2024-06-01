@@ -20,7 +20,7 @@ RUN dotnet publish -c Release -o out
 COPY Infrastructure/Persistence/Migrations/migrations.sql /migrations/
 COPY Infrastructure/Persistence/Migrations/Launch.data/seeddatabase.sh /docker-entrypoint-initdb.d/
 
-RUN if [ -f "Infrastructure/Migrations/Launch.data/spacedevs_data.sql" ]; then \
+RUN if [ -f "Infrastructure/Persistence/Migrations/Launch.data/spacedevs_data.sql" ]; then \
         mkdir -p /migrations/seed/ \
         && cp Infrastructure/Persistence/Migrations/Launch.data/spacedevs_data.sql /migrations/seed/; \
     fi
