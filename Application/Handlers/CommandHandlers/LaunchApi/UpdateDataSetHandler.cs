@@ -57,7 +57,7 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             catch(Exception ex)
             {
                 await GenerateLog(offset, ex.Message, entityCounter, false);
-                return new UpdateDataSetResponse(false, ex.Message, null);
+                throw;
             }
             finally
             {
