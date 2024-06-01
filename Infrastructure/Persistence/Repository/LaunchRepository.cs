@@ -35,8 +35,8 @@ namespace Infrastructure.Persistence.Repository
 
         public async Task SetUpBaseEntityDTO(Launch launch)
         {
-            var launchBaseEntityCompoundData = await GetAllSelectedColumns(
-                filters: new List<Expression<Func<Launch, bool>>>() { l => l.ApiGuid == launch.ApiGuid },
+            var launchBaseEntityCompoundData = await GetSelected(
+                filter: l => l.ApiGuid == launch.ApiGuid,
                 includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location",
                 selectColumns: l => new 
                 { 
