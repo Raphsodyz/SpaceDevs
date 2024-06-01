@@ -139,22 +139,12 @@ namespace Infrastructure.Persistence.Repository
             launch.IdMission = idMission;
             launch.IdPad = idPad;
 
-            var entry = _context.Entry(launch);
-            
-            if (entry.Reference(e => e.Status).IsLoaded)
-                entry.Reference(e => e.Status).IsLoaded = false;
-
-            if (entry.Reference(e => e.LaunchServiceProvider).IsLoaded)
-                entry.Reference(e => e.LaunchServiceProvider).IsLoaded = false;
-
-            if (entry.Reference(e => e.Rocket).IsLoaded)
-                entry.Reference(e => e.Rocket).IsLoaded = false;
-
-            if (entry.Reference(e => e.Mission).IsLoaded)
-                entry.Reference(e => e.Mission).IsLoaded = false;
-
-            if (entry.Reference(e => e.Pad).IsLoaded)
-                entry.Reference(e => e.Pad).IsLoaded = false;
+            //Setup null navigation properties for ef change tracker..
+            launch.Status = null;
+            launch.LaunchServiceProvider = null;
+            launch.Rocket = null;
+            launch.Mission = null;
+            launch.Pad = null;
 
             await Save(launch);
         }
