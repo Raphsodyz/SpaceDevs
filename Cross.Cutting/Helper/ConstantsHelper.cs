@@ -46,4 +46,10 @@ namespace Cross.Cutting.Helper
         public const string MISSION = "IdOrbit";
         public const string PAD = "IdLocation";
     }
+
+    public static class ContextNames
+    {
+        public const string FutureSpaceCommand = "FutureSpaceCommand";
+        public const string FutureSpaceQuery = "FutureSpaceQuery";
+    }
 }
