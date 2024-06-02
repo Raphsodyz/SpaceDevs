@@ -109,7 +109,11 @@ namespace Infrastructure.Mapper
 
             CreateMap<LaunchBaseEntityCompoundDTO, Launch>()
                 .ForPath(entity => entity.Id, dto => dto.MapFrom(src => src.LaunchBaseEntity.Id))
-                .ForPath(entity => entity.ApiGuid, dto => dto.MapFrom(src => src.LaunchBaseEntity.ApiGuid))
+                .ForPath(entity => entity.ApiGuid, dto => 
+                {
+                    dto.Condition(src => src.Source.LaunchBaseEntity.ApiGuid != Guid.Empty && src.Source.LaunchBaseEntity.ApiGuid != null);
+                    dto.MapFrom(src => src.LaunchBaseEntity.ApiGuid);
+                })
                 .ForPath(entity => entity.AtualizationDate, dto => dto.MapFrom(src => src.LaunchBaseEntity.AtualizationDate))
                 .ForPath(entity => entity.ImportedT, dto => dto.MapFrom(src => src.LaunchBaseEntity.ImportedT))
                 .ForPath(entity => entity.EntityStatus, dto => dto.MapFrom(src => src.LaunchBaseEntity.Status))
