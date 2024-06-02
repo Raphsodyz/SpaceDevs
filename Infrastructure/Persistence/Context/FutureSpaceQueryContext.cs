@@ -34,7 +34,7 @@ namespace Infrastructure.Persistence.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = configuration.GetSection("ConnectionStrings:Query").Value;
+                var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Query").Value);
                 optionsBuilder.UseNpgsql(connection);
             }
             

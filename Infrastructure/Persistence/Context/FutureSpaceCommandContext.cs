@@ -32,7 +32,7 @@ namespace Infrastructure.Persistence.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = configuration.GetSection("ConnectionStrings:Command").Value;
+                var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Command").Value);
                 optionsBuilder.UseNpgsql(connection);
             }
         }
