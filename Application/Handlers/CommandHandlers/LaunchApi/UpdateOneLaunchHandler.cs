@@ -15,7 +15,6 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
 {
     public class UpdateOneLaunchHandler : BaseUpdateDataHandler, IRequestHandler<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>, UpdateOneLaunchResponse>, IUpdateOneLaunchHandler
     {
-        private readonly ILaunchRepository _launchRepository;
         private readonly IRequestLaunchService _request;
         private readonly ILaunchViewRepository _launchViewRepository;
         public UpdateOneLaunchHandler(
@@ -61,9 +60,9 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
                     
                 return new UpdateOneLaunchResponse(true, SuccessMessages.UpdateJob, result);
             }
-            catch(Exception ex)
+            catch
             {
-                return new UpdateOneLaunchResponse(false, ex.Message, null);
+                throw;
             }
         }
     }
