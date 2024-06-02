@@ -11,9 +11,9 @@ namespace Application.Shared.Handler
 {
     public abstract class BaseUpdateDataHandler
     {
-        private readonly ILaunchRepository _launchRepository;
-        private readonly IGenericDapperRepository _genericDapperRepository;
-        private readonly IUpdateLogRepository _updateLogRepository;
+        protected readonly ILaunchRepository _launchRepository;
+        protected readonly IGenericDapperRepository _genericDapperRepository;
+        protected readonly IUpdateLogRepository _updateLogRepository;
         protected BaseUpdateDataHandler(
             ILaunchRepository launchRepository,
             IGenericDapperRepository genericDapperRepository,
