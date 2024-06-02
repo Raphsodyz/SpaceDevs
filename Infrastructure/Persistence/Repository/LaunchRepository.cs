@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
+using Cross.Cutting.Helper;
 using Domain.Entities;
 using Domain.Interface;
 using Infrastructure.DTO;
-using Infrastructure.Persistence.Context;
+using Infrastructure.Persistence.Context.Factory;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -11,13 +12,16 @@ namespace Infrastructure.Persistence.Repository
     public class LaunchRepository : GenericRepository<Launch>, ILaunchRepository
     {
         private readonly IMapper _mapper;
-        public LaunchRepository(FutureSpaceContext context, IMapper mapper):base(context)
+         public LaunchRepository(DbContextFactory contexts, IMapper mapper):base(contexts)
         {
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Expression<Func<Launch, TResult>> selectColumns, string includedProperties = null)
         {
+            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
+            DbSet<Launch> _dbSet = _context.Set<Launch>();
+
             IQueryable<Launch> query = _dbSet;
 
             if(!string.IsNullOrWhiteSpace(searchTerm))
