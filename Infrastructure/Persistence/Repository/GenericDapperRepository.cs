@@ -13,7 +13,8 @@ namespace Infrastructure.Persistence.Repository
 {
     public class GenericDapperRepository : IGenericDapperRepository
     {
-        private readonly string _connectionString;
+        private readonly string _queryConnectionString;
+        private readonly string _commandConnectionString;
         public GenericDapperRepository()
         {
             var configuration = new ConfigurationBuilder()
@@ -21,7 +22,8 @@ namespace Infrastructure.Persistence.Repository
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            _connectionString = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:default").Value);
+            _queryConnectionString = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Query").Value);
+            _commandConnectionString = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Command").Value);
         }
 
         public async Task<TResult> GetSelected<TResult>(string query, object parameters = null, DbConnection sharedConnection = null, DbTransaction transaction = null)
@@ -30,7 +32,7 @@ namespace Infrastructure.Persistence.Repository
             {
                 var result = await connection.QueryFirstOrDefaultAsync<TResult>(query, parameters, transaction);
                 return result;
-            }, sharedConnection, _connectionString);
+            }, sharedConnection, _queryConnectionString);
         }
     
         public async Task<IEnumerable<TResult>> GetAllSelected<TResult>(string query, object parameters = null, DbConnection sharedConnection = null, DbTransaction transaction = null)
@@ -39,7 +41,7 @@ namespace Infrastructure.Persistence.Repository
             {
                 var result = await connection.QueryAsync<TResult>(query, parameters, transaction);
                 return result;
-            }, sharedConnection, _connectionString);
+            }, sharedConnection, _queryConnectionString);
         }
     
         public async Task Save<T>(T entity, DbConnection sharedConnection = null, DbTransaction transaction = null) where T : BaseEntity
@@ -49,7 +51,7 @@ namespace Infrastructure.Persistence.Repository
             {
                 string query = $"INSERT INTO {typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name}({GetColumnNames<T>()}) VALUES ({GetPropNames<T>()})";
                 await connection.ExecuteAsync(query, entity, transaction);
-            }, sharedConnection, _connectionString);
+            }, sharedConnection, _commandConnectionString);
         }
 
         public async Task FullUpdate<T>(T entity, string where, DbConnection sharedConnection = null, DbTransaction transaction = null) where T : BaseEntity
@@ -58,7 +60,7 @@ namespace Infrastructure.Persistence.Repository
             {
                 string query = $"UPDATE {typeof(T)?.GetCustomAttribute<TableAttribute>()?.Name} SET {FullUpdateSetString(GetColumnNames<T>(), GetPropNames<T>())} WHERE {where}";
                 await connection.ExecuteAsync(query, entity, transaction);
-            }, sharedConnection, _connectionString);
+            }, sharedConnection, _commandConnectionString);
         }
         
         public async Task ExecuteSql(string query, object parameters = null, DbConnection sharedConnection = null, DbTransaction transaction = null)
@@ -66,7 +68,7 @@ namespace Infrastructure.Persistence.Repository
             await DapperConnectionHelper.ResolveConnection(async (connection) =>
             {
                 await connection.ExecuteAsync(query, parameters, transaction);
-            }, sharedConnection, _connectionString);
+            }, sharedConnection, _commandConnectionString);
         }
 
         private string GetPropNames<T>() where T : BaseEntity
