@@ -1,18 +1,17 @@
-﻿using Domain.Entities;
-using Domain.Materializated.Views;
+using Domain.Entities;
 using Infrastructure.Persistence.Context.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Persistence.Context
 {
-    public class FutureSpaceContext : DbContext
+    public class FutureSpaceCommandContext : BaseContext
     {
-        public FutureSpaceContext(DbContextOptions<FutureSpaceContext> options):base(options)
+        public FutureSpaceCommandContext(DbContextOptions<FutureSpaceCommandContext> options) : base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
-        
+
         public DbSet<Launch> Launch { get; set; }
         public DbSet<Configuration> Configuration { get; set; }
         public DbSet<LaunchServiceProvider> LaunchServiceProvider { get; set; }
@@ -23,7 +22,6 @@ namespace Infrastructure.Persistence.Context
         public DbSet<Rocket> Rocket { get; set; }
         public DbSet<Status> Status { get; set; }
         public DbSet<UpdateLog> UpdateLog { get; set; }
-        public DbSet<LaunchView> LaunchView { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -34,7 +32,7 @@ namespace Infrastructure.Persistence.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:default").Value);
+                var connection = configuration.GetSection("ConnectionStrings:Command").Value;
                 optionsBuilder.UseNpgsql(connection);
             }
         }
@@ -43,7 +41,6 @@ namespace Infrastructure.Persistence.Context
         {
             modelBuilder.ApplyConfiguration(ConfigurationModelBuilderSingleton.GetInstance());
             modelBuilder.ApplyConfiguration(LaunchModelBuilderSingleton.GetInstance());
-            modelBuilder.ApplyConfiguration(LaunchViewModelBuilderSingleton.GetInstance());
             modelBuilder.ApplyConfiguration(LocationModelBuilderSingleton.GetInstance());
             modelBuilder.ApplyConfiguration(MissionModelBuilderSingleton.GetInstance());
             modelBuilder.ApplyConfiguration(PadModelBuilderSingleton.GetInstance());
