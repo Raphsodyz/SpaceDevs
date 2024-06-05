@@ -1,35 +1,52 @@
 using System.ComponentModel.DataAnnotations;
-using Business.Request;
-using Data.Materializated.Views;
+using Application.Wrappers;
+using Domain.Commands.Launch.Requests;
+using Domain.Commands.Launch.Responses;
+using Domain.Materializated.Views;
+using Domain.Queries.Launch.Requests;
+using Domain.Queries.Launch.Responses;
+using Domain.Request;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Services.Controllers;
 using Tests.Test.Objects;
+using Tests.Unit.Tests.Fixture;
 
 namespace Tests.Unit.Tests.Services.Layer
 {
-    public class LaunchControllerTest
+    public class LaunchControllerTest : IClassFixture<ServicesTestFixture>
     {
+        private readonly ServicesTestFixture _fixture;
+        public LaunchControllerTest(ServicesTestFixture fixture)
+        {
+            _fixture = fixture;
+        }
 
         [Fact]
-        public void LaunchersController_SearchByParams_OkFoundData()
+        public void LaunchersController_SearchByParams_TestingInputs()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            Pagination<LaunchView> pagination = new(){ 
+                CurrentPage = 1,
+                Entities = new List<LaunchView>(){ TestLaunchViewObjects.Test3() },
+                NumberOfEntities = 1,
+                NumberOfPages = 1
+            };
 
             SearchLaunchRequest request = new(){ Mission = "Zenit" };
-            Pagination<LaunchView> pagination = new(){ CurrentPage = 1, Entities = new List<LaunchView>(){ TestLaunchViewObjects.Test3() }, NumberOfEntities = 1, NumberOfPages = 1 };
+            SeachByParamResponse response = new(true, string.Empty, pagination);
 
-            launchApiBusiness.Setup(a => a.SearchByParam(request)).ReturnsAsync(pagination);
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SearchLaunchRequest, SeachByParamResponse>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.SearchByParams(request).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
-            Assert.IsType<OkObjectResult>(result);
-            Assert.IsType<Pagination<LaunchView>>(result.Value);
+            Assert.IsType<SeachByParamResponse>(result.Value);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -37,11 +54,8 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_SearchByParams_NullParam()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
             SearchLaunchRequest request = null;
-            launchApiBusiness.Setup(a => a.SearchByParam(request));
-            var controller = new LaunchController(launchApiBusiness.Object);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.SearchByParams(request).Result as BadRequestObjectResult;
@@ -58,12 +72,11 @@ namespace Tests.Unit.Tests.Services.Layer
         {
             //Arrange
             SearchLaunchRequest request = new(){ Mission = "sdmfiosadffdsafdfasffafdisadfjoasidfjiosadjfioasdjfioasjdiksdjmfioasjkmdfasjf9noadfhjoiasudjfioadfjioadskaiofdjopisjwif2wj3490f2j390fn2jm390fn29i3nf90i21jnm3f0i12nm30i2fnm230fnm20i3nm210o3fnm12i3ofm1203fm1203fm1203fm201m3f12903mf9012m3f9021mf39okm,0eiowsqmfepdqwmfopw,edopfqwesnmfidfmsdfjwqiefjnmwqi0fj09inm203mi120o3jkmfi23nmf9inerw9iofnmwqiefm0qwiefjmkoqwiefmqwioefm,qwoefd" };
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
 
-            launchApiBusiness.Setup(l => l.SearchByParam(request))
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SearchLaunchRequest, SeachByParamResponse>>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new ValidationException(It.IsAny<string>()));
 
-            var controller = new LaunchController(launchApiBusiness.Object);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.SearchByParams(request).Result as ObjectResult;
@@ -94,11 +107,10 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_SearchByParams_NotFoundResults()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
             SearchLaunchRequest request = new(){ Mission = "chicken" };
-            launchApiBusiness.Setup(a => a.SearchByParam(request)).ThrowsAsync(new KeyNotFoundException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SearchLaunchRequest, SeachByParamResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new KeyNotFoundException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.SearchByParams(request).Result as NotFoundObjectResult;
@@ -115,11 +127,10 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_SearchByParams_InternalServerError()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
             var search = new SearchLaunchRequest();
-            launchApiBusiness.Setup(a => a.SearchByParam(search)).ThrowsAsync(new Exception());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SearchLaunchRequest, SeachByParamResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.SearchByParams(search).Result as ObjectResult;
@@ -136,19 +147,20 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetById_OkFoundObject()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            GetByIdRequest request = new(){ launchId = new Guid(TestLaunchViewObjects.Test1().Id.ToString()) };
+            GetOneLaunchResponse response = new(true, string.Empty, TestLaunchViewObjects.Test1());
 
-            Guid? id = new(TestLaunchViewObjects.Test1().Id.ToString());
-            launchApiBusiness.Setup(a => a.GetOneLaunch(id)).ReturnsAsync(TestLaunchViewObjects.Test1());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<GetByIdRequest, GetOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.GetById(new LaunchRequest(id)).Result as OkObjectResult;
+            var result = controller.GetById(request).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
             Assert.IsType<OkObjectResult>(result);
-            Assert.IsType<LaunchView>(result.Value);
+            Assert.IsType<GetOneLaunchResponse>(result.Value);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -156,14 +168,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetById_NullId()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            Guid? id = null;
-            launchApiBusiness.Setup(a => a.GetOneLaunch(id)).ThrowsAsync(new ArgumentNullException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<GetByIdRequest, GetOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ArgumentNullException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.GetById(new LaunchRequest(id)).Result as BadRequestObjectResult;
+            var result = controller.GetById(null).Result as BadRequestObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -177,13 +187,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetById_RandomNotFoundGuid()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.GetOneLaunch(It.IsAny<Guid>())).ThrowsAsync(new KeyNotFoundException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<GetByIdRequest, GetOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new KeyNotFoundException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.GetById(new LaunchRequest(It.IsAny<Guid>())).Result as NotFoundObjectResult;
+            var result = controller.GetById(new GetByIdRequest() { launchId = It.IsAny<Guid>() }).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -197,13 +206,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetById_InternalServerError()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.GetOneLaunch(It.IsAny<Guid?>())).ThrowsAsync(new Exception());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<GetByIdRequest, GetOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.GetById(new LaunchRequest(It.IsAny<Guid?>())).Result as ObjectResult;
+            var result = controller.GetById(new GetByIdRequest() { launchId = It.IsAny<Guid>() }).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -217,11 +225,19 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetAllPaged_ReturnPagedLaunchs()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            Pagination<LaunchView> pagination = new()
+            { 
+                CurrentPage = 1,
+                Entities = new List<LaunchView>(){ TestLaunchViewObjects.Test1(), TestLaunchViewObjects.Test2(), TestLaunchViewObjects.Test3() },
+                NumberOfEntities = 3,
+                NumberOfPages = 1
+            };
+            PageRequest request = new(){ Page = It.IsAny<int?>() };
+            GetLaunchesPagedResponse response = new(true, string.Empty, pagination);
 
-            Pagination<LaunchView> pagination = new(){ CurrentPage = 1, Entities = new List<LaunchView>(){ TestLaunchViewObjects.Test1(), TestLaunchViewObjects.Test2(), TestLaunchViewObjects.Test3() }, NumberOfEntities = 3, NumberOfPages = 1 };
-            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int?>())).ReturnsAsync(pagination);
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.GetAllPaged(new PageRequest(It.IsAny<int?>())).Result as OkObjectResult;
@@ -236,11 +252,9 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetAllPaged_InvalidPage()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            Pagination<LaunchView> pagination = new(){ CurrentPage = 1, Entities = new List<LaunchView>(){ TestLaunchViewObjects.Test1(), TestLaunchViewObjects.Test2(), TestLaunchViewObjects.Test3() }, NumberOfEntities = 3, NumberOfPages = 1 };
-            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(2)).ThrowsAsync(new InvalidOperationException(ErrorMessages.InvalidPageSelected));
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException(ErrorMessages.InvalidPageSelected));
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.GetAllPaged(new PageRequest(2)).Result as BadRequestObjectResult;
@@ -256,11 +270,9 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetAllPaged_NoDataFound()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            Pagination<LaunchView> pagination = new(){ CurrentPage = 1, Entities = new List<LaunchView>(), NumberOfEntities = 0, NumberOfPages = 1 };
-            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int?>())).ThrowsAsync(new KeyNotFoundException(ErrorMessages.NoData));
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new KeyNotFoundException(ErrorMessages.NoData));
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.GetAllPaged(new PageRequest(It.IsAny<int?>())).Result as NotFoundObjectResult;
@@ -276,10 +288,9 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_GetAllPaged_InternalError()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.GetAllLaunchPaged(It.IsAny<int?>())).ThrowsAsync(new Exception());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<PageRequest, GetLaunchesPagedResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
             var result = controller.GetAllPaged(new PageRequest(It.IsAny<int?>())).Result as ObjectResult;
@@ -296,13 +307,15 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Delete_SoftDeleteLaunch()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-            
-            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(It.IsAny<Guid>()));
-            var controller = new LaunchController(launchApiBusiness.Object);
+            SoftDeleteLaunchRequest request = new(){ launchId = It.IsAny<Guid?>() };
+            SoftDeleteLaunchResponse response = new(true, string.Empty);
+
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SoftDeleteLaunchRequest, SoftDeleteLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as OkObjectResult;
+            var result = controller.Delete(new SoftDeleteLaunchRequest(){ launchId = It.IsAny<Guid?>() }).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -314,13 +327,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Delete_NullGuid()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(null)).ThrowsAsync(new ArgumentNullException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SoftDeleteLaunchRequest, SoftDeleteLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ArgumentNullException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as BadRequestObjectResult; 
+            var result = controller.Delete(null).Result as BadRequestObjectResult; 
 
             //Assert
             Assert.NotNull(result);
@@ -334,13 +346,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Delete_NotFoundLaunch()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(It.IsAny<Guid?>())).ThrowsAsync(new KeyNotFoundException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SoftDeleteLaunchRequest, SoftDeleteLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new KeyNotFoundException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as NotFoundObjectResult;
+            var result = controller.Delete(new SoftDeleteLaunchRequest(){ launchId = It.IsAny<Guid?>() }).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -354,13 +365,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Delete_InternalServerError()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.SoftDeleteLaunch(It.IsAny<Guid?>())).ThrowsAsync(new Exception());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<SoftDeleteLaunchRequest, SoftDeleteLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Delete(new LaunchRequest(It.IsAny<Guid?>())).Result as ObjectResult;
+            var result = controller.Delete(new SoftDeleteLaunchRequest(){ launchId = It.IsAny<Guid?>() }).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -374,18 +384,20 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Update_OkUpdated()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            UpdateOneLaunchRequest request = new(){ launchId = It.IsAny<Guid?>() };
+            UpdateOneLaunchResponse response = new(true, string.Empty, TestLaunchViewObjects.Test1());
 
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ReturnsAsync(TestLaunchViewObjects.Test1());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Update(new LaunchRequest(It.IsAny<Guid?>())).Result as OkObjectResult;
+            var result = controller.Update(new UpdateOneLaunchRequest() { launchId = It.IsAny<Guid?>() }).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
             Assert.IsType<OkObjectResult>(result);
-            Assert.IsType<LaunchView>(result.Value);
+            Assert.IsType<UpdateOneLaunchResponse>(result.Value);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
@@ -393,13 +405,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Update_NullArgument()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.UpdateLaunch(null)).ThrowsAsync(new ArgumentNullException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ArgumentNullException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Update(new LaunchRequest(null)).Result as BadRequestObjectResult;
+            var result = controller.Update(null).Result as BadRequestObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -413,13 +424,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Update_LaunchNotFound()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ThrowsAsync(new KeyNotFoundException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new KeyNotFoundException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Update(new LaunchRequest(It.IsAny<Guid?>())).Result as NotFoundObjectResult;
+            var result = controller.Update(new UpdateOneLaunchRequest() { launchId = It.IsAny<Guid?>() }).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -433,13 +443,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Update_HttpErrorTooManyRequests()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ThrowsAsync(new HttpRequestException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new HttpRequestException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Update(new LaunchRequest(It.IsAny<Guid>())).Result as ObjectResult;
+            var result = controller.Update(new UpdateOneLaunchRequest() { launchId = It.IsAny<Guid?>() }).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -453,13 +462,12 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_Update_InternalError()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.UpdateLaunch(It.IsAny<Guid?>())).ThrowsAsync(new Exception());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.Update(new LaunchRequest(It.IsAny<Guid?>())).Result as ObjectResult;
+            var result = controller.Update(new UpdateOneLaunchRequest() { launchId = It.IsAny<Guid?>() }).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -470,35 +478,37 @@ namespace Tests.Unit.Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_BulkUpdateData_UpdateOk()
+        public void LaunchersController_UpdateDataSet_UpdateOk()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            UpdateDataSetResponse response = new(true, string.Empty, true);
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ReturnsAsync(true);
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as OkObjectResult;
+            var result = controller.UpdateDataSet(It.IsAny<UpdateLaunchSetRequest>()).Result as OkObjectResult;
 
             //Assert
             Assert.NotNull(result);
             Assert.IsType<OkObjectResult>(result);
-            Assert.IsType<string>(result.Value);
+            Assert.IsType<UpdateDataSetResponse>(result.Value);
             Assert.Equal(StatusCodes.Status200OK, result.StatusCode);
         }
 
         [Fact]
-        public void LaunchersController_BulkUpdateData_UpdateFailed()
+        public void LaunchersController_UpdateDataSet_UpdateFailed()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            UpdateDataSetResponse response = new(true, string.Empty, false);
 
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ReturnsAsync(false);
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
+            var result = controller.UpdateDataSet(It.IsAny<UpdateLaunchSetRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -509,16 +519,15 @@ namespace Tests.Unit.Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_BulkUpdateData_TooManyRequests()
+        public void LaunchersController_UpdateDataSet_TooManyRequests()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new HttpRequestException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new HttpRequestException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
+            var result = controller.UpdateDataSet(It.IsAny<UpdateLaunchSetRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -529,16 +538,15 @@ namespace Tests.Unit.Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_BulkUpdateData_NoData()
+        public void LaunchersController_UpdateDataSet_NoData()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new KeyNotFoundException());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new KeyNotFoundException());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as NotFoundObjectResult;
+            var result = controller.UpdateDataSet(It.IsAny<UpdateLaunchSetRequest>()).Result as NotFoundObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -549,16 +557,15 @@ namespace Tests.Unit.Tests.Services.Layer
         }
 
         [Fact]
-        public void LaunchersController_BulkUpdateData_InternalError()
+        public void LaunchersController_UpdateDataSet_InternalError()
         {
             //Arrange
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
-
-            launchApiBusiness.Setup(a => a.UpdateDataSet(It.IsAny<UpdateLaunchRequest>())).ThrowsAsync(new Exception());
-            var controller = new LaunchController(launchApiBusiness.Object);
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception());
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.BulkUpdateData(It.IsAny<UpdateLaunchRequest>()).Result as ObjectResult;
+            var result = controller.UpdateDataSet(It.IsAny<UpdateLaunchSetRequest>()).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);
@@ -569,19 +576,18 @@ namespace Tests.Unit.Tests.Services.Layer
         }
         
         [Fact]
-        public void LaunchApiBusiness_BulkUpdateData_ValidationRequestObj422Exception()
+        public void LaunchApiBusiness_UpdateDataSet_ValidationRequestObj422Exception()
         {
             //Arrange
-            var request = new UpdateLaunchRequest(){ Limit = 500, Iterations = 20, Skip = 0 };
-            var launchApiBusiness = new Mock<ILaunchApiBusiness>();
+            var request = new UpdateLaunchSetRequest(){ Limit = 500, Iterations = 20, Skip = 0 };
 
-            launchApiBusiness.Setup(l => l.UpdateDataSet(request))
+            _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
                 .Throws(new ValidationException(It.IsAny<string>()));
 
-            var controller = new LaunchController(launchApiBusiness.Object);
+            var controller = new LaunchController(_fixture.Mediator.Object);
 
             //Act
-            var result = controller.BulkUpdateData(request).Result as ObjectResult;
+            var result = controller.UpdateDataSet(request).Result as ObjectResult;
 
             //Assert
             Assert.NotNull(result);

@@ -1,10 +1,3 @@
-using System.Data.Common;
-using Business.Business;
-using Data.Context;
-using Data.Interface;
-using Data.Repository;
-using Microsoft.EntityFrameworkCore;
-
 namespace Tests.Test.Objects
 {
     public static class TestLaunchObjects

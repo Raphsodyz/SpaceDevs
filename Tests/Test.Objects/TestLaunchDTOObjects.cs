@@ -1,4 +1,4 @@
-using Business.DTO.Entities;
+using Infrastructure.DTO;
 
 namespace Tests.Test.Objects
 {

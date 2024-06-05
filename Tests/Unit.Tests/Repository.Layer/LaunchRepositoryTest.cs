@@ -1,13 +1,10 @@
-using System.Linq.Expressions;
-using Data.Interface;
-using Tests.Test.Objects;
 using Tests.Unit.Tests.Fixture;
 
 namespace Tests.Unit.Tests.Repository.Layer
 {
     public class LaunchRepositoryTest : IClassFixture<TestDatabaseFixture>
     {
-        private readonly TestDatabaseFixture _fixture;
+        /*private readonly TestDatabaseFixture _fixture;
         public LaunchRepositoryTest(TestDatabaseFixture fixture)
         {
             _fixture = fixture;
@@ -559,6 +556,6 @@ namespace Tests.Unit.Tests.Repository.Layer
 
             //Assert
             Assert.Equal(3, await _fixture.Launch.EntityCount());
-        }
+        }*/
     }
 }

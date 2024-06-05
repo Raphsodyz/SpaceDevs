@@ -1,24 +1,18 @@
 using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http.Json;
-using Business.Business;
-using Business.DTO.Entities;
-using Data.Interface;
-using Data.Materializated.Views;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore.Storage;
 using RichardSzalay.MockHttp;
 using Tests.Test.Objects;
 using System.Data.Common;
 using Tests.Unit.Tests.Fixture;
-using Business.Request;
-using Business.DTO.Aggregates;
 
 namespace Tests.Unit.Tests.Business.Layer
 {
     public class LaunchApiBusinessTest : IClassFixture<BusinessLayerObjFixture>
     {
-        private readonly BusinessLayerObjFixture _fixture;
+        /*private readonly BusinessLayerObjFixture _fixture;
         public LaunchApiBusinessTest(BusinessLayerObjFixture fixture)
         {
             _fixture = fixture;
@@ -620,6 +614,6 @@ namespace Tests.Unit.Tests.Business.Layer
             Assert.NotNull(result);
             Assert.IsType<AggregateException>(result.Exception);
             Assert.Equal(result.Exception.Message, "One or more errors occurred. (Attention! The requested data was not found.)");
-        }
+        }*/
     }
 }

@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Data.Materializated.Views;
+using Domain.Materializated.Views;
 
 namespace Tests.Test.Objects
 {

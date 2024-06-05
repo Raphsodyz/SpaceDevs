@@ -1,8 +1,7 @@
 using System.Data.Common;
 using AutoMapper;
-using Business.DTO.Entities;
-using Data.Interface;
-using Microsoft.EntityFrameworkCore.Storage;
+using Domain.Interface;
+using Infrastructure.DTO;
 using Tests.Test.Objects;
 
 namespace Tests.Unit.Tests.Fixture
@@ -21,10 +20,8 @@ namespace Tests.Unit.Tests.Fixture
         public Mock<IStatusRepository> StatusRepository { get; private set; }
         public Mock<ILaunchViewRepository> LaunchViewRepository { get; private set; }
         public Mock<IHttpClientFactory> Client { get; set; }
-        public Mock<IUnitOfWork> Uow { get; private set; } 
         public Mock<IHttpClientFactory> FactoryClient { get; private set; }
         public Mock<IMapper> Mapper { get; private set; }
-        public Mock<ILaunchApiBusiness> LaunchApiBusiness { get; private set; }
         public Mock<IGenericDapperRepository> DapperBusiness { get; private set; }
 
         public BusinessLayerObjFixture()
@@ -40,11 +37,9 @@ namespace Tests.Unit.Tests.Fixture
             RocketRepository = new Mock<IRocketRepository>();
             StatusRepository = new Mock<IStatusRepository>();
             LaunchViewRepository = new Mock<ILaunchViewRepository>();
-            Uow = new Mock<IUnitOfWork>();
             FactoryClient = new Mock<IHttpClientFactory>();
             Client = new Mock<IHttpClientFactory>();
             Mapper = new Mock<IMapper>();
-            LaunchApiBusiness = new Mock<ILaunchApiBusiness>();
             DapperBusiness = new Mock<IGenericDapperRepository>();
         }
 
@@ -81,7 +76,7 @@ namespace Tests.Unit.Tests.Fixture
                 It.IsAny<string>(),
                 new { IdFromApi = It.IsAny<Guid>() },
                 It.IsAny<DbConnection>(),
-                It.IsAny<IDbContextTransaction>()))
+                It.IsAny<DbTransaction>()))
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().IdStatus)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().IdLaunchServiceProvider)
                 .ReturnsAsync(emptyGuid ? Guid.NewGuid() : (Guid)TestLaunchObjects.Test1().Rocket.IdConfiguration)

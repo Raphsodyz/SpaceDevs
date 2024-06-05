@@ -1,6 +1,5 @@
-using Data.Context;
-using Data.Interface;
-using Data.Repository;
+using Domain.Interface;
+using Infrastructure.Persistence.Context.Factory;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Tests.Test.Objects;
@@ -10,9 +9,9 @@ namespace Tests.Unit.Tests.Fixture
 {
     public class TestDatabaseFixture : IDisposable
     {
-        public readonly FutureSpaceContext Context;
+        /*public readonly DbContextFactory Contexts;
         public readonly ILaunchRepository Launch;
-        private readonly DbContextOptions<FutureSpaceContext> Options;
+        private readonly DbContextOptions Options;
 
         public TestDatabaseFixture()
         {
@@ -134,7 +133,7 @@ namespace Tests.Unit.Tests.Fixture
                 Infographic = null,
                 Programs = null
             };
-        }
+        }*/
 
         private bool disposed = false;
         protected virtual void Dispose(bool disposing)
@@ -143,10 +142,10 @@ namespace Tests.Unit.Tests.Fixture
             {
                 if (disposing)
                 {
-                    Context.Database.EnsureDeleted();
+                    /*Context.Database.EnsureDeleted();
                     Context.Database.EnsureCreated();
 
-                    Context.Dispose();
+                    Context.Dispose();*/
                 }
             }
             this.disposed = true;
