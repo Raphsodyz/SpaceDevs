@@ -87,9 +87,9 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
 
                 return new SeachByParamResponse(true, string.Empty, found);
             }
-            catch(Exception ex)
+            catch
             {
-                return new SeachByParamResponse(false, ex.Message, null);
+                throw;
             }
         }
     }

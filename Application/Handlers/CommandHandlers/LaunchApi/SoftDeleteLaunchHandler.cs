@@ -48,9 +48,9 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
 
                 return new SoftDeleteLaunchResponse(true, SuccessMessages.DeletedEntity);
             }
-            catch(Exception ex)
+            catch
             {
-                return new SoftDeleteLaunchResponse(false, ex.Message);
+                throw;
             }
         }
     }

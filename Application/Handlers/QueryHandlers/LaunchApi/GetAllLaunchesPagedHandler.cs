@@ -39,9 +39,9 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
                 
                 return new GetLaunchesPagedResponse(true, string.Empty, pagedResults);
             }
-            catch (Exception ex)
+            catch
             {
-                return new GetLaunchesPagedResponse(false, ex.Message, null);
+                throw;
             }
         }
     }
