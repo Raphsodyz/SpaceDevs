@@ -6,13 +6,12 @@ using Domain.Shared;
 
 namespace Domain.Commands.Launch.Responses
 {
-    public class UpdateDataSetResponse : BaseResponse<object?>
+    public class UpdateDataSetResponse : BaseCommandResponse
     {
         public UpdateDataSetResponse(bool success, string message)
         {
             Success = success;
             Error = message;
-            Data = null;
         }       
     }
 }

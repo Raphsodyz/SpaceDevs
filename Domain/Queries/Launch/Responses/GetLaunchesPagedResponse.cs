@@ -4,7 +4,7 @@ using Domain.Shared;
 
 namespace Domain.Queries.Launch.Responses
 {
-    public class GetLaunchesPagedResponse : BaseResponse<Pagination<LaunchView>>
+    public class GetLaunchesPagedResponse : BaseQueryResponse<Pagination<LaunchView>>
     {
         public GetLaunchesPagedResponse(bool success, string error, Pagination<LaunchView> data)
         {
