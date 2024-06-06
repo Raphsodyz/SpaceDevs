@@ -19,6 +19,7 @@ This project is a Rest Web Api for the Space Launch List of the https://ll.thesp
 - XUnit
 - Mock
 - OpenApi (Swagger)
+- MediatR
 
 ## Requirements
 - Docker
