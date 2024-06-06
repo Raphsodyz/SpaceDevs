@@ -51,14 +51,9 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
                     throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
                 var launch = await _request.RequestLaunchById(apiGuid);
-                await SaveLaunch(launch, true);
-                await _launchViewRepository.RefreshView();
-
-                var result = await _launchViewRepository.GetById(
-                    l => l.Id == request.launchId
-                    && l.EntityStatus == EStatus.PUBLISHED.GetDisplayName());                
+                await SaveLaunch(launch, true);              
                     
-                return new UpdateOneLaunchResponse(true, SuccessMessages.UpdateJob, result);
+                return new UpdateOneLaunchResponse(true, SuccessMessages.UpdateJob);
             }
             catch
             {

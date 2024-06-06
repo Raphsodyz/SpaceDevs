@@ -65,7 +65,7 @@ namespace Application.Handlers.CommandHandlers.LaunchApi
             }
 
             await GenerateLog(offset, SuccessMessages.ImportedDataSuccess, entityCounter, true);
-            return new UpdateDataSetResponse(true, SuccessMessages.ImportedDataSuccess, true);
+            return new UpdateDataSetResponse(true, SuccessMessages.ImportedDataSuccess);
         }
     }
 }
