@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class MissionRepository : GenericRepository<Mission>, IMissionRepository
     {
-        public MissionRepository(DbContextFactory contexts):base(contexts)
+        public MissionRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }

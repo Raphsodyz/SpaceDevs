@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class LaunchServiceProviderRepository : GenericRepository<LaunchServiceProvider>, ILaunchServiceProviderRepository
     {
-        public LaunchServiceProviderRepository(DbContextFactory contexts):base(contexts)
+        public LaunchServiceProviderRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }

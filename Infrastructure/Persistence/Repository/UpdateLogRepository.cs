@@ -9,7 +9,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class UpdateLogRepository : GenericRepository<UpdateLog>, IUpdateLogRepository
     {
-        public UpdateLogRepository(DbContextFactory contexts):base(contexts)
+        public UpdateLogRepository(IDbContextFactory contexts):base(contexts)
         {        
         }
 

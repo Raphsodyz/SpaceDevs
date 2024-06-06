@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class RocketRepository : GenericRepository<Rocket>, IRocketRepository
     {
-        public RocketRepository(DbContextFactory contexts):base(contexts)
+        public RocketRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }

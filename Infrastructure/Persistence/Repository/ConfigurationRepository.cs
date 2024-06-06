@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class ConfigurationRepository : GenericRepository<Configuration>, IConfigurationRepository
     {
-        public ConfigurationRepository(DbContextFactory contexts):base(contexts)
+        public ConfigurationRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }

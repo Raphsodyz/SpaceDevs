@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class PadRepository : GenericRepository<Pad>, IPadRepository
     {
-        public PadRepository(DbContextFactory contexts):base(contexts)
+        public PadRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }

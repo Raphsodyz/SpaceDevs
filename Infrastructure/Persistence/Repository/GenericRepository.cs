@@ -12,9 +12,9 @@ namespace Infrastructure.Persistence.Repository
     public abstract class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         const int maxEntityReturn = 10;
-        public DbContextFactory _contexts;
+        public IDbContextFactory _contexts;
 
-        public GenericRepository(DbContextFactory contexts)
+        public GenericRepository(IDbContextFactory contexts)
         {
             _contexts = contexts;
         }

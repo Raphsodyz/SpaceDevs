@@ -6,7 +6,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class OrbitRepository : GenericRepository<Orbit>, IOrbitRepository
     {
-        public OrbitRepository(DbContextFactory contexts):base(contexts)
+        public OrbitRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }

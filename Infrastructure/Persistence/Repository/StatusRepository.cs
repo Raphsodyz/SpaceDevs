@@ -6,7 +6,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class StatusRepository : GenericRepository<Status>, IStatusRepository
     {
-        public StatusRepository(DbContextFactory contexts):base(contexts)
+        public StatusRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }

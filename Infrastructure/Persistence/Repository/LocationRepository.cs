@@ -10,7 +10,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class LocationRepository : GenericRepository<Location>, ILocationRepository
     {
-        public LocationRepository(DbContextFactory contexts):base(contexts)
+        public LocationRepository(IDbContextFactory contexts):base(contexts)
         {
             
         }
