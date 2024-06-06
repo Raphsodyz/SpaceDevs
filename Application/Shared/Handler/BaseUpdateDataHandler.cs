@@ -35,7 +35,7 @@ namespace Application.Shared.Handler
                     return;
             }
             else
-                await _launchRepository.SetUpBaseEntityDTO(launch);
+                launch = await _launchRepository.SetUpBaseEntityDTO(launch);
 
             await _launchRepository.BeginTransaction();
             try

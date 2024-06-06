@@ -12,7 +12,7 @@ namespace Infrastructure.Persistence.Repository
     public class LaunchRepository : GenericRepository<Launch>, ILaunchRepository
     {
         private readonly IMapper _mapper;
-         public LaunchRepository(DbContextFactory contexts, IMapper mapper):base(contexts)
+        public LaunchRepository(IDbContextFactory contexts, IMapper mapper):base(contexts)
         {
             _mapper = mapper;
         }
@@ -37,7 +37,7 @@ namespace Infrastructure.Persistence.Repository
             return result;
         }
 
-        public async Task SetUpBaseEntityDTO(Launch launch)
+        public async Task<Launch> SetUpBaseEntityDTO(Launch launch)
         {
             var launchBaseEntityCompoundData = await GetSelected(
                 filter: l => l.ApiGuid == launch.ApiGuid,
@@ -132,7 +132,7 @@ namespace Infrastructure.Persistence.Repository
                 }
             );
 
-            _mapper.Map(launchBaseEntityCompoundData, launch);
+            return _mapper.Map(launchBaseEntityCompoundData, launch);
         }
 
         public async Task SaveOnUpdateLaunch(Launch launch, Guid? idStatus, Guid? idLaunchServiceProvider, Guid? idRocket, Guid? idMission, Guid? idPad)
