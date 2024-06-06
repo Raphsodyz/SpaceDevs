@@ -3,13 +3,13 @@ using Domain.Shared;
 
 namespace Domain.Commands.Launch.Responses
 {
-    public class UpdateOneLaunchResponse : BaseResponse<LaunchView>
+    public class UpdateOneLaunchResponse : BaseResponse<object?>
     {
-        public UpdateOneLaunchResponse(bool success, string message, LaunchView launchView)
+        public UpdateOneLaunchResponse(bool success, string message)
         {
             Success = success;
             Error = message;
-            Data = launchView;
+            Data = null;
         }
     }
 }

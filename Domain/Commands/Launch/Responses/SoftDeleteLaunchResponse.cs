@@ -2,7 +2,7 @@ using Domain.Shared;
 
 namespace Domain.Commands.Launch.Responses
 {
-    public class SoftDeleteLaunchResponse : BaseResponse<object>
+    public class SoftDeleteLaunchResponse : BaseResponse<object?>
     {
         public SoftDeleteLaunchResponse(bool success, string error)
         {
