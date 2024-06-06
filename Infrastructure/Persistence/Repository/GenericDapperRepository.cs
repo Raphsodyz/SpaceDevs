@@ -116,7 +116,12 @@ namespace Infrastructure.Persistence.Repository
             StringBuilder builder = new();
 
             for(int i = 0; i < propSplitted.Length; i++)
+            {
+                if(propSplitted[i].Trim().Equals("@Id", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 builder.Append(columnsSplitted[i].Trim() + " = " + propSplitted[i].Trim() + ',');
+            }
             
             builder.Length--;
             return builder.ToString();
