@@ -1,6 +1,6 @@
 namespace Infrastructure.Persistence.Context.Factory
 {
-    public class DbContextFactory
+    public class DbContextFactory : IDbContextFactory
     {
         private readonly IDictionary<string, BaseContext> _contexts;
 
