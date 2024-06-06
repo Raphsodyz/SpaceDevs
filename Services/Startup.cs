@@ -31,7 +31,7 @@ namespace Services
             services.AddDbContext<FutureSpaceQueryContext>();
 
             //Resolve which context will be used on the repository ..
-            services.AddTransient<DbContextFactory>(provider =>
+            services.AddScoped<IDbContextFactory, DbContextFactory>(provider =>
             {
                 var dbContexts = new Dictionary<string, BaseContext>
                 {
