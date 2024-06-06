@@ -44,16 +44,59 @@ namespace Infrastructure.Persistence.Repository
                 includedProperties: "Status, LaunchServiceProvider, Rocket.Configuration, Mission.Orbit, Pad.Location",
                 selectColumns: l => new 
                 { 
-                    LaunchId = l.Id, LaunchApiGuid = l.ApiGuid, LaunchAtualizationDate = l.AtualizationDate, LaunchImportedT = l.ImportedT, LaunchStatus = l.EntityStatus,
-                    IdStatus = l.IdStatus, StatusId = l.Status.Id, StatusIdFromApi = l.Status.IdFromApi, StatusAtualizationDate = l.Status.AtualizationDate, StatusImportedT = l.Status.ImportedT, StatusStatus = l.Status.EntityStatus,
-                    IdLaunchServiceProvider = l.IdLaunchServiceProvider, LaunchServiceProviderId = l.LaunchServiceProvider.Id, LaunchServiceProviderIdFromApi = l.LaunchServiceProvider.IdFromApi, LaunchServiceProviderAtualizationDate = l.LaunchServiceProvider.AtualizationDate,
-                    LaunchServiceProviderImportedT = l.LaunchServiceProvider.ImportedT, LaunchServiceProviderStatus = l.LaunchServiceProvider.EntityStatus,
-                    IdRocket = l.IdRocket, RocketId = l.Rocket.Id, RocketIdFromApi = l.Rocket.IdFromApi, RocketAtualizationDate = l.Rocket.AtualizationDate, RocketImportedT = l.Rocket.ImportedT, RocketStatus = l.Rocket.EntityStatus,
-                    IdConfiguration = l.Rocket.IdConfiguration, ConfigurationId = l.Rocket.Configuration.Id, ConfigurationIdFromApi = l.Rocket.Configuration.IdFromApi, ConfigurationAtualizationDate = l.Rocket.Configuration.AtualizationDate, ConfigurationImportedT = l.Rocket.Configuration.ImportedT, ConfigurationStatus = l.Rocket.Configuration.EntityStatus,
-                    IdMission = l.IdMission, MissionId = l.Mission.Id, MissionIdFromApi = l.Mission.IdFromApi, MissionAtualizationDate = l.Mission.AtualizationDate, MissionImportedT = l.Mission.ImportedT, MissionStatus = l.Mission.EntityStatus,
-                    IdOrbit = l.Mission.IdOrbit, OrbitId = l.Mission.Orbit.Id, OrbitIdFromApi = l.Mission.Orbit.IdFromApi, OrbitAtualizationDate = l.Mission.Orbit.AtualizationDate, OrbitImportedT = l.Mission.Orbit.ImportedT, OrbitStatus = l.Mission.Orbit.EntityStatus,
-                    IdPad = l.IdPad, PadId = l.Pad.Id, PadIdFromApi = l.Pad.IdFromApi, PadAtualizationDate = l.Pad.AtualizationDate, PadImportedT = l.Pad.ImportedT, PadStatus = l.Pad.EntityStatus,
-                    IdLocation = l.Pad.IdLocation, LocationId = l.Pad.Location.Id, LocationIdFromApi = l.Pad.Location.IdFromApi, LocationAtualizationDate = l.Pad.Location.AtualizationDate, LocationImportedT = l.Pad.Location.ImportedT, LocationStatus = l.Pad.Location.EntityStatus
+                    LaunchId = l.Id,
+                    LaunchApiGuid = (Guid?)l.ApiGuid,
+                    LaunchAtualizationDate = (DateTime?)l.AtualizationDate,
+                    LaunchImportedT = (DateTime?)l.ImportedT,
+                    LaunchStatus = l.EntityStatus,
+                    IdStatus = l.IdStatus,
+                    StatusId = (Guid?)l.Status.Id,
+                    StatusIdFromApi = l.Status.IdFromApi,
+                    StatusAtualizationDate = (DateTime?)l.Status.AtualizationDate,
+                    StatusImportedT = (DateTime?)l.Status.ImportedT,
+                    StatusStatus = l.Status.EntityStatus,
+                    IdLaunchServiceProvider = l.IdLaunchServiceProvider,
+                    LaunchServiceProviderId = (Guid?)l.LaunchServiceProvider.Id,
+                    LaunchServiceProviderIdFromApi = l.LaunchServiceProvider.IdFromApi,
+                    LaunchServiceProviderAtualizationDate = (DateTime?)l.LaunchServiceProvider.AtualizationDate,
+                    LaunchServiceProviderImportedT = (DateTime?)l.LaunchServiceProvider.ImportedT,
+                    LaunchServiceProviderStatus = l.LaunchServiceProvider.EntityStatus,
+                    IdRocket = l.IdRocket,
+                    RocketId = (Guid?)l.Rocket.Id,
+                    RocketIdFromApi = l.Rocket.IdFromApi,
+                    RocketAtualizationDate = (DateTime?)l.Rocket.AtualizationDate,
+                    RocketImportedT = (DateTime?)l.Rocket.ImportedT,
+                    RocketStatus = l.Rocket.EntityStatus,
+                    IdConfiguration = l.Rocket.IdConfiguration,
+                    ConfigurationId = (Guid?)l.Rocket.Configuration.Id,
+                    ConfigurationIdFromApi = l.Rocket.Configuration.IdFromApi,
+                    ConfigurationAtualizationDate = (DateTime?)l.Rocket.Configuration.AtualizationDate,
+                    ConfigurationImportedT = (DateTime?)l.Rocket.Configuration.ImportedT,
+                    ConfigurationStatus = l.Rocket.Configuration.EntityStatus,
+                    IdMission = l.IdMission,
+                    MissionId = (Guid?)l.Mission.Id,
+                    MissionIdFromApi = l.Mission.IdFromApi,
+                    MissionAtualizationDate = (DateTime?)l.Mission.AtualizationDate,
+                    MissionImportedT = (DateTime?)l.Mission.ImportedT,
+                    MissionStatus = l.Mission.EntityStatus,
+                    IdOrbit = l.Mission.IdOrbit,
+                    OrbitId = (Guid?)l.Mission.Orbit.Id,
+                    OrbitIdFromApi = l.Mission.Orbit.IdFromApi,
+                    OrbitAtualizationDate = (DateTime?)l.Mission.Orbit.AtualizationDate,
+                    OrbitImportedT = (DateTime?)l.Mission.Orbit.ImportedT,
+                    OrbitStatus = l.Mission.Orbit.EntityStatus,
+                    IdPad = l.IdPad,
+                    PadId = (Guid?)l.Pad.Id,
+                    PadIdFromApi = l.Pad.IdFromApi,
+                    PadAtualizationDate = (DateTime?)l.Pad.AtualizationDate,
+                    PadImportedT = (DateTime?)l.Pad.ImportedT,
+                    PadStatus = l.Pad.EntityStatus,
+                    IdLocation = l.Pad.IdLocation,
+                    LocationId = (Guid?)l.Pad.Location.Id,
+                    LocationIdFromApi = l.Pad.Location.IdFromApi,
+                    LocationAtualizationDate = (DateTime?)l.Pad.Location.AtualizationDate,
+                    LocationImportedT = (DateTime?)l.Pad.Location.ImportedT,
+                    LocationStatus = l.Pad.Location.EntityStatus
                 },
                 buildObject: l => new LaunchBaseEntityCompoundDTO()
                 {
@@ -131,7 +174,6 @@ namespace Infrastructure.Persistence.Repository
                     } : null
                 }
             );
-
             return _mapper.Map(launchBaseEntityCompoundData, launch);
         }
 
