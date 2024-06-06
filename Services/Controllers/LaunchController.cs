@@ -172,7 +172,7 @@ namespace Services.Controllers
                 var wrapper = new MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>(request, null);
                 var updated = await _mediator.Send(wrapper);
 
-                if(updated.Data == false)
+                if(updated.Success == false)
                     return StatusCode(StatusCodes.Status500InternalServerError, $"{ErrorMessages.InternalServerError}");
                     
                 return Ok(updated);
