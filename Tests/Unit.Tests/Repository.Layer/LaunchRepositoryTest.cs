@@ -1,3 +1,6 @@
+using System.Linq.Expressions;
+using Domain.Interface;
+using Tests.Test.Objects;
 using Tests.Unit.Tests.Fixture;
 
 namespace Tests.Unit.Tests.Repository.Layer
@@ -18,7 +21,7 @@ namespace Tests.Unit.Tests.Repository.Layer
 
             // Assert
             Assert.NotNull(result);
-            Assert.IsType<List<Launch>>(result);
+            Assert.IsType<List<Launch>>(result); 
             Assert.Equal(3, result.Count);
         }
 
@@ -358,16 +361,17 @@ namespace Tests.Unit.Tests.Repository.Layer
         public async Task GenericRepository_UpdateOnQuery_UpdateDatabaseObjectsWithoutBringToMemory()
         {
             //Arrange
-            Expression<Func<Launch, bool>> filter = l => l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039");
+            Expression<Func<Launch, bool>> selectedLaunch = l => l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039");
             Expression<Func<Launch, Launch>> updateStatusColumn = l => new Launch()
             { EntityStatus = EStatus.TRASH.GetDisplayName() };
 
             //Act
-            await _fixture.Launch.UpdateOnQuery(filter, updateStatusColumn);
+            await _fixture.Launch.UpdateOnQuery(selectedLaunch, updateStatusColumn);
+            _fixture.TransferUpdatedObjectsQueryContext();
 
             //Assert
             var getAssertInMemoryObject = await _fixture.Launch.GetSelected(
-                filter: l => l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039"),
+                filter: selectedLaunch,
                 selectColumns: l => l.EntityStatus,
                 buildObject: l => l);
 
@@ -377,7 +381,7 @@ namespace Tests.Unit.Tests.Repository.Layer
             //Rolling back the change for the other tests...
             Expression<Func<Launch, Launch>> rollbackUpdate = l => new Launch()
             { EntityStatus = EStatus.PUBLISHED.GetDisplayName() };
-            await _fixture.Launch.UpdateOnQuery(filter, rollbackUpdate);
+            await _fixture.Launch.UpdateOnQuery(selectedLaunch, rollbackUpdate);
         }
     }
 
@@ -418,17 +422,16 @@ namespace Tests.Unit.Tests.Repository.Layer
             //Test made with mock bcoz in memory database does not support transactions.
             //Arrange
             var newLaunch = _fixture.NewObjectForSaveTests();
-            var uow = new Mock<IUnitOfWork>();
             var launchRepository = new Mock<ILaunchRepository>();
 
-            uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
-            launchRepository.Setup(l => l.GetTransaction());
+            launchRepository.Setup(l => l.BeginTransaction());
             launchRepository.Setup(l => l.Save(It.IsAny<Launch>()));
-            launchRepository.Setup(l => l.GetTransaction().Result.Commit())
+            launchRepository.Setup(l => l.CommitTransaction())
                 .Callback(async () => await _fixture.Launch.Save(newLaunch));
+            _fixture.TransferUpdatedObjectsQueryContext();
 
             //Act
-            using var trans = await launchRepository.Object.GetTransaction();
+            await launchRepository.Object.BeginTransaction();
             await launchRepository.Object.Save(newLaunch);
 
             //Assert -- Before Commit transaction.
@@ -439,7 +442,7 @@ namespace Tests.Unit.Tests.Repository.Layer
                 buildObject: l => l)
             );
 
-            trans.Commit();
+            await launchRepository.Object.CommitTransaction();
 
             //Assert -- After Commit transaction.
             Assert.Equal(4, await _fixture.Launch.EntityCount());
@@ -459,14 +462,12 @@ namespace Tests.Unit.Tests.Repository.Layer
             //Test made with mock bcoz in memory database does not support transactions.
             //Arrange
             var newLaunch = _fixture.NewObjectForSaveTests();
-            var uow = new Mock<IUnitOfWork>();
             var launchRepository = new Mock<ILaunchRepository>();
 
-            uow.Setup(u => u.Repository(typeof(ILaunchRepository))).Returns(launchRepository.Object);
-            launchRepository.Setup(l => l.GetTransaction());
+            launchRepository.Setup(l => l.BeginTransaction());
             launchRepository.Setup(l => l.Save(It.IsAny<Launch>()))
                 .Callback(async () => await _fixture.Launch.Save(newLaunch));
-            launchRepository.Setup(l => l.GetTransaction().Result.Rollback())
+            launchRepository.Setup(l => l.RollbackTransaction())
                 .Callback(async () => await _fixture.Launch.Delete(newLaunch));
 
             //Act & Assert
@@ -474,7 +475,7 @@ namespace Tests.Unit.Tests.Repository.Layer
             Assert.Equal(3, await _fixture.Launch.EntityCount());
 
             //Saving...
-            using var trans = await launchRepository.Object.GetTransaction();
+            await launchRepository.Object.BeginTransaction();
             try
             {
                 launchRepository.Object.Save(newLaunch);
@@ -482,7 +483,7 @@ namespace Tests.Unit.Tests.Repository.Layer
             }
             catch
             {
-                trans.Rollback();
+                await launchRepository.Object.RollbackTransaction();
             }
 
             //After save proccess... Same data before bcoz the rollback.
@@ -529,8 +530,7 @@ namespace Tests.Unit.Tests.Repository.Layer
         {
             //Arrange
             var entity = _fixture.NewObjectForSaveTests();
-            await _fixture.Context.AddAsync(entity);
-            await _fixture.Context.SaveChangesAsync();
+            await _fixture.Launch.Save(entity);
 
             Assert.Equal(4, await _fixture.Launch.EntityCount());
 
@@ -546,8 +546,7 @@ namespace Tests.Unit.Tests.Repository.Layer
         {
             //Arrange
             var entity = _fixture.NewObjectForSaveTests();
-            await _fixture.Context.AddAsync(entity);
-            await _fixture.Context.SaveChangesAsync();
+            await _fixture.Launch.Save(entity);
 
             Assert.Equal(4, await _fixture.Launch.EntityCount());
 
