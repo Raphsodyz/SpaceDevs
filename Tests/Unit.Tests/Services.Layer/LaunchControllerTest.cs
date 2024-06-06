@@ -385,7 +385,7 @@ namespace Tests.Unit.Tests.Services.Layer
         {
             //Arrange
             UpdateOneLaunchRequest request = new(){ launchId = It.IsAny<Guid?>() };
-            UpdateOneLaunchResponse response = new(true, string.Empty, TestLaunchViewObjects.Test1());
+            UpdateOneLaunchResponse response = new(true, string.Empty);
 
             _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateOneLaunchRequest, UpdateOneLaunchResponse>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
@@ -481,7 +481,7 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_UpdateDataSet_UpdateOk()
         {
             //Arrange
-            UpdateDataSetResponse response = new(true, string.Empty, true);
+            UpdateDataSetResponse response = new(true, string.Empty);
 
             _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
@@ -501,7 +501,7 @@ namespace Tests.Unit.Tests.Services.Layer
         public void LaunchersController_UpdateDataSet_UpdateFailed()
         {
             //Arrange
-            UpdateDataSetResponse response = new(true, string.Empty, false);
+            UpdateDataSetResponse response = new(false, string.Empty);
 
             _fixture.Mediator.Setup(m => m.Send(It.IsAny<MediatrRequestWrapper<UpdateLaunchSetRequest, UpdateDataSetResponse>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
