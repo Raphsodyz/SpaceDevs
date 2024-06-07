@@ -3,7 +3,7 @@ If you like the project or gonna use for something else please leave a star! ✨
 
 ## Overview
 
-This project is a Rest Web Api for the Space Launch List of the https://ll.thespacedevs.com/2.1.0/swagger. It has a complete CRUD, fuzzy text search and his own database that's feed from llapi. This API will not have a limitations like spacedevs API that blocks after 15 requests. The data is stored with you.
+This project is a Rest Web Api write in C# for the Space Launch List of the https://ll.thespacedevs.com/2.1.0/swagger. It has a complete CRUD, fuzzy text search and his own database that's feed from llapi. This API will not have a limitations like spacedevs API that blocks after 15 requests. The data is stored with you.
 
 ## Technologies
 - .Net 7.0
