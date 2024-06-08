@@ -9,9 +9,10 @@ networks:
     name: futurespaceweb
 
 services:
-  command-database:
+  postgresql:
     image: "postgres:16.1"
-    hostname: postgresql-command
+    hostname: postgresql
+    container_name: postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
@@ -23,44 +24,27 @@ services:
       - ./Infrastructure/Persistence/Migrations/Launch.data/spacedevs_data.sql:/migrations/seed/spacedevs_data.sql:ro
       - ./Infrastructure/Persistence/Migrations/Launch.data/seeddatabase.sh:/docker-entrypoint-initdb.d/seeddatabase.sh:ro
     environment:
-      - POSTGRES_USER=command
-      - POSTGRES_PASSWORD=command
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
       - POSTGRES_DB=futurespacedb
 
-  query-database:
-    image: "postgres:16.1"
-    hostname: postgresql-query
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-      start_period: 10s
-    volumes:
-      - ./Infrastructure/Persistence/Migrations/migrations.sql:/migrations/migrations.sql:ro
-      - ./Infrastructure/Persistence/Migrations/Launch.data/spacedevs_data.sql:/migrations/seed/spacedevs_data.sql:ro
-      - ./Infrastructure/Persistence/Migrations/Launch.data/seeddatabase.sh:/docker-entrypoint-initdb.d/seeddatabase.sh:ro
-    environment:
-      - POSTGRES_USER=query
-      - POSTGRES_PASSWORD=query
-      - POSTGRES_DB=futurespacedb
-  
   api:
     build:
       context: .
       dockerfile: dockerfile
     hostname: api
+    container_name: api
     depends_on:
-      - command-database
-      - query-database
+      - postgresql
     environment:
-      - DB_QUERY_CONNECTION_STRING=Host=query-database;Username=query;Password=query;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
-      - DB_COMMAND_CONNECTION_STRING=Host=command-database;Username=command;Password=command;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
+      - DB_QUERY_CONNECTION_STRING=Host=postgresql;Username=root;Password=root;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
+      - DB_COMMAND_CONNECTION_STRING=Host=postgresql;Username=root;Password=root;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
       - ASPNETCORE_URLS=http://+:5000;
 
   nginx:
     image: "nginx:1.25.5"
     command: ["nginx", "-g", "daemon off;"]
+    container_name: nginx
     depends_on:
       - api
     volumes:
