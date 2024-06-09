@@ -1,7 +1,6 @@
 using AutoMapper;
 using Domain.Interface;
 using Infrastructure.Persistence.Context;
-using Infrastructure.Persistence.Context.Factory;
 using Infrastructure.Persistence.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -12,77 +11,37 @@ namespace Tests.Unit.Tests.Fixture
 {
     public class TestDatabaseFixture : IDisposable
     {
-        public readonly IDbContextFactory Factory;
-        private readonly FutureSpaceCommandContext CommandContext;
-        private readonly FutureSpaceQueryContext QueryContext;
-        private readonly DbContextOptions<FutureSpaceCommandContext> CommandOptions;
-        private readonly DbContextOptions<FutureSpaceQueryContext> QueryOptions;
+        public readonly FutureSpaceContext Context;
+        private readonly DbContextOptions<FutureSpaceContext> Options;
         public readonly ILaunchRepository Launch;
 
         public TestDatabaseFixture()
         {
-            QueryOptions = new DbContextOptionsBuilder<FutureSpaceQueryContext>()
-                .UseInMemoryDatabase("futurespacequerydbtest")
-                .Options;
-            QueryContext = new FutureSpaceQueryContext(QueryOptions);
-
-            CommandOptions = new DbContextOptionsBuilder<FutureSpaceCommandContext>()
+            Options = new DbContextOptionsBuilder<FutureSpaceContext>()
                 .UseInMemoryDatabase("futurespacecommanddbtest")
                 .ConfigureWarnings(warn => warn.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
-            CommandContext = new FutureSpaceCommandContext(CommandOptions);
+            Context = new FutureSpaceContext(Options);
 
-            if (CommandContext.Launch.Any())
+            Launch = new LaunchRepository(Context, new Mock<IMapper>().Object);
+            EntityFrameworkManager.ContextFactory = context => Context; //SetUp context for zzz.EntityFramework Extension.
+
+            if (Context.Launch.Any())
             {
-                CommandContext.Database.EnsureDeleted();
-                CommandContext.Database.EnsureCreated();
+                Context.Database.EnsureDeleted();
+                Context.Database.EnsureCreated();
             }
 
             SeedDatabase();
-            TransferDataQueryContext();
-
-            var dbContextFactoryMock = new Mock<IDbContextFactory>();
-            dbContextFactoryMock.Setup(f => f.GetContext(ContextNames.FutureSpaceCommand)).Returns(CommandContext);
-            dbContextFactoryMock.Setup(f => f.GetContext(ContextNames.FutureSpaceQuery)).Returns(QueryContext);
-
-            Factory = dbContextFactoryMock.Object;
-
-            Launch = new LaunchRepository(Factory, new Mock<IMapper>().Object);
-            EntityFrameworkManager.ContextFactory = context => Factory.GetContext(ContextNames.FutureSpaceCommand); //SetUp context for zzz.EntityFramework Extension.
         }
 
         private void SeedDatabase()
         {
-            if (!CommandContext.Launch.Any())
+            if (!Context.Launch.Any())
             {
-                CommandContext.Launch.AddRange(TestLaunchInMemoryObjects.Test1(), TestLaunchInMemoryObjects.Test2(), TestLaunchInMemoryObjects.Test3());
-                CommandContext.SaveChanges();
+                Context.Launch.AddRange(TestLaunchInMemoryObjects.Test1(), TestLaunchInMemoryObjects.Test2(), TestLaunchInMemoryObjects.Test3());
+                Context.SaveChanges();
             }
-        }
-
-        private void TransferDataQueryContext()
-        {
-            if (!QueryContext.Launch.Any())
-            {
-                foreach (var launch in CommandContext.Launch)
-                    QueryContext.Launch.Add(launch);
-
-                QueryContext.SaveChanges();
-            }
-        }
-
-        public void TransferUpdatedObjectsQueryContext()
-        {
-            if (QueryContext.Launch.Any())
-            {
-                QueryContext.Database.EnsureDeleted();
-                QueryContext.Database.EnsureCreated();
-            }
-
-            foreach (var launch in CommandContext.Launch)
-                QueryContext.Launch.Add(launch);
-
-            QueryContext.SaveChanges();
         }
 
         public Launch NewObjectForSaveTests()
@@ -180,15 +139,10 @@ namespace Tests.Unit.Tests.Fixture
             {
                 if (disposing)
                 {
-                    CommandContext.Database.EnsureDeleted();
-                    CommandContext.Database.EnsureCreated();
+                    Context.Database.EnsureDeleted();
+                    Context.Database.EnsureCreated();
 
-                    CommandContext.Dispose();
-
-                    QueryContext.Database.EnsureDeleted();
-                    QueryContext.Database.EnsureCreated();
-
-                    QueryContext.Dispose();
+                    Context.Dispose();
                 }
             }
             this.disposed = true;
