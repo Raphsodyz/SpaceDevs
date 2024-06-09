@@ -1,3 +1,5 @@
+## Disclaimer
+
 The main goal of this project is for me, as web developer, apply some concepts and programming good pratices/tools. It does not have a purpose for comercial uses bcoz it has many unecessary over-engineering things thats are applied for study.
 If you like the project or gonna use for something else please leave a star! ✨
 
