@@ -2,7 +2,6 @@
 using Domain.Entities;
 using Domain.Interface;
 using Infrastructure.Persistence.Context;
-using Infrastructure.Persistence.Context.Factory;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -10,16 +9,13 @@ namespace Infrastructure.Persistence.Repository
 {
     public class ConfigurationRepository : GenericRepository<Configuration>, IConfigurationRepository
     {
-        public ConfigurationRepository(IDbContextFactory contexts):base(contexts)
+        public ConfigurationRepository(FutureSpaceContext context):base(context)
         {
             
         }
 
         public virtual async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Expression<Func<Configuration, TResult>> selectColumns, string includedProperties = null)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<Configuration> _dbSet = _context.Set<Configuration>();
-            
             IQueryable<Configuration> query = _dbSet;
 
             if(!string.IsNullOrWhiteSpace(searchTerm))

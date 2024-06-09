@@ -1,12 +1,12 @@
 ﻿using Domain.Entities;
 using Domain.Interface;
-using Infrastructure.Persistence.Context.Factory;
+using Infrastructure.Persistence.Context;
 
 namespace Infrastructure.Persistence.Repository
 {
     public class StatusRepository : GenericRepository<Status>, IStatusRepository
     {
-        public StatusRepository(IDbContextFactory contexts):base(contexts)
+        public StatusRepository(FutureSpaceContext context):base(context)
         {
             
         }

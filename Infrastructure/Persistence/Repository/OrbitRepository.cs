@@ -1,12 +1,12 @@
 ﻿using Domain.Entities;
 using Domain.Interface;
-using Infrastructure.Persistence.Context.Factory;
+using Infrastructure.Persistence.Context;
 
 namespace Infrastructure.Persistence.Repository
 {
     public class OrbitRepository : GenericRepository<Orbit>, IOrbitRepository
     {
-        public OrbitRepository(IDbContextFactory contexts):base(contexts)
+        public OrbitRepository(FutureSpaceContext context):base(context)
         {
             
         }

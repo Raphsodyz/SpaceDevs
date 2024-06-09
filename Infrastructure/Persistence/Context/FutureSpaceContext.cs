@@ -5,9 +5,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Persistence.Context
 {
-    public class FutureSpaceCommandContext : BaseContext
+    public class FutureSpaceContext : BaseContext
     {
-        public FutureSpaceCommandContext(DbContextOptions<FutureSpaceCommandContext> options) : base(options)
+        public FutureSpaceContext(DbContextOptions<FutureSpaceContext> options) : base(options)
         {
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
@@ -32,9 +32,10 @@ namespace Infrastructure.Persistence.Context
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-                var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Command").Value);
+                var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Postgresql").Value);
                 optionsBuilder.UseNpgsql(connection);
             }
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -44,6 +45,7 @@ namespace Infrastructure.Persistence.Context
             modelBuilder.ApplyConfiguration(LocationModelBuilderSingleton.GetInstance());
             modelBuilder.ApplyConfiguration(MissionModelBuilderSingleton.GetInstance());
             modelBuilder.ApplyConfiguration(PadModelBuilderSingleton.GetInstance());
+            modelBuilder.ApplyConfiguration(LaunchViewModelBuilderSingleton.GetInstance());
             
             base.OnModelCreating(modelBuilder);
         }

@@ -1,12 +1,10 @@
 ﻿using Application.Handlers.CommandHandlers.LaunchApi;
 using Application.Handlers.QueryHandlers.LaunchApi;
-using Cross.Cutting.Helper;
 using Domain.ExternalServices;
 using Domain.Handlers;
 using Domain.Interface;
 using Infrastructure.ExternalServices;
 using Infrastructure.Persistence.Context;
-using Infrastructure.Persistence.Context.Factory;
 using Infrastructure.Persistence.Repository;
 using MediatR;
 
@@ -27,20 +25,7 @@ namespace Services
                 cfg.EnableAnnotations();
             });
 
-            services.AddDbContext<FutureSpaceCommandContext>();
-            services.AddDbContext<FutureSpaceQueryContext>();
-
-            //Resolve which context will be used on the repository ..
-            services.AddScoped<IDbContextFactory, DbContextFactory>(provider =>
-            {
-                var dbContexts = new Dictionary<string, BaseContext>
-                {
-                    { ContextNames.FutureSpaceCommand, provider.GetService<FutureSpaceCommandContext>() },
-                    { ContextNames.FutureSpaceQuery, provider.GetService<FutureSpaceQueryContext>() }
-                };
-
-                return new DbContextFactory(dbContexts);
-            });
+            services.AddDbContext<FutureSpaceContext>();
 
             //Repository Dependencies ..
             services.AddTransient<IConfigurationRepository, ConfigurationRepository>();

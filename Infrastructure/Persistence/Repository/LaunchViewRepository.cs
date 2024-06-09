@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence.Repository
 {
     public class LaunchViewRepository : GenericViewRepository<LaunchView>, ILaunchViewRepository
     {
-        public LaunchViewRepository(FutureSpaceQueryContext context):base(context)
+        public LaunchViewRepository(FutureSpaceContext context):base(context)
         {
             
         }

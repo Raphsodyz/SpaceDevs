@@ -2,7 +2,6 @@
 using Domain.Entities;
 using Domain.Interface;
 using Infrastructure.Persistence.Context;
-using Infrastructure.Persistence.Context.Factory;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -10,16 +9,13 @@ namespace Infrastructure.Persistence.Repository
 {
     public class PadRepository : GenericRepository<Pad>, IPadRepository
     {
-        public PadRepository(IDbContextFactory contexts):base(contexts)
+        public PadRepository(FutureSpaceContext context):base(context)
         {
             
         }
 
         public async Task<IEnumerable<TResult>> ILikeSearch<TResult>(string searchTerm, Expression<Func<Pad, TResult>> selectColumns, string includedProperties = null)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<Pad> _dbSet = _context.Set<Pad>();
-
             IQueryable<Pad> query = _dbSet;
 
             if(!string.IsNullOrWhiteSpace(searchTerm))

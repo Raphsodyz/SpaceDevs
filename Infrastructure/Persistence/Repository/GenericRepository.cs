@@ -5,47 +5,44 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System.Linq.Expressions;
 using System.Data.Common;
 using Domain.Interface;
-using Infrastructure.Persistence.Context.Factory;
+using Infrastructure.Persistence.Context;
 
 namespace Infrastructure.Persistence.Repository
 {
     public abstract class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         const int maxEntityReturn = 10;
-        public IDbContextFactory _contexts;
+        public FutureSpaceContext _context;
+        public DbSet<T> _dbSet;
 
-        public GenericRepository(IDbContextFactory contexts)
+        public GenericRepository(FutureSpaceContext context)
         {
-            _contexts = contexts;
+            _context = context;
+            _dbSet = _context.Set<T>();
         }
 
         public async Task BeginTransaction()
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
             await _context.Database.BeginTransactionAsync(System.Data.IsolationLevel.ReadCommitted);
         }
 
         public async Task CommitTransaction()
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
             await _context.Database.CurrentTransaction.CommitAsync();
         }
 
         public async Task RollbackTransaction()
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
             await _context.Database.CurrentTransaction.RollbackAsync();
         }
 
         public DbConnection GetEfConnection()
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
             return _context.Database.GetDbConnection();
         }
 
         public DbTransaction GetCurrentlyTransaction()
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
             if(_context?.Database?.CurrentTransaction == null)
                 return null;
 
@@ -55,7 +52,6 @@ namespace Infrastructure.Persistence.Repository
 
         public void SetupForeignKey<TEntity>(TEntity entity, string foreignKeyName, Guid desiredFkValue)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
             var entityType = _context.Model.FindEntityType(typeof(TEntity));
             var foreignKeys = entityType.GetProperties()
                 .FirstOrDefault(p => p.Name.Equals(foreignKeyName, StringComparison.OrdinalIgnoreCase));
@@ -71,9 +67,6 @@ namespace Infrastructure.Persistence.Repository
             string includedProperties = "",
             int? howMany = null)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
 
             if (filters != null)
@@ -102,9 +95,6 @@ namespace Infrastructure.Persistence.Repository
             string includedProperties = "",
             int? howMany = null)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
                     
             foreach (var filter in filters)
@@ -130,9 +120,6 @@ namespace Infrastructure.Persistence.Repository
             Expression<Func<IQueryable<T>, IOrderedQueryable<T>>> orderBy = null,
             string includedProperties = "")
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
 
             if (filters != null)
@@ -171,9 +158,6 @@ namespace Infrastructure.Persistence.Repository
 
         public async Task<int> EntityCount(Expression<Func<T, bool>> filter = null)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             if(filter is null)
                 return await _dbSet.CountAsync();
 
@@ -182,9 +166,6 @@ namespace Infrastructure.Persistence.Repository
 
         public async Task<T> Get(Expression<Func<T, bool>> filter, string includedProperties = "")
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
 
             if (filter != null)
@@ -206,9 +187,6 @@ namespace Infrastructure.Persistence.Repository
             Func<TResult, TObject> buildObject,
             string includedProperties = "")
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
 
             query = query.Where(filter);
@@ -230,9 +208,6 @@ namespace Infrastructure.Persistence.Repository
             List<Expression<Func<T, bool>>> filters,
             Expression<Func<T, T>> updateColumns)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
 
             foreach(var filter in filters)
@@ -245,9 +220,6 @@ namespace Infrastructure.Persistence.Repository
             Expression<Func<T, bool>> filter,
             Expression<Func<T, T>> updateColumns)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
 
             query = query.Where(filter);
@@ -256,9 +228,6 @@ namespace Infrastructure.Persistence.Repository
 
         public async Task<bool> EntityExist(Expression<Func<T, bool>> filter)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceQuery);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             IQueryable<T> query = _dbSet;
 
             query = query.Where(filter);
@@ -267,15 +236,11 @@ namespace Infrastructure.Persistence.Repository
 
         public async Task AddToChangeTracker(T entity)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
             await _context.AddAsync(entity);
         }
 
         public async Task Save(T entity)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             if (entity.Id == Guid.Empty)
             {
                 await _dbSet.AddAsync(entity);
@@ -302,18 +267,12 @@ namespace Infrastructure.Persistence.Repository
 
         public async Task Delete(Guid id)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
-            DbSet<T> _dbSet = _context.Set<T>();
-
             T dbEntity = await _dbSet.FindAsync(id);
             await DeleteProccess(dbEntity);
         }
 
         private async Task DeleteProccess(T entity)
         {
-            var _context = _contexts.GetContext(ContextNames.FutureSpaceCommand);
-            DbSet<T> _dbSet = _context.Set<T>();
-            
             if(_context.Entry(entity).State == EntityState.Detached)
                 _dbSet.Attach(entity);
             

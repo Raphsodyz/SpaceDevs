@@ -37,8 +37,7 @@ services:
     depends_on:
       - postgresql
     environment:
-      - DB_QUERY_CONNECTION_STRING=Host=postgresql;Username=root;Password=root;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
-      - DB_COMMAND_CONNECTION_STRING=Host=postgresql;Username=root;Password=root;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
+      - POSTGRESQL_CONNECTION_STRING=Host=postgresql;Username=root;Password=root;Database=futurespacedb;Connection Pruning Interval=1;Connection Idle Lifetime=2;Enlist=false;No Reset On Close=true;MinPoolSize=1;MaxPoolSize=1024;Include Error Detail=True;
       - ASPNETCORE_URLS=http://+:5000;
 
   nginx:
