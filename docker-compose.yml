@@ -2,6 +2,7 @@ version: '3.5'
 
 volumes:
   futurespacedb:
+  redis-data:
 
 networks:
   default:
@@ -27,6 +28,18 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=futurespacedb
+
+  redis:
+    image: redis:7.2.5
+    hostname: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    environment:
+      - REDIS_CONNECTION_STRING=redis://:password@localhost:6379/0
 
   api:
     build:
