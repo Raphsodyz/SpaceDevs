@@ -1,0 +1,103 @@
+using System.Text;
+using Cross.Cutting.Helper;
+using Domain.Entities;
+using Domain.Repository;
+using Domain.Request;
+using Newtonsoft.Json;
+using StackExchange.Redis;
+
+namespace Infrastructure.Persistence.Repository
+{
+    public class RedisRepository : IRedisRepository
+    {
+        private readonly IDatabase _cache;
+
+        public RedisRepository()
+        {
+            var redis = ConnectionMultiplexer.Connect("localhost:6379");
+            _cache = redis.GetDatabase();
+        }
+
+        public async Task<Launch> GetLaunchByIdAsync(Guid? launchId)
+        {
+            var cachedLaunch = await _cache.StringGetAsync(RedisCollectionsKeys.SingleLaunchKey + launchId);
+            if (cachedLaunch.IsNullOrEmpty)
+                return null;
+
+            return JsonConvert.DeserializeObject<Launch>(cachedLaunch);
+        }
+
+        public async Task<Pagination<Launch>> GetPaginationAsync(int? page)
+        {
+            var cachedPaginatedLaunch = await _cache.StringGetAsync(RedisCollectionsKeys.PaginatatedLaunchKey + (page ?? 0));
+            if (cachedPaginatedLaunch.IsNullOrEmpty)
+                return null;
+
+            return JsonConvert.DeserializeObject<Pagination<Launch>>(cachedPaginatedLaunch);
+        }
+
+        public async Task<Pagination<Launch>> GetPaginationAsync(SearchLaunchRequest searchParams)
+        {
+            string key = RedisCollectionsKeys.SearchLaunchKey + SetupSearchCacheKey(searchParams);
+            string page = searchParams?.Page == null ? "0" : searchParams.Page.ToString();
+            var serializedSearchPagination = await _cache.HashGetAsync(key, page);
+
+            if (serializedSearchPagination.IsNullOrEmpty)
+                return null;
+
+            return JsonConvert.DeserializeObject<Pagination<Launch>>(serializedSearchPagination);
+        }
+
+        public async Task SetLaunchAsync(Launch launch, TimeSpan? ttl = null)
+        {
+            string key = RedisCollectionsKeys.SingleLaunchKey + launch.Id;
+            var serializedLaunch = JsonConvert.SerializeObject(launch);
+            await _cache.StringSetAsync(key, serializedLaunch, ttl ?? TimeSpan.FromMinutes(RedisDefaultMinutesTTL.LargeRedisTTL));
+        }
+
+        public async Task SetPaginationAsync(int? page, Pagination<Launch> pagination, TimeSpan? ttl = null)
+        {
+            string key = RedisCollectionsKeys.PaginatatedLaunchKey + (page ?? 0);
+            string serializedPagination = JsonConvert.SerializeObject(pagination);
+            await _cache.StringSetAsync(key, serializedPagination, ttl ?? TimeSpan.FromMinutes(RedisDefaultMinutesTTL.LargeRedisTTL));
+        }
+
+        public async Task SetSearchPaginationAsync(SearchLaunchRequest searchParams, Pagination<Launch> pagination, TimeSpan? ttl = null)
+        {
+            string key = RedisCollectionsKeys.SearchLaunchKey + SetupSearchCacheKey(searchParams);
+            string page = searchParams?.Page == null ? "0" : searchParams.Page.ToString();
+            string serializedSearchPagination = JsonConvert.SerializeObject(pagination);
+
+            await _cache.HashSetAsync(key, page, serializedSearchPagination);
+            await _cache.KeyExpireAsync(key, ttl ?? TimeSpan.FromMinutes(RedisDefaultMinutesTTL.LowRedisTTL));
+        }
+
+        private string SetupSearchCacheKey(SearchLaunchRequest searchParams)
+        {
+            if (searchParams == null)
+                return null;
+
+            StringBuilder builder = new();
+            foreach (var property in typeof(SearchLaunchRequest).GetProperties())
+            {
+                if(property.Name == nameof(searchParams.Page))
+                    continue;
+
+                var value = property.GetValue(searchParams);
+                if (value != null && !value.Equals(GetDefault(property.PropertyType)))
+                    builder.Append(value + "_");
+            }
+
+            if(builder.Length == 0)
+                return null;
+
+            builder.Length--;
+            return builder.ToString();
+        }
+
+        private static object GetDefault(Type type)
+        {
+            return type.IsValueType ? Activator.CreateInstance(type) : null;
+        }
+    }
+}

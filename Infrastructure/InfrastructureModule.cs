@@ -1,5 +1,6 @@
 using Domain.ExternalServices;
 using Domain.Interface;
+using Domain.Repository;
 using Infrastructure.ExternalServices;
 using Infrastructure.Persistence.Context;
 using Infrastructure.Persistence.Repository;
@@ -40,6 +41,7 @@ namespace Infrastructure
             services.AddScoped<IRocketRepository, RocketRepository>();
             services.AddScoped<IStatusRepository, StatusRepository>();
             services.AddScoped<IUpdateLogRepository, UpdateLogRepository>();
+            services.AddScoped<IRedisRepository, RedisRepository>();
             
             return services;
         }

@@ -52,4 +52,18 @@ namespace Cross.Cutting.Helper
         public const string FutureSpaceCommand = "FutureSpaceCommand";
         public const string FutureSpaceQuery = "FutureSpaceQuery";
     }
+
+    public static class RedisCollectionsKeys
+    {
+        public const string SingleLaunchKey = "Launch:";
+        public const string PaginatatedLaunchKey = "PaginatedLaunchPage:";
+        public const string SearchLaunchKey = "PaginatedLaunchSearchKey:";
+        public const string SeachLaunchPage = "PaginatedLaunchSearchPage:";
+    }
+
+    public static class RedisDefaultMinutesTTL
+    {
+        public const int LargeRedisTTL = 60;
+        public const int LowRedisTTL = 5;
+    }
 }
