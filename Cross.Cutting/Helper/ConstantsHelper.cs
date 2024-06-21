@@ -66,4 +66,11 @@ namespace Cross.Cutting.Helper
         public const int LargeRedisTTL = 60;
         public const int LowRedisTTL = 5;
     }
+
+    public static class ConnectionStrings
+    {
+        public const string Postgresql = "ConnectionStrings:POSTGRESQL_CONNECTION_STRING";
+        public const string Redis = "ConnectionStrings:REDIS_CONNECTION_STRING";
+
+    }
 }
