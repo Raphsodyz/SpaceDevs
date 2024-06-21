@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Core Launch (web)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Services/bin/Debug/net7.0/Services.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Services",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+              "action": "openExternally",
+              "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+              "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+              "/Views": "${workspaceFolder}/Views"
+            },
+            "pipeTransport": {
+              "pipeProgram": "bash",
+              "pipeArgs": ["-c"],
+              "pipeCwd": "${workspaceFolder}/Services",
+              "debuggerPath": "~/.vsdbg/vsdbg",
+              "quoteArgs": true
+            },
+            "justMyCode": true
+        }
+    ]
+}
