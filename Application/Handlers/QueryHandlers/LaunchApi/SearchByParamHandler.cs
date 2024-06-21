@@ -5,6 +5,7 @@ using Domain.Handlers;
 using Domain.Interface;
 using Domain.Materializated.Views;
 using Domain.Queries.Launch.Responses;
+using Domain.Repository;
 using Domain.Request;
 using MediatR;
 
@@ -18,6 +19,7 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
         private readonly IPadRepository _padRepository;
         private readonly ILaunchRepository _launchRepository;
         private readonly ILaunchViewRepository _launchViewRepository;
+        private readonly IRedisRepository _redisRepository;
 
         public SearchByParamHandler(
             IMissionRepository missionRepository,
@@ -25,7 +27,8 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
             ILocationRepository locationRepository,
             IPadRepository padRepository,
             ILaunchRepository launchRepository,
-            ILaunchViewRepository launchViewRepository
+            ILaunchViewRepository launchViewRepository,
+            IRedisRepository redisRepository
         )
         {
             _missionRepository = missionRepository;
@@ -34,6 +37,7 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
             _padRepository = padRepository;
             _launchRepository = launchRepository;
             _launchViewRepository = launchViewRepository;
+            _redisRepository = redisRepository;
         }
 
         public async Task<SeachByParamResponse> Handle(MediatrRequestWrapper<SearchLaunchRequest, SeachByParamResponse> request, CancellationToken cancellationToken)
@@ -46,6 +50,10 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
         {
             try
             {
+                var cachedLaunchSearchResults = await _redisRepository.GetFromSearch(request);
+                if(cachedLaunchSearchResults != null)
+                    return new SeachByParamResponse(true, string.Empty, cachedLaunchSearchResults);
+
                 List<Expression<Func<LaunchView, bool>>> query = new();
                 if(!string.IsNullOrEmpty(request.Mission))
                 {
@@ -85,6 +93,7 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
                 if(!found.Entities.Any())
                     throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
 
+                await _redisRepository.SetSearchPagination(request, found);
                 return new SeachByParamResponse(true, string.Empty, found);
             }
             catch
