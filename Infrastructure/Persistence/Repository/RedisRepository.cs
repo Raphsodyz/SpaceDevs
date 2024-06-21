@@ -1,8 +1,9 @@
 using System.Text;
 using Cross.Cutting.Helper;
-using Domain.Entities;
+using Domain.Materializated.Views;
 using Domain.Repository;
 using Domain.Request;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
@@ -14,29 +15,34 @@ namespace Infrastructure.Persistence.Repository
 
         public RedisRepository()
         {
-            var redis = ConnectionMultiplexer.Connect("localhost:6379");
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            var redis = ConnectionMultiplexer.Connect(configuration.GetSection("ConnectionStrings:Redis").Value);
             _cache = redis.GetDatabase();
         }
 
-        public async Task<Launch> GetLaunchByIdAsync(Guid? launchId)
+        public async Task<LaunchView> GetLaunchById(Guid? launchId)
         {
             var cachedLaunch = await _cache.StringGetAsync(RedisCollectionsKeys.SingleLaunchKey + launchId);
             if (cachedLaunch.IsNullOrEmpty)
                 return null;
 
-            return JsonConvert.DeserializeObject<Launch>(cachedLaunch);
+            return JsonConvert.DeserializeObject<LaunchView>(cachedLaunch);
         }
 
-        public async Task<Pagination<Launch>> GetPaginationAsync(int? page)
+        public async Task<Pagination<LaunchView>> GetPagination(int? page)
         {
             var cachedPaginatedLaunch = await _cache.StringGetAsync(RedisCollectionsKeys.PaginatatedLaunchKey + (page ?? 0));
             if (cachedPaginatedLaunch.IsNullOrEmpty)
                 return null;
 
-            return JsonConvert.DeserializeObject<Pagination<Launch>>(cachedPaginatedLaunch);
+            return JsonConvert.DeserializeObject<Pagination<LaunchView>>(cachedPaginatedLaunch);
         }
 
-        public async Task<Pagination<Launch>> GetPaginationAsync(SearchLaunchRequest searchParams)
+        public async Task<Pagination<LaunchView>> GetFromSearch(SearchLaunchRequest searchParams)
         {
             string key = RedisCollectionsKeys.SearchLaunchKey + SetupSearchCacheKey(searchParams);
             string page = searchParams?.Page == null ? "0" : searchParams.Page.ToString();
@@ -45,24 +51,24 @@ namespace Infrastructure.Persistence.Repository
             if (serializedSearchPagination.IsNullOrEmpty)
                 return null;
 
-            return JsonConvert.DeserializeObject<Pagination<Launch>>(serializedSearchPagination);
+            return JsonConvert.DeserializeObject<Pagination<LaunchView>>(serializedSearchPagination);
         }
 
-        public async Task SetLaunchAsync(Launch launch, TimeSpan? ttl = null)
+        public async Task SetLaunch(LaunchView launchView, TimeSpan? ttl = null)
         {
-            string key = RedisCollectionsKeys.SingleLaunchKey + launch.Id;
-            var serializedLaunch = JsonConvert.SerializeObject(launch);
+            string key = RedisCollectionsKeys.SingleLaunchKey + launchView.Id;
+            var serializedLaunch = JsonConvert.SerializeObject(launchView);
             await _cache.StringSetAsync(key, serializedLaunch, ttl ?? TimeSpan.FromMinutes(RedisDefaultMinutesTTL.LargeRedisTTL));
         }
 
-        public async Task SetPaginationAsync(int? page, Pagination<Launch> pagination, TimeSpan? ttl = null)
+        public async Task SetPagination(int? page, Pagination<LaunchView> pagination, TimeSpan? ttl = null)
         {
             string key = RedisCollectionsKeys.PaginatatedLaunchKey + (page ?? 0);
             string serializedPagination = JsonConvert.SerializeObject(pagination);
             await _cache.StringSetAsync(key, serializedPagination, ttl ?? TimeSpan.FromMinutes(RedisDefaultMinutesTTL.LargeRedisTTL));
         }
 
-        public async Task SetSearchPaginationAsync(SearchLaunchRequest searchParams, Pagination<Launch> pagination, TimeSpan? ttl = null)
+        public async Task SetSearchPagination(SearchLaunchRequest searchParams, Pagination<LaunchView> pagination, TimeSpan? ttl = null)
         {
             string key = RedisCollectionsKeys.SearchLaunchKey + SetupSearchCacheKey(searchParams);
             string page = searchParams?.Page == null ? "0" : searchParams.Page.ToString();

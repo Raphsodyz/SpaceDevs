@@ -1,16 +1,17 @@
 using Cross.Cutting.Helper;
 using Domain.Entities;
+using Domain.Materializated.Views;
 using Domain.Request;
 
 namespace Domain.Repository
 {
     public interface IRedisRepository
     {
-        Task<Launch> GetLaunchByIdAsync(Guid? launchId);
-        Task<Pagination<Launch>> GetPaginationAsync(int? page);
-        Task<Pagination<Launch>> GetPaginationAsync(SearchLaunchRequest searchParams);
-        Task SetLaunchAsync(Launch launch, TimeSpan? ttl = null);
-        Task SetPaginationAsync(int? page, Pagination<Launch> pagination, TimeSpan? ttl = null);
-        Task SetSearchPaginationAsync(SearchLaunchRequest searchParams, Pagination<Launch> pagination, TimeSpan? ttl = null);
+        Task<LaunchView> GetLaunchById(Guid? launchId);
+        Task<Pagination<LaunchView>> GetPagination(int? page);
+        Task<Pagination<LaunchView>> GetFromSearch(SearchLaunchRequest searchParams);
+        Task SetLaunch(LaunchView launch, TimeSpan? ttl = null);
+        Task SetPagination(int? page, Pagination<LaunchView> pagination, TimeSpan? ttl = null);
+        Task SetSearchPagination(SearchLaunchRequest searchParams, Pagination<LaunchView> pagination, TimeSpan? ttl = null);
     }
 }
