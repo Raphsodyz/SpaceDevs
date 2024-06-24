@@ -20,7 +20,7 @@ namespace Infrastructure.Persistence.Repository
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            var redis = ConnectionMultiplexer.Connect(configuration.GetSection("ConnectionStrings:Redis").Value);
+            var redis = ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Redis").Value));
             _cache = redis.GetDatabase();
         }
 
