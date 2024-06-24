@@ -45,9 +45,8 @@ namespace Application.Handlers.QueryHandlers.LaunchApi
                     throw new Exception(ErrorMessages.ViewNotExists);
 
                 var launch = await _launchViewRepository.GetById(filter: launchQuery) ?? throw new KeyNotFoundException(ErrorMessages.KeyNotFound);
-                if(launch != null)
-                    await _redisRepository.SetLaunch(launch);
-
+                    
+                await _redisRepository.SetLaunch(launch);
                 return new GetOneLaunchResponse(true, string.Empty, launch);
             }
             catch
