@@ -35,7 +35,6 @@ namespace Infrastructure.Persistence.Context
                 var connection = Environment.GetEnvironmentVariable(configuration.GetSection("ConnectionStrings:Postgresql").Value);
                 optionsBuilder.UseNpgsql(connection);
             }
-            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
