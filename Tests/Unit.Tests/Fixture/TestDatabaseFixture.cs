@@ -41,7 +41,16 @@ namespace Tests.Unit.Tests.Fixture
             {
                 Context.Launch.AddRange(TestLaunchInMemoryObjects.Test1(), TestLaunchInMemoryObjects.Test2(), TestLaunchInMemoryObjects.Test3());
                 Context.SaveChanges();
+
+                DetachEntitiesEfChangeTracker();
             }
+        }
+
+        public void DetachEntitiesEfChangeTracker()
+        {
+            var entries = Context.ChangeTracker.Entries().ToList();
+                foreach (var entry in entries)
+                    entry.State = EntityState.Detached;
         }
 
         public Launch NewObjectForSaveTests()

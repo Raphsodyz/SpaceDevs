@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using Domain.Interface;
+using Infrastructure.Persistence.Context;
 using Tests.Test.Objects;
 using Tests.Unit.Tests.Fixture;
 
@@ -7,7 +8,7 @@ namespace Tests.Unit.Tests.Repository.Layer
 {
     public class LaunchRepositoryTest : IClassFixture<TestDatabaseFixture>
     {
-        /*private readonly TestDatabaseFixture _fixture;
+        private readonly TestDatabaseFixture _fixture;
         public LaunchRepositoryTest(TestDatabaseFixture fixture)
         {
             _fixture = fixture;
@@ -361,13 +362,13 @@ namespace Tests.Unit.Tests.Repository.Layer
         public async Task GenericRepository_UpdateOnQuery_UpdateDatabaseObjectsWithoutBringToMemory()
         {
             //Arrange
+            _fixture.DetachEntitiesEfChangeTracker();
             Expression<Func<Launch, bool>> selectedLaunch = l => l.Id == new Guid("000ebc80-d782-4dee-8606-1199d9074039");
             Expression<Func<Launch, Launch>> updateStatusColumn = l => new Launch()
             { EntityStatus = EStatus.TRASH.GetDisplayName() };
 
             //Act
             await _fixture.Launch.UpdateOnQuery(selectedLaunch, updateStatusColumn);
-            _fixture.TransferUpdatedObjectsQueryContext();
 
             //Assert
             var getAssertInMemoryObject = await _fixture.Launch.GetSelected(
@@ -379,6 +380,7 @@ namespace Tests.Unit.Tests.Repository.Layer
             Assert.Equal(getAssertInMemoryObject, EStatus.TRASH.GetDisplayName());
 
             //Rolling back the change for the other tests...
+            _fixture.DetachEntitiesEfChangeTracker();
             Expression<Func<Launch, Launch>> rollbackUpdate = l => new Launch()
             { EntityStatus = EStatus.PUBLISHED.GetDisplayName() };
             await _fixture.Launch.UpdateOnQuery(selectedLaunch, rollbackUpdate);
@@ -428,7 +430,6 @@ namespace Tests.Unit.Tests.Repository.Layer
             launchRepository.Setup(l => l.Save(It.IsAny<Launch>()));
             launchRepository.Setup(l => l.CommitTransaction())
                 .Callback(async () => await _fixture.Launch.Save(newLaunch));
-            _fixture.TransferUpdatedObjectsQueryContext();
 
             //Act
             await launchRepository.Object.BeginTransaction();
@@ -500,10 +501,9 @@ namespace Tests.Unit.Tests.Repository.Layer
         {
             //Arrange
             Expression<Func<Launch, bool>> qryTest = l => l.Id == TestLaunchInMemoryObjects.Test1().Id;
-
             var entityToBeUpdated = await _fixture.Launch.Get(filter: qryTest);
-            entityToBeUpdated.EntityStatus = EStatus.TRASH.GetDisplayName();
 
+            entityToBeUpdated.EntityStatus = EStatus.TRASH.GetDisplayName();
             Assert.Equal(EStatus.PUBLISHED.GetDisplayName(), await _fixture.Launch.GetSelected(
                 filter: qryTest,
                 selectColumns:l => l.EntityStatus,
@@ -514,11 +514,12 @@ namespace Tests.Unit.Tests.Repository.Layer
             await _fixture.Launch.Save(entityToBeUpdated);
             
             //Assert
-            Assert.Equal(EStatus.TRASH.GetDisplayName(), await _fixture.Launch.GetSelected(
+            var newStatus = await _fixture.Launch.GetSelected(
                 filter: qryTest,
                 selectColumns:l => l.EntityStatus,
                 buildObject: l => l
-            ));
+            );
+            Assert.Equal(EStatus.TRASH.GetDisplayName(), newStatus);
 
             //Rollback the changes..
             entityToBeUpdated.EntityStatus = EStatus.PUBLISHED.GetDisplayName();
@@ -555,6 +556,6 @@ namespace Tests.Unit.Tests.Repository.Layer
 
             //Assert
             Assert.Equal(3, await _fixture.Launch.EntityCount());
-        }*/
+        }
     }
 }
